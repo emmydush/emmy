@@ -9,6 +9,11 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Users</h3>
+                    <div class="card-tools">
+                        <a href="{% url 'authentication:create_user' %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Create User
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -23,6 +28,7 @@
                                     <th>Role</th>
                                     <th>Phone</th>
                                     <th>Date Joined</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -36,10 +42,15 @@
                                     <td>{{ user.role }}</td>
                                     <td>{{ user.phone|default:"-" }}</td>
                                     <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                                    <td>
+                                        <a href="{% url 'authentication:edit_user' user.id %}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                    </td>
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="8" class="text-center">No users found.</td>
+                                    <td colspan="9" class="text-center">No users found.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

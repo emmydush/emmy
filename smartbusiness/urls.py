@@ -14,5 +14,4 @@ urlpatterns = [
     path('reports/', include('reports.urls')),
     path('settings/', include('settings.urls')),
     path('notifications/', include('notifications.urls')),
-    path('accounting/', include('accounting.urls')),
 ]

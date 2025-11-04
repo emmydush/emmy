@@ -5,7 +5,11 @@ class POSSystem {
         this.scannerActive = false;
         this.lastScannedBarcode = null;
         this.lastScanTime = 0;
-        this.scanDebounceTime = 500; // Reduced to 500ms for quicker scanning
+        this.scanDebounceTime = 2000; // 2 seconds as per specification
+        this.scannerStopping = false;
+        this.scanProcessing = false;
+        this.pendingRequests = new Map(); // Track pending requests to prevent duplicates
+        this.autoStopScanner = false; // Changed default to false for continuous scanning
         this.init();
     }
 
@@ -22,6 +26,16 @@ class POSSystem {
             // Handle product card clicks
             if (e.target.closest('.product-card')) {
                 const productCard = e.target.closest('.product-card');
+                
+                // Check if this event is already being handled by another system
+                // to prevent duplicate processing - IMPROVED COORDINATION
+                if (e.cartSystemHandled) {
+                    return;
+                }
+                
+                // Mark this event as handled by POS system
+                e.cartSystemHandled = true;
+                
                 this.addProductToCart(productCard);
                 // Add animation effect
                 this.animateButton(productCard);
@@ -29,6 +43,14 @@ class POSSystem {
             
             // Handle clear cart button
             if (e.target.id === 'clearCart') {
+                // Check if this event is already being handled by another system
+                if (e.cartSystemHandled) {
+                    return;
+                }
+                
+                // Mark this event as handled by POS system
+                e.cartSystemHandled = true;
+                
                 this.clearCart();
                 // Add animation effect
                 this.animateButton(e.target);
@@ -36,6 +58,14 @@ class POSSystem {
             
             // Handle quantity buttons in cart
             if (e.target.classList.contains('qty-btn')) {
+                // Check if this event is already being handled by another system
+                if (e.cartSystemHandled) {
+                    return;
+                }
+                
+                // Mark this event as handled by POS system
+                e.cartSystemHandled = true;
+                
                 const productId = e.target.closest('.cart-item').dataset.productId;
                 if (e.target.classList.contains('qty-increase')) {
                     this.updateQuantity(productId, 1);
@@ -48,14 +78,24 @@ class POSSystem {
             
             // Handle remove item from cart
             if (e.target.classList.contains('remove-item')) {
+                // Check if this event is already being handled by another system
+                if (e.cartSystemHandled) {
+                    return;
+                }
+                
+                // Mark this event as handled by POS system
+                e.cartSystemHandled = true;
+                
                 const productId = e.target.closest('.cart-item').dataset.productId;
                 this.removeFromCart(productId);
                 // Add animation effect
                 this.animateButton(e.target);
             }
             
-            // Handle checkout button
-            if (e.target.id === 'checkoutButton' || e.target.id === 'processSale') {
+            // Handle checkout button - ONLY process if not already handled
+            if ((e.target.id === 'checkoutButton' || e.target.id === 'processSale') && !e.saleProcessed) {
+                // Mark this sale as processed to prevent duplicate processing
+                e.saleProcessed = true;
                 this.processSale();
                 // Add animation effect
                 this.animateButton(e.target);
@@ -63,9 +103,61 @@ class POSSystem {
             
             // Handle scan button
             if (e.target.id === 'scanButton') {
+                // Check if this event is already being handled by another system
+                if (e.cartSystemHandled) {
+                    return;
+                }
+                
+                // Mark this event as handled by POS system
+                e.cartSystemHandled = true;
+                
                 this.openScanner();
                 // Add animation effect
                 this.animateButton(e.target);
+            }
+        });
+
+        // Handle keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+S to process sale - ONLY process if not already handled
+            if (e.ctrlKey && e.key === 's' && !e.saleProcessed) {
+                e.preventDefault();
+                const processButton = document.getElementById('processSale');
+                if (processButton) {
+                    // Mark this sale as processed to prevent duplicate processing
+                    e.saleProcessed = true;
+                    this.animateButton(processButton);
+                    this.processSale();
+                }
+            }
+            
+            // Enter to checkout - ONLY process if not already handled
+            if (e.key === 'Enter' && !e.target.matches('input, textarea') && !e.saleProcessed) {
+                const checkoutButton = document.getElementById('checkoutButton');
+                if (checkoutButton && !checkoutButton.disabled) {
+                    // Mark this sale as processed to prevent duplicate processing
+                    e.saleProcessed = true;
+                    this.animateButton(checkoutButton);
+                    checkoutButton.click();
+                }
+            }
+            
+            // Ctrl+B to open barcode scanner
+            if (e.ctrlKey && e.key === 'b') {
+                e.preventDefault();
+                const scanButton = document.getElementById('scanButton');
+                if (scanButton) {
+                    // Check if this event is already being handled by another system
+                    if (e.cartSystemHandled) {
+                        return;
+                    }
+                    
+                    // Mark this event as handled by POS system
+                    e.cartSystemHandled = true;
+                    
+                    this.animateButton(scanButton);
+                    this.openScanner();
+                }
             }
         });
 
@@ -125,38 +217,6 @@ class POSSystem {
                 // Add animation effect
                 this.animateButton(e.target);
             });
-        });
-
-        // Handle keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            // Ctrl+S to process sale
-            if (e.ctrlKey && e.key === 's') {
-                e.preventDefault();
-                const processButton = document.getElementById('processSale');
-                if (processButton) {
-                    this.animateButton(processButton);
-                    this.processSale();
-                }
-            }
-            
-            // Enter to checkout
-            if (e.key === 'Enter' && !e.target.matches('input, textarea')) {
-                const checkoutButton = document.getElementById('checkoutButton');
-                if (checkoutButton && !checkoutButton.disabled) {
-                    this.animateButton(checkoutButton);
-                    checkoutButton.click();
-                }
-            }
-            
-            // Ctrl+B to open barcode scanner
-            if (e.ctrlKey && e.key === 'b') {
-                e.preventDefault();
-                const scanButton = document.getElementById('scanButton');
-                if (scanButton) {
-                    this.animateButton(scanButton);
-                    this.openScanner();
-                }
-            }
         });
     }
 
@@ -312,7 +372,7 @@ class POSSystem {
                 console.error('Error initializing scanner:', err);
                 let errorMessage = 'Error initializing camera';
                 if (err.message) {
-                    errorMessage += ': ' + err.message;
+                    errorMessage += ': ' + + err.message;
                 } else if (typeof err === 'string') {
                     errorMessage += ': ' + err;
                 }
@@ -368,42 +428,64 @@ class POSSystem {
             });
         });
 
-        // Register callback for detected barcodes - AUTOMATICALLY ADD TO CART AND CLOSE
+        // Register callback for detected barcodes - IMPROVED FOR CONTINUOUS SCANNING
         Quagga.onDetected((result) => {
-            if (this.scannerActive) {
-                const code = result.codeResult.code;
-                console.log('Barcode detected:', code);
-                
-                // Check if this is the same barcode detected recently
-                const currentTime = Date.now();
-                if (this.lastScannedBarcode === code && (currentTime - this.lastScanTime) < this.scanDebounceTime) {
-                    // Ignore this detection as it's too soon after the last one
-                    console.log('Ignoring duplicate barcode detection:', code);
-                    return;
-                }
-                
-                // Update last scanned barcode and time
-                this.lastScannedBarcode = code;
-                this.lastScanTime = currentTime;
-                
+            // Immediate check to prevent any processing if scanner is not active or already processing
+            if (!this.scannerActive || this.scannerStopping) {
+                return;
+            }
+
+            const code = result.codeResult.code;
+            console.log('Barcode detected:', code);
+            
+            // Check if this is the same barcode detected recently (debounce)
+            const currentTime = Date.now();
+            if (this.lastScannedBarcode === code && (currentTime - this.lastScanTime) < this.scanDebounceTime) {
+                // Ignore this detection as it's too soon after the last one
+                console.log('Ignoring duplicate barcode detection:', code);
+                return;
+            }
+            
+            // If we're already processing a scan, ignore this one
+            if (this.scanProcessing) {
+                console.log('Scanner busy, ignoring new scan:', code);
+                return;
+            }
+            
+            // Set processing flag to prevent multiple concurrent scans
+            this.scanProcessing = true;
+            
+            // Update last scanned barcode and time
+            this.lastScannedBarcode = code;
+            this.lastScanTime = currentTime;
+            
+            const scannerStatus = document.getElementById('dynamicScannerStatus');
+            if (scannerStatus) {
                 scannerStatus.textContent = 'Barcode detected: ' + code;
                 scannerStatus.className = 'mt-2 alert alert-success';
-                
-                // Search for product and add to cart
-                this.searchProductByBarcode(code);
-                
-                // Stop scanner and close modal automatically after successful detection
-                setTimeout(() => {
-                    this.stopScanner();
-                    const scannerModal = document.getElementById('dynamicScannerModal');
-                    if (scannerModal) {
-                        const modal = bootstrap.Modal.getInstance(scannerModal);
-                        if (modal) {
-                            modal.hide();
-                        }
-                    }
-                }, 1500); // Close after 1.5 seconds
             }
+            
+            // Search for product and add to cart
+            this.searchProductByBarcode(code)
+                .finally(() => {
+                    // Always reset the processing flag after the request completes
+                    this.scanProcessing = false;
+                    
+                    // If auto-stop is enabled, stop the scanner after each scan
+                    if (this.autoStopScanner) {
+                        this.scannerStopping = true;
+                        setTimeout(() => {
+                            this.stopScanner();
+                            const scannerModal = document.getElementById('dynamicScannerModal');
+                            if (scannerModal) {
+                                const modal = bootstrap.Modal.getInstance(scannerModal);
+                                if (modal) {
+                                    modal.hide();
+                                }
+                            }
+                        }, 1500); // Close after 1.5 seconds
+                    }
+                });
         });
     }
 
@@ -449,6 +531,9 @@ class POSSystem {
     // Stop the barcode scanner
     stopScanner() {
         this.scannerActive = false;
+        this.scannerStopping = true; // Set stopping flag
+        this.scanProcessing = false; // Reset processing flag
+        this.lastScannedBarcode = null; // Clear last scanned barcode
         if (typeof Quagga !== 'undefined' && Quagga) {
             try {
                 Quagga.stop();
@@ -457,17 +542,42 @@ class POSSystem {
                 console.error('Error stopping Quagga:', e);
             }
         }
+        // Reset stopping flag after a short delay
+        setTimeout(() => {
+            this.scannerStopping = false;
+        }, 1000); // Increased delay to ensure scanner is fully stopped
     }
 
-    // Search for product by barcode and add to cart
+    // New method to reset scanner state for continuous scanning
+    resetScannerState() {
+        this.scanProcessing = false;
+        this.scannerStopping = false;
+        // Don't reset scannerActive as the scanner might still be running
+        console.log('Scanner state reset for continuous scanning');
+    }
+
+    // Search for product by barcode and add to cart - NOW RETURNS PROMISE
     searchProductByBarcode(barcode) {
         // Show loading indicator
         this.showLoading(true);
         
+        // Check if there's already a pending request for this barcode
+        if (this.pendingRequests.has(barcode)) {
+            console.log('Ignoring duplicate request for barcode:', barcode);
+            this.showLoading(false);
+            return Promise.resolve(); // Return resolved promise
+        }
+        
+        // Mark this barcode as having a pending request
+        this.pendingRequests.set(barcode, true);
+        
         // Fetch product by barcode
-        fetch(`/sales/product/barcode/${barcode}/`)
+        return fetch(`/sales/product/barcode/${barcode}/`)
             .then(response => response.json())
             .then(data => {
+                // Remove from pending requests
+                this.pendingRequests.delete(barcode);
+                
                 if (data.error) {
                     this.showNotification(`Product not found: ${data.error}`, 'warning');
                 } else {
@@ -477,6 +587,9 @@ class POSSystem {
                 }
             })
             .catch(error => {
+                // Remove from pending requests on error
+                this.pendingRequests.delete(barcode);
+                
                 console.error('Error searching product:', error);
                 this.showNotification(`Error searching product: ${error.message}`, 'error');
             })
@@ -817,12 +930,24 @@ class POSSystem {
             }))
         };
         
+        console.log('Processing sale with data:', saleData);
+        
         // Show loading spinner
         this.showLoading(true);
         
         // Send data to server
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (!csrfTokenElement) {
+            console.error('CSRF token not found');
+            this.showNotification('Security token not found. Please refresh the page and try again.', 'error');
+            this.showLoading(false);
+            return;
+        }
         
+        const csrfToken = csrfTokenElement.value;
+        console.log('CSRF Token:', csrfToken);
+        
+        // Use the correct URL endpoint - FIXED: was '/sales/process/' but should be '/sales/pos/process/'
         fetch('/sales/pos/process/', {
             method: 'POST',
             headers: {
@@ -832,12 +957,15 @@ class POSSystem {
             body: JSON.stringify(saleData)
         })
         .then(response => {
+            console.log('Response status:', response.status);
+            console.log('Response headers:', [...response.headers.entries()]);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
         })
         .then(data => {
+            console.log('Response data:', data);
             if (data.success) {
                 this.showNotification('Sale processed successfully!', 'success');
                 // Clear cart
@@ -866,35 +994,110 @@ class POSSystem {
     }
 
     showNotification(message, type = 'info') {
-        // Create notification using SweetAlert2 style or simple alert
-        const alertClass = {
-            'success': 'alert-success',
-            'error': 'alert-danger',
-            'warning': 'alert-warning',
-            'info': 'alert-info'
-        }[type] || 'alert-info';
+        // Remove any existing notifications of the same type
+        const existingNotifications = document.querySelectorAll(`.notification-${type}`);
+        existingNotifications.forEach(notification => {
+            notification.style.animation = 'fadeOutUp 0.3s ease';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        });
         
-        // Create alert element
-        const alert = document.createElement('div');
-        alert.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
-        alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-        alert.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        // Create modern notification element
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type} position-fixed shadow-lg`;
+        notification.style.cssText = `
+            top: 20px; 
+            right: 20px; 
+            z-index: 9999; 
+            min-width: 300px;
+            max-width: 400px;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin: 10px;
+            backdrop-filter: blur(10px);
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         `;
         
-        document.body.appendChild(alert);
+        // Set background and text colors based on type
+        const typeStyles = {
+            'success': {
+                'background': 'linear-gradient(135deg, rgba(40, 167, 69, 0.9) 0%, rgba(40, 167, 69, 0.95) 100%)',
+                'color': 'white',
+                'border': '1px solid rgba(255, 255, 255, 0.2)'
+            },
+            'error': {
+                'background': 'linear-gradient(135deg, rgba(220, 53, 69, 0.9) 0%, rgba(220, 53, 69, 0.95) 100%)',
+                'color': 'white',
+                'border': '1px solid rgba(255, 255, 255, 0.2)'
+            },
+            'warning': {
+                'background': 'linear-gradient(135deg, rgba(255, 193, 7, 0.9) 0%, rgba(255, 193, 7, 0.95) 100%)',
+                'color': 'black',
+                'border': '1px solid rgba(0, 0, 0, 0.1)'
+            },
+            'info': {
+                'background': 'linear-gradient(135deg, rgba(23, 162, 184, 0.9) 0%, rgba(23, 162, 184, 0.95) 100%)',
+                'color': 'white',
+                'border': '1px solid rgba(255, 255, 255, 0.2)'
+            }
+        };
         
-        // Add animation
-        alert.style.animation = 'fadeInDown 0.3s ease';
+        const styles = typeStyles[type] || typeStyles['info'];
+        Object.assign(notification.style, styles);
+        
+        // Add icon based on type
+        const icons = {
+            'success': '<i class="fas fa-check-circle me-2"></i>',
+            'error': '<i class="fas fa-exclamation-circle me-2"></i>',
+            'warning': '<i class="fas fa-exclamation-triangle me-2"></i>',
+            'info': '<i class="fas fa-info-circle me-2"></i>'
+        };
+        
+        const icon = icons[type] || icons['info'];
+        
+        // Create notification content
+        notification.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    ${icon}
+                    <div class="notification-message">${message}</div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" aria-label="Close" style="font-size: 0.6rem;"></button>
+            </div>
+        `;
+        
+        // Add close button functionality
+        const closeBtn = notification.querySelector('.btn-close');
+        closeBtn.addEventListener('click', () => {
+            notification.style.animation = 'fadeOutRight 0.3s ease';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        });
+        
+        // Add to document
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+            notification.style.opacity = '1';
+        }, 10);
         
         // Auto remove after 5 seconds
         setTimeout(() => {
-            if (alert.parentNode) {
-                alert.style.animation = 'fadeOutUp 0.3s ease';
+            if (notification.parentNode) {
+                notification.style.animation = 'fadeOutRight 0.3s ease';
                 setTimeout(() => {
-                    if (alert.parentNode) {
-                        alert.parentNode.removeChild(alert);
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
                     }
                 }, 300);
             }
@@ -937,6 +1140,48 @@ class POSSystem {
         } catch (e) {
             console.error('Error loading cart from localStorage:', e);
             this.cart = [];
+        }
+    }
+
+    // New method to manually stop the scanner
+    manuallyStopScanner() {
+        this.scannerStopping = true;
+        this.scanProcessing = false; // Reset processing flag
+        this.lastScannedBarcode = null; // Clear last scanned barcode
+        this.stopScanner();
+        
+        const scannerModal = document.getElementById('dynamicScannerModal');
+        if (scannerModal) {
+            const modal = bootstrap.Modal.getInstance(scannerModal);
+            if (modal) {
+                modal.hide();
+            }
+        }
+        
+        // Show notification that scanner has been manually stopped
+        this.showNotification('Barcode scanner stopped manually', 'info');
+    }
+
+    // New method to toggle auto-stop behavior
+    toggleAutoStop() {
+        this.autoStopScanner = !this.autoStopScanner;
+        const status = this.autoStopScanner ? 'enabled' : 'disabled';
+        this.showNotification(`Auto-stop scanner ${status}`, 'info');
+        
+        // Update UI button if it exists
+        const toggleButton = document.getElementById('toggleAutoStop');
+        if (toggleButton) {
+            toggleButton.innerHTML = this.autoStopScanner ? 
+                '<i class="fas fa-stop"></i> Auto-Stop: ON' : 
+                '<i class="fas fa-play"></i> Auto-Stop: OFF';
+            toggleButton.className = this.autoStopScanner ? 
+                'btn btn-sm btn-success' : 
+                'btn btn-sm btn-warning';
+        }
+        
+        // If enabling auto-stop and scanner is active, make sure we can process scans
+        if (this.autoStopScanner && this.scannerActive) {
+            this.scanProcessing = false;
         }
     }
 }

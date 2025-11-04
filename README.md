@@ -79,7 +79,7 @@ A comprehensive inventory management system built with Django, Python, and Postg
 - Email or in-app notifications
 
 ### Settings
-- Business details (name, address, logo)
+- Business details (name, address, logo with removal option)
 - Currency & tax settings
 - Barcode format options
 - Backup & restore database

@@ -1,0 +1,62 @@
+/* Custom Theme CSS Variables */
+:root {
+  --theme-primary: #3498db;
+  --theme-secondary: #2c3e50;
+  --theme-accent: #e74c3c;
+  --theme-background: #f8f9fa;
+  --theme-text: #343a40;
+  --theme-sidebar: #2c3e50;
+  --theme-card: #ffffff;
+}
+
+/* Apply custom theme colors */
+[data-theme="custom"] {
+  background-color: var(--theme-background);
+  color: var(--theme-text);
+}
+
+[data-theme="custom"] body {
+  background-color: var(--theme-background);
+  color: var(--theme-text);
+}
+
+[data-theme="custom"] .navbar-custom {
+  background: linear-gradient(135deg, var(--theme-secondary) 0%, var(--theme-sidebar) 100%) !important;
+}
+
+[data-theme="custom"] .sidebar {
+  background: linear-gradient(135deg, var(--theme-secondary) 0%, var(--theme-sidebar) 100%);
+}
+
+[data-theme="custom"] .sidebar .nav-link:hover {
+  background: rgba(var(--theme-primary-rgb), 0.25);
+  color: var(--theme-primary);
+}
+
+[data-theme="custom"] .sidebar .nav-link.active {
+  background: rgba(var(--theme-primary-rgb), 0.3);
+  color: var(--theme-primary);
+}
+
+[data-theme="custom"] .card {
+  background-color: var(--theme-card);
+  border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+[data-theme="custom"] .btn-primary {
+  background-color: var(--theme-primary);
+  border-color: var(--theme-primary);
+}
+
+[data-theme="custom"] .btn-primary:hover {
+  background-color: color-mix(in srgb, var(--theme-primary) 80%, black);
+  border-color: color-mix(in srgb, var(--theme-primary) 80%, black);
+}
+
+/* Utility classes for custom theme */
+.text-theme-primary { color: var(--theme-primary); }
+.text-theme-secondary { color: var(--theme-secondary); }
+.text-theme-accent { color: var(--theme-accent); }
+.bg-theme-primary { background-color: var(--theme-primary); }
+.bg-theme-secondary { background-color: var(--theme-secondary); }
+.bg-theme-accent { background-color: var(--theme-accent); }

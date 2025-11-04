@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Registration Submitted - {{ business_settings.business_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-success">
+                <div class="card-header bg-success text-white text-center">
+                    <h3 class="mb-0"><i class="fas fa-check-circle me-2"></i>Registration Submitted</h3>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-envelope-open-text text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    
+                    <h4 class="mb-3">Thank You for Registering!</h4>
+                    
+                    <p class="mb-4">
+                        Your business registration has been successfully submitted. 
+                        Our team will review your application and approve it shortly.
+                    </p>
+                    
+                    <div class="alert alert-info">
+                        <h5><i class="fas fa-info-circle me-2"></i>What happens next?</h5>
+                        <ul class="text-start">
+                            <li>An administrator will review your business information</li>
+                            <li>You'll receive an email notification once approved</li>
+                            <li>After approval, you can create your owner account</li>
+                            <li>You'll be able to set up your business profile</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'accounts:login' %}" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt me-2"></i>Go to Login
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

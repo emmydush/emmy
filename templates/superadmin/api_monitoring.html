@@ -1,32 +1,35 @@
 {% extends 'superadmin/base.html' %}
 
-{% block title %}API Monitoring - Super Admin - Smart Solution{% endblock %}
+{% block title %}API Monitoring - Super Admin - {{ business_settings.business_name }}{% endblock %}
 
 {% block superadmin_content %}
-<ul class="nav nav-tabs mb-4" id="apiTabs" role="tablist">
-  <li class="nav-item" role="presentation">
-    <button class="nav-link active" id="clients-tab" data-bs-toggle="tab" data-bs-target="#clients" type="button" role="tab">
-      <i class="fas fa-key me-1"></i> API Clients
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>API Monitoring</h1>
+  <div>
+    <button class="btn btn-outline-secondary">
+      <i class="fas fa-sync-alt me-1"></i> Refresh
     </button>
+  </div>
+</div>
+
+<!-- Navigation Tabs -->
+<ul class="nav nav-tabs mb-4" id="apiTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="api-clients-tab" data-bs-toggle="tab" data-bs-target="#api-clients" type="button" role="tab">API Clients</button>
   </li>
   <li class="nav-item" role="presentation">
-    <button class="nav-link" id="requests-tab" data-bs-toggle="tab" data-bs-target="#requests" type="button" role="tab">
-      <i class="fas fa-chart-line me-1"></i> Request Logs
-    </button>
+    <button class="nav-link" id="api-logs-tab" data-bs-toggle="tab" data-bs-target="#api-logs" type="button" role="tab">Request Logs</button>
   </li>
 </ul>
 
-<div class="tab-content" id="apiTabsContent">
+<!-- Tab Content -->
+<div class="tab-content" id="apiTabContent">
   <!-- API Clients Tab -->
-  <div class="tab-pane fade show active" id="clients" role="tabpanel">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>API Clients</h2>
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createClientModal">
-        <i class="fas fa-plus me-1"></i> New Client
-      </button>
-    </div>
-    
+  <div class="tab-pane fade show active" id="api-clients" role="tabpanel">
     <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">API Clients</h5>
+      </div>
       <div class="table-responsive">
         <table class="table table-hover mb-0">
           <thead>
@@ -44,29 +47,24 @@
             <tr>
               <td>{{ client.business.company_name }}</td>
               <td>{{ client.name }}</td>
+              <td>{{ client.api_key|truncatechars:20 }}</td>
               <td>
-                <code>{{ client.api_key|truncatechars:20 }}</code>
-                <button class="btn btn-sm btn-outline-secondary btn-icon ms-2" data-bs-toggle="tooltip" title="Copy API Key">
-                  <i class="fas fa-copy"></i>
-                </button>
-              </td>
-              <td>
-                <span class="badge {% if client.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                <span class="badge {% if client.is_active %}bg-success{% else %}bg-secondary{% endif %}">
                   {% if client.is_active %}Active{% else %}Inactive{% endif %}
                 </span>
               </td>
               <td>{{ client.created_at|date:"M d, Y" }}</td>
               <td>
                 <div class="btn-group btn-group-sm" role="group">
-                  <button class="btn btn-outline-primary btn-icon" data-bs-toggle="tooltip" title="View Details">
+                  <a href="#" class="btn btn-outline-primary" title="View Details">
                     <i class="fas fa-eye"></i>
-                  </button>
-                  <button class="btn btn-outline-warning btn-icon" data-bs-toggle="tooltip" title="Edit">
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button class="btn btn-outline-danger btn-icon" data-bs-toggle="tooltip" title="Revoke Key">
-                    <i class="fas fa-times"></i>
-                  </button>
+                  </a>
+                  <a href="#" class="btn btn-outline-warning" title="Regenerate Key">
+                    <i class="fas fa-key"></i>
+                  </a>
+                  <a href="#" class="btn btn-outline-danger" title="Delete">
+                    <i class="fas fa-trash"></i>
+                  </a>
                 </div>
               </td>
             </tr>
@@ -81,21 +79,12 @@
     </div>
   </div>
   
-  <!-- Request Logs Tab -->
-  <div class="tab-pane fade" id="requests" role="tabpanel">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>API Request Logs</h2>
-      <div>
-        <button class="btn btn-outline-secondary me-2">
-          <i class="fas fa-filter me-1"></i> Filter
-        </button>
-        <button class="btn btn-outline-danger">
-          <i class="fas fa-trash me-1"></i> Clear Logs
-        </button>
-      </div>
-    </div>
-    
+  <!-- API Request Logs Tab -->
+  <div class="tab-pane fade" id="api-logs" role="tabpanel">
     <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">API Request Logs</h5>
+      </div>
       <div class="table-responsive">
         <table class="table table-hover mb-0">
           <thead>
@@ -104,7 +93,7 @@
               <th>Endpoint</th>
               <th>Method</th>
               <th>Status</th>
-              <th>Response Time</th>
+              <th>Response Time (ms)</th>
               <th>IP Address</th>
               <th>Timestamp</th>
             </tr>
@@ -113,57 +102,24 @@
             {% for log in api_logs %}
             <tr>
               <td>{{ log.api_client.business.company_name }}</td>
-              <td>{{ log.endpoint|truncatechars:30 }}</td>
-              <td>
-                <span class="badge bg-secondary">{{ log.method }}</span>
-              </td>
+              <td>{{ log.endpoint }}</td>
+              <td>{{ log.method }}</td>
               <td>
                 <span class="badge {% if log.status_code >= 200 and log.status_code < 300 %}bg-success{% elif log.status_code >= 400 and log.status_code < 500 %}bg-warning{% else %}bg-danger{% endif %}">
                   {{ log.status_code }}
                 </span>
               </td>
-              <td>{{ log.response_time|floatformat:2 }}ms</td>
+              <td>{{ log.response_time|floatformat:2 }}</td>
               <td>{{ log.ip_address }}</td>
               <td>{{ log.timestamp|date:"M d, Y H:i:s" }}</td>
             </tr>
             {% empty %}
             <tr>
-              <td colspan="7" class="text-center">No API requests found</td>
+              <td colspan="7" class="text-center">No API request logs found</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Create Client Modal -->
-<div class="modal fade" id="createClientModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Create New API Client</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form>
-          <div class="mb-3">
-            <label class="form-label">Business</label>
-            <select class="form-select" required>
-              <option value="">Select Business</option>
-              <!-- Options will be populated dynamically -->
-            </select>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Client Name</label>
-            <input type="text" class="form-control" required>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary">Create Client</button>
       </div>
     </div>
   </div>

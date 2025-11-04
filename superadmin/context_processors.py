@@ -2,8 +2,9 @@ from .middleware import get_current_business
 
 def current_business(request):
     """
-    Context processor to make the current business available in templates.
+    Context processor to add current business context to all templates
     """
+    current_business = get_current_business()
     return {
-        'current_business': get_current_business()
+        'current_business': current_business
     }

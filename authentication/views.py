@@ -86,6 +86,12 @@ def business_details_view(request):
             business.status = 'active'
             business.save()
             
+            # Set the business owner as admin
+            business.owner.role = 'admin'
+            # Associate owner with the business
+            business.owner.businesses.add(business)
+            business.owner.save()
+            
             # Set the business in session
             request.session['current_business_id'] = business.id
             
@@ -93,7 +99,7 @@ def business_details_view(request):
             from superadmin.middleware import set_current_business
             set_current_business(business)
             
-            messages.success(request, 'Business details saved successfully!')
+            messages.success(request, 'Business details saved successfully! You are now an admin.')
             return redirect('dashboard:index')
         else:
             messages.error(request, 'Please correct the errors below.')
@@ -119,10 +125,92 @@ def profile_view(request):
 @login_required
 def user_list_view(request):
     from .models import User
-    users = User.objects.all()
+    # Only show users from the same business
+    from superadmin.middleware import get_current_business
+    current_business = get_current_business()
+    if current_business:
+        # Get all users associated with this business
+        users = User.objects.filter(
+            businesses=current_business
+        ).exclude(id=request.user.id)  # Exclude current user
+    else:
+        users = User.objects.none()
     return render(request, 'authentication/user_list.html', {'users': users})
 
 def password_reset_view(request):
     # For now, we'll just render a simple template
     # In a real application, you would implement password reset functionality
     return render(request, 'authentication/password_reset.html')
+
+@login_required
+def create_user_view(request):
+    from .forms import AdminUserCreationForm
+    from .models import User
+    from superadmin.middleware import get_current_business
+    
+    current_business = get_current_business()
+    if not current_business:
+        messages.error(request, 'No business context found.')
+        return redirect('dashboard:index')
+    
+    # Only admins can create users
+    if request.user.role != 'admin':
+        messages.error(request, 'You do not have permission to create users.')
+        return redirect('dashboard:index')
+    
+    if request.method == 'POST':
+        form = AdminUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save(current_business)
+            messages.success(request, f'User {user.username} created successfully!')
+            return redirect('authentication:user_list')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = AdminUserCreationForm()
+    
+    return render(request, 'authentication/create_user.html', {'form': form})
+
+@login_required
+def edit_user_view(request, user_id):
+    from .forms import UserProfileForm
+    from .models import User
+    from superadmin.middleware import get_current_business
+    
+    current_business = get_current_business()
+    if not current_business:
+        messages.error(request, 'No business context found.')
+        return redirect('dashboard:index')
+    
+    # Only admins can edit users
+    if request.user.role != 'admin':
+        messages.error(request, 'You do not have permission to edit users.')
+        return redirect('dashboard:index')
+    
+    # Get the user to edit
+    try:
+        user_to_edit = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        messages.error(request, 'User not found.')
+        return redirect('authentication:user_list')
+    
+    # Check if the user belongs to the same business
+    if not user_to_edit.businesses.filter(id=current_business.id).exists():
+        messages.error(request, 'You do not have permission to edit this user.')
+        return redirect('authentication:user_list')
+    
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=user_to_edit)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'User {user_to_edit.username} updated successfully!')
+            return redirect('authentication:user_list')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = UserProfileForm(instance=user_to_edit)
+    
+    return render(request, 'authentication/edit_user.html', {
+        'form': form,
+        'user_to_edit': user_to_edit
+    })

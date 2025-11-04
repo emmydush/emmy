@@ -13,8 +13,41 @@ class User(AbstractUser):
     phone = models.CharField(max_length=15, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     profile_picture = models.ImageField(upload_to='profiles/', blank=True, null=True)
+    businesses = models.ManyToManyField('superadmin.Business', related_name='users', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.username
+
+class UserThemePreference(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='theme_preference')
+    
+    # Theme settings
+    primary_color = models.CharField(max_length=7, default='#3498db')  # Default blue
+    secondary_color = models.CharField(max_length=7, default='#2c3e50')  # Default dark blue
+    accent_color = models.CharField(max_length=7, default='#e74c3c')  # Default red
+    background_color = models.CharField(max_length=7, default='#f8f9fa')  # Default light gray
+    text_color = models.CharField(max_length=7, default='#343a40')  # Default dark gray
+    sidebar_color = models.CharField(max_length=7, default='#2c3e50')  # Default dark blue
+    card_color = models.CharField(max_length=7, default='#ffffff')  # Default white
+    
+    # Theme mode
+    THEME_MODE_CHOICES = (
+        ('light', 'Light'),
+        ('dark', 'Dark'),
+        ('custom', 'Custom'),
+    )
+    theme_mode = models.CharField(max_length=10, choices=THEME_MODE_CHOICES, default='light')
+    
+    # CSS variables for advanced customization
+    custom_css = models.TextField(blank=True, null=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "User Theme Preferences"
+
+    def __str__(self):
+        return f"{self.user.username} - Theme Preferences"

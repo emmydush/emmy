@@ -1,52 +1,22 @@
 {% extends 'superadmin/base.html' %}
 
-{% block title %}Business Management - Super Admin - Smart Solution{% endblock %}
+{% block title %}Business Management - Super Admin - {{ business_settings.business_name }}{% endblock %}
 
 {% block superadmin_content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h1>Business Management</h1>
-  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBusinessModal">
-    <i class="fas fa-plus me-1"></i> Add Business
-  </button>
-</div>
-
-<!-- Filters -->
-<div class="card mb-4">
-  <div class="card-body">
-    <div class="row">
-      <div class="col-md-3">
-        <label class="form-label">Status</label>
-        <select class="form-select">
-          <option>All Statuses</option>
-          <option>Active</option>
-          <option>Suspended</option>
-          <option>Pending</option>
-        </select>
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">Plan Type</label>
-        <select class="form-select">
-          <option>All Plans</option>
-          <option>Free</option>
-          <option>Premium</option>
-          <option>Enterprise</option>
-        </select>
-      </div>
-      <div class="col-md-4">
-        <label class="form-label">Search</label>
-        <input type="text" class="form-control" placeholder="Search businesses...">
-      </div>
-      <div class="col-md-2 d-flex align-items-end">
-        <button class="btn btn-outline-secondary w-100">
-          <i class="fas fa-filter me-1"></i> Filter
-        </button>
-      </div>
-    </div>
+  <div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBusinessModal">
+      <i class="fas fa-plus me-1"></i> Create Business
+    </button>
   </div>
 </div>
 
-<!-- Businesses Table -->
+<!-- Business List -->
 <div class="card">
+  <div class="card-header">
+    <h5 class="mb-0">All Businesses</h5>
+  </div>
   <div class="table-responsive">
     <table class="table table-hover mb-0">
       <thead>
@@ -54,9 +24,9 @@
           <th>Company Name</th>
           <th>Owner</th>
           <th>Email</th>
-          <th>Plan Type</th>
+          <th>Plan</th>
           <th>Status</th>
-          <th>Users</th>
+          <th>Created</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -67,7 +37,7 @@
           <td>{{ business.owner.username }}</td>
           <td>{{ business.email }}</td>
           <td>
-            <span class="badge {% if business.plan_type == 'free' %}bg-secondary{% elif business.plan_type == 'premium' %}bg-primary{% else %}bg-success{% endif %}">
+            <span class="badge {% if business.plan_type == 'premium' %}bg-warning{% elif business.plan_type == 'enterprise' %}bg-success{% else %}bg-secondary{% endif %}">
               {{ business.plan_type|title }}
             </span>
           </td>
@@ -76,18 +46,18 @@
               {{ business.status|title }}
             </span>
           </td>
-          <td>{{ business.user_count }}</td>
+          <td>{{ business.created_at|date:"M d, Y" }}</td>
           <td>
             <div class="btn-group btn-group-sm" role="group">
-              <button class="btn btn-outline-primary btn-icon" data-bs-toggle="tooltip" title="View Details">
+              <a href="#" class="btn btn-outline-primary" title="View Details">
                 <i class="fas fa-eye"></i>
-              </button>
-              <button class="btn btn-outline-warning btn-icon" data-bs-toggle="tooltip" title="Edit">
+              </a>
+              <a href="#" class="btn btn-outline-warning" title="Edit">
                 <i class="fas fa-edit"></i>
-              </button>
-              <button class="btn btn-outline-danger btn-icon" data-bs-toggle="tooltip" title="Suspend">
+              </a>
+              <a href="#" class="btn btn-outline-danger" title="Suspend">
                 <i class="fas fa-ban"></i>
-              </button>
+              </a>
             </div>
           </td>
         </tr>
@@ -99,61 +69,49 @@
       </tbody>
     </table>
   </div>
-  
-  <!-- Pagination -->
-  <div class="card-footer">
-    <div class="d-flex justify-content-between align-items-center">
-      <div>
-        Showing 1 to {{ businesses|length }} of {{ businesses|length }} entries
-      </div>
-      <nav>
-        <ul class="pagination mb-0">
-          <li class="page-item disabled">
-            <a class="page-link" href="#" tabindex="-1">Previous</a>
-          </li>
-          <li class="page-item active">
-            <a class="page-link" href="#">1</a>
-          </li>
-          <li class="page-item disabled">
-            <a class="page-link" href="#">Next</a>
-          </li>
-        </ul>
-      </nav>
-    </div>
-  </div>
 </div>
 
 <!-- Create Business Modal -->
-<div class="modal fade" id="createBusinessModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="createBusinessModal" tabindex="-1" aria-labelledby="createBusinessModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Add New Business</h5>
+        <h5 class="modal-title" id="createBusinessModalLabel">Create New Business</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form>
           <div class="mb-3">
-            <label class="form-label">Company Name</label>
-            <input type="text" class="form-control" required>
+            <label for="companyName" class="form-label">Company Name</label>
+            <input type="text" class="form-control" id="companyName" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Owner</label>
-            <select class="form-select" required>
+            <label for="owner" class="form-label">Owner</label>
+            <select class="form-select" id="owner" required>
               <option value="">Select Owner</option>
-              <!-- Options will be populated dynamically -->
+              {% for user in users %}
+              <option value="{{ user.id }}">{{ user.username }} ({{ user.email }})</option>
+              {% endfor %}
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input type="email" class="form-control" required>
+            <label for="email" class="form-label">Business Email</label>
+            <input type="email" class="form-control" id="email" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Plan Type</label>
-            <select class="form-select" required>
+            <label for="planType" class="form-label">Plan Type</label>
+            <select class="form-select" id="planType">
               <option value="free">Free</option>
               <option value="premium">Premium</option>
               <option value="enterprise">Enterprise</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="status" class="form-label">Status</label>
+            <select class="form-select" id="status">
+              <option value="active">Active</option>
+              <option value="pending">Pending Approval</option>
+              <option value="suspended">Suspended</option>
             </select>
           </div>
         </form>

@@ -19,10 +19,11 @@
             <div class="card-body">
                 <form method="post" id="themeForm">
                     {% csrf_token %}
+                    
                     <div class="mb-4">
-                        <label class="form-label">Select Theme</label>
+                        <label class="form-label">Theme Mode</label>
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <div class="border rounded p-3 theme-option" data-theme="light">
                                     <div class="d-flex align-items-center mb-2">
                                         <div class="theme-preview light-preview me-3">
@@ -41,14 +42,14 @@
                                         </div>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="theme" id="lightTheme" value="light">
+                                        <input class="form-check-input" type="radio" name="theme_mode" id="lightTheme" value="light" {% if theme_preference.theme_mode == 'light' %}checked{% endif %}>
                                         <label class="form-check-label" for="lightTheme">
                                             Use Light Theme
                                         </label>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <div class="border rounded p-3 theme-option" data-theme="dark">
                                     <div class="d-flex align-items-center mb-2">
                                         <div class="theme-preview dark-preview me-3">
@@ -67,12 +68,73 @@
                                         </div>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="theme" id="darkTheme" value="dark">
+                                        <input class="form-check-input" type="radio" name="theme_mode" id="darkTheme" value="dark" {% if theme_preference.theme_mode == 'dark' %}checked{% endif %}>
                                         <label class="form-check-label" for="darkTheme">
                                             Use Dark Theme
                                         </label>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="border rounded p-3 theme-option" data-theme="custom">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="theme-preview custom-preview me-3">
+                                            <div class="preview-header"></div>
+                                            <div class="preview-content">
+                                                <div class="preview-sidebar"></div>
+                                                <div class="preview-main">
+                                                    <div class="preview-card"></div>
+                                                    <div class="preview-card"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-1">Custom Theme</h6>
+                                            <p class="text-muted small mb-0">Choose your own colors</p>
+                                        </div>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="theme_mode" id="customTheme" value="custom" {% if theme_preference.theme_mode == 'custom' %}checked{% endif %}>
+                                        <label class="form-check-label" for="customTheme">
+                                            Use Custom Theme
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Custom Color Pickers -->
+                    <div id="customThemeOptions" class="mb-4" {% if theme_preference.theme_mode != 'custom' %}style="display: none;"{% endif %}>
+                        <h5>Custom Colors</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.primary_color.id_for_label }}" class="form-label">Primary Color</label>
+                                {{ form.primary_color }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.secondary_color.id_for_label }}" class="form-label">Secondary Color</label>
+                                {{ form.secondary_color }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.accent_color.id_for_label }}" class="form-label">Accent Color</label>
+                                {{ form.accent_color }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.background_color.id_for_label }}" class="form-label">Background Color</label>
+                                {{ form.background_color }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.text_color.id_for_label }}" class="form-label">Text Color</label>
+                                {{ form.text_color }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.sidebar_color.id_for_label }}" class="form-label">Sidebar Color</label>
+                                {{ form.sidebar_color }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.card_color.id_for_label }}" class="form-label">Card Color</label>
+                                {{ form.card_color }}
                             </div>
                         </div>
                     </div>
@@ -187,6 +249,29 @@
 .dark-preview .preview-card {
     background: #2d2d2d;
 }
+
+/* Custom theme preview - using default colors since dynamic CSS is complex in templates */
+.custom-preview .preview-header {
+    background: #3498db;
+}
+
+.custom-preview .preview-sidebar {
+    background: #2c3e50;
+}
+
+.custom-preview .preview-main {
+    background: #f8f9fa;
+}
+
+.custom-preview .preview-card {
+    background: #ffffff;
+}
+
+/* Color picker styling */
+.form-control-color {
+    height: 40px;
+    padding: 5px;
+}
 </style>
 {% endblock %}
 
@@ -195,9 +280,10 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Theme option selection
     const themeOptions = document.querySelectorAll('.theme-option');
-    const themeRadios = document.querySelectorAll('input[name="theme"]');
+    const themeRadios = document.querySelectorAll('input[name="theme_mode"]');
     const systemThemeCheckbox = document.getElementById('systemTheme');
     const themeForm = document.getElementById('themeForm');
+    const customThemeOptions = document.getElementById('customThemeOptions');
     
     // Get current theme from localStorage or system preference
     const savedTheme = localStorage.getItem('theme');
@@ -208,16 +294,23 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById(currentTheme + 'Theme').checked = true;
     document.querySelector(`.theme-option[data-theme="${currentTheme}"]`).classList.add('theme-selected');
     
-    // Check if system theme preference is enabled
-    if (!savedTheme) {
-        systemThemeCheckbox.checked = true;
-        themeRadios.forEach(radio => radio.disabled = true);
+    // Show/hide custom theme options based on selection
+    const customThemeRadio = document.getElementById('customTheme');
+    if (customThemeRadio && customThemeRadio.checked) {
+        customThemeOptions.style.display = 'block';
     }
     
     themeOptions.forEach(option => {
         option.addEventListener('click', function() {
             const theme = this.getAttribute('data-theme');
             document.getElementById(theme + 'Theme').checked = true;
+            
+            // Show/hide custom theme options
+            if (theme === 'custom') {
+                customThemeOptions.style.display = 'block';
+            } else {
+                customThemeOptions.style.display = 'none';
+            }
             
             // Update selected class
             themeOptions.forEach(opt => opt.classList.remove('theme-selected'));
@@ -243,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
     themeForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        const selectedTheme = document.querySelector('input[name="theme"]:checked').value;
+        const selectedTheme = document.querySelector('input[name="theme_mode"]:checked').value;
         
         // Save theme preference
         if (!systemThemeCheckbox.checked) {

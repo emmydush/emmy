@@ -15,9 +15,10 @@ import io
 import json
 import subprocess
 from datetime import datetime
-from .models import BusinessSettings, BarcodeSettings, EmailSettings
-from .forms import BusinessSettingsForm, BarcodeSettingsForm, EmailSettingsForm
-from authentication.models import User
+from .models import BusinessSettings, BarcodeSettings, EmailSettings, BackupSettings
+from .forms import BusinessSettingsForm, BarcodeSettingsForm, EmailSettingsForm, BackupSettingsForm
+from authentication.models import User, UserThemePreference
+from authentication.forms import UserThemePreferenceForm
 
 def is_admin(user):
     return user.is_authenticated and user.role == 'admin'
@@ -53,6 +54,14 @@ def business_settings(request):
     if request.method == 'POST':
         form = BusinessSettingsForm(request.POST, request.FILES, instance=business_settings)
         if form.is_valid():
+            # Handle logo deletion
+            if form.cleaned_data.get('delete_logo') and business_settings.business_logo:
+                # Delete the logo file
+                if business_settings.business_logo and hasattr(business_settings.business_logo, 'delete'):
+                    business_settings.business_logo.delete(save=False)
+                # Clear the logo field
+                business_settings.business_logo = None
+            
             form.save()
             messages.success(request, 'Business settings updated successfully!')
             return redirect('settings:business')
@@ -81,7 +90,16 @@ def barcode_settings(request):
 @login_required
 @admin_required
 def user_management(request):
-    users = User.objects.all().order_by('-date_joined')
+    # Only show users from the same business
+    from superadmin.middleware import get_current_business
+    current_business = get_current_business()
+    if current_business:
+        # Get all users associated with this business
+        users = User.objects.filter(
+            businesses=current_business
+        ).order_by('-date_joined')
+    else:
+        users = User.objects.none()
     return render(request, 'settings/users.html', {'users': users})
 
 @login_required
@@ -265,10 +283,23 @@ def download_backup(request, filename):
 
 @login_required
 @user_passes_test(can_access_settings)
-def theme_settings(request):
-    # For now, just render the theme settings template
-    # In a real implementation, you might save theme preferences to the database
-    return render(request, 'settings/theme.html')
+def backup_settings(request):
+    # Get or create backup settings
+    backup_settings, created = BackupSettings.objects.get_or_create(id=1)
+    
+    if request.method == 'POST':
+        form = BackupSettingsForm(request.POST, instance=backup_settings)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Backup settings updated successfully!')
+            return redirect('settings:backup_settings')
+    else:
+        form = BackupSettingsForm(instance=backup_settings)
+    
+    return render(request, 'settings/backup_settings.html', {
+        'form': form, 
+        'backup_settings': backup_settings
+    })
 
 @login_required
 @user_passes_test(can_access_settings)
@@ -304,3 +335,23 @@ def voice_response_test(request):
 @user_passes_test(can_access_settings)
 def voice_error_fix(request):
     return render(request, 'voice_error_fix.html')
+
+@login_required
+@user_passes_test(can_access_settings)
+def theme_settings(request):
+    # Get or create user theme preference
+    theme_preference, created = UserThemePreference.objects.get_or_create(user=request.user)
+    
+    if request.method == 'POST':
+        form = UserThemePreferenceForm(request.POST, instance=theme_preference)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Theme settings updated successfully!')
+            return redirect('settings:theme')
+    else:
+        form = UserThemePreferenceForm(instance=theme_preference)
+    
+    return render(request, 'settings/theme.html', {
+        'form': form,
+        'theme_preference': theme_preference
+    })

@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Theme Customization - {{ business_settings.business_name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Theme Customization</h2>
+        <p class="text-muted">Personalize the appearance of your inventory management system.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-palette"></i> Customize Your Theme</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" id="themeForm">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Theme Mode</label>
+                        <select name="theme_mode" class="form-select" id="id_theme_mode">
+                            <option value="light" {% if theme_preference.theme_mode == 'light' %}selected{% endif %}>Light Theme</option>
+                            <option value="dark" {% if theme_preference.theme_mode == 'dark' %}selected{% endif %}>Dark Theme</option>
+                            <option value="custom" {% if theme_preference.theme_mode == 'custom' %}selected{% endif %}>Custom Theme</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Custom Color Pickers -->
+                    <div id="customThemeOptions" class="mb-4" {% if theme_preference.theme_mode != 'custom' %}style="display: none;"{% endif %}>
+                        <h5>Custom Colors</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_primary_color" class="form-label">Primary Color</label>
+                                <input type="color" name="primary_color" class="form-control form-control-color" id="id_primary_color" value="{{ theme_preference.primary_color }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_secondary_color" class="form-label">Secondary Color</label>
+                                <input type="color" name="secondary_color" class="form-control form-control-color" id="id_secondary_color" value="{{ theme_preference.secondary_color }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_accent_color" class="form-label">Accent Color</label>
+                                <input type="color" name="accent_color" class="form-control form-control-color" id="id_accent_color" value="{{ theme_preference.accent_color }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_background_color" class="form-label">Background Color</label>
+                                <input type="color" name="background_color" class="form-control form-control-color" id="id_background_color" value="{{ theme_preference.background_color }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_text_color" class="form-label">Text Color</label>
+                                <input type="color" name="text_color" class="form-control form-control-color" id="id_text_color" value="{{ theme_preference.text_color }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_sidebar_color" class="form-label">Sidebar Color</label>
+                                <input type="color" name="sidebar_color" class="form-control form-control-color" id="id_sidebar_color" value="{{ theme_preference.sidebar_color }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_card_color" class="form-label">Card Color</label>
+                                <input type="color" name="card_color" class="form-control form-control-color" id="id_card_color" value="{{ theme_preference.card_color }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'settings:theme' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Theme Settings
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Theme Preferences
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const themeModeSelect = document.getElementById('id_theme_mode');
+    const customThemeOptions = document.getElementById('customThemeOptions');
+    
+    // Show/hide custom theme options based on selection
+    themeModeSelect.addEventListener('change', function() {
+        if (this.value === 'custom') {
+            customThemeOptions.style.display = 'block';
+        } else {
+            customThemeOptions.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock %}

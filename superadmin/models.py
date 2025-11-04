@@ -47,6 +47,20 @@ class Business(models.Model):
         # In a real implementation, this would count users associated with this business
         return 1
 
+class Branch(models.Model):
+    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='branches')
+    name = models.CharField(max_length=200)
+    address = models.TextField()
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    is_main = models.BooleanField(default=False)  # type: ignore
+    is_active = models.BooleanField(default=True)  # type: ignore
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.business.company_name} - {self.name}"
+
 class SubscriptionPlan(models.Model):
     name = models.CharField(max_length=50, unique=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # type: ignore
@@ -103,6 +117,7 @@ class SystemSetting(models.Model):
         return self.key
 
 class SystemLog(models.Model):
+    """Model to store system logs"""
     LOG_LEVEL_CHOICES = (
         ('info', 'Info'),
         ('warning', 'Warning'),
@@ -113,7 +128,7 @@ class SystemLog(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     level = models.CharField(max_length=10, choices=LOG_LEVEL_CHOICES)
     message = models.TextField()
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='superadmin_system_logs')
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     
     class Meta:
@@ -124,6 +139,7 @@ class SystemLog(models.Model):
         return f"{self.level.upper()}: {message_str[:50]}..."
 
 class SecurityEvent(models.Model):
+    """Model to track security events"""
     EVENT_TYPE_CHOICES = (
         ('login_attempt', 'Login Attempt'),
         ('suspicious_activity', 'Suspicious Activity'),
@@ -133,7 +149,7 @@ class SecurityEvent(models.Model):
     
     timestamp = models.DateTimeField(auto_now_add=True)
     event_type = models.CharField(max_length=30, choices=EVENT_TYPE_CHOICES)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='superadmin_security_events')
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     details = models.TextField()
     is_resolved = models.BooleanField(default=False)  # type: ignore

@@ -1,91 +1,32 @@
 from django.db import models
-from django.db.models.query import QuerySet
 from .middleware import get_current_business
-
-
-class BusinessSpecificQuerySet(QuerySet):
-    """
-    Custom QuerySet that automatically filters objects by business context.
-    This ensures data isolation in a multi-tenant environment.
-    """
-    
-    def business_specific(self):
-        """
-        Filter objects by the current business context.
-        This method should be called to ensure data isolation.
-        """
-        current_business = get_current_business()
-        if current_business:
-            # Check if the model has a direct business field
-            if hasattr(self.model, 'business'):
-                return self.filter(business=current_business)
-            # Check if the model has a sale field (like SaleItem)
-            elif hasattr(self.model, 'sale'):
-                return self.filter(sale__business=current_business)
-            # Check if the model has a cart field (like CartItem)
-            elif hasattr(self.model, 'cart'):
-                return self.filter(cart__business=current_business)
-            # For other related models, we might need to add more conditions here
-            else:
-                # Fallback to original behavior
-                return self.filter(business=current_business)
-        return self.none()
-    
-    def create(self, **kwargs):
-        """
-        Override create to automatically associate objects with the current business.
-        """
-        current_business = get_current_business()
-        # Only add business parameter for models that have a direct business field
-        # Models like CartItem get their business context from their related objects
-        if (current_business and 'business' not in kwargs and 
-            hasattr(self.model, 'business')):
-            kwargs['business'] = current_business
-        return super().create(**kwargs)
-
 
 class BusinessSpecificManager(models.Manager):
     """
-    Custom Manager that automatically filters objects by business context.
-    This ensures data isolation in a multi-tenant environment.
+    Custom manager that automatically filters objects by the current business context.
+    This is used for multi-tenancy to ensure users only see data from their business.
     """
     
     def get_queryset(self):
         """
-        Return a BusinessSpecificQuerySet instance.
+        Override get_queryset to filter by business context.
         """
-        return BusinessSpecificQuerySet(self.model, using=self._db)
+        queryset = super().get_queryset()
+        current_business = get_current_business()
+        if current_business:
+            return queryset.filter(business=current_business)
+        # If no business context, return empty queryset to prevent data leakage
+        return queryset.none()
     
     def business_specific(self):
         """
-        Filter objects by the current business context.
-        This method should be called to ensure data isolation.
+        Return a queryset filtered by the current business context.
+        This method is used throughout the application to ensure multi-tenancy.
         """
-        current_business = get_current_business()
-        if current_business:
-            # Check if the model has a direct business field
-            if hasattr(self.model, 'business'):
-                return self.get_queryset().filter(business=current_business)
-            # Check if the model has a sale field (like SaleItem)
-            elif hasattr(self.model, 'sale'):
-                return self.get_queryset().filter(sale__business=current_business)
-            # Check if the model has a cart field (like CartItem)
-            elif hasattr(self.model, 'cart'):
-                return self.get_queryset().filter(cart__business=current_business)
-            # For other related models, we might need to add more conditions here
-            else:
-                # Fallback to original behavior
-                return self.get_queryset().filter(business=current_business)
-        return self.get_queryset().none()
+        return self.get_queryset()
     
-    def create(self, **kwargs):
+    def for_business(self, business):
         """
-        Override create to automatically associate objects with the current business.
+        Filter objects by a specific business.
         """
-        current_business = get_current_business()
-        # Only add business parameter for models that have a direct business field
-        # Models like CartItem get their business context from their related objects
-        if (current_business and 'business' not in kwargs and 
-            hasattr(self.model, 'business')):
-            kwargs['business'] = current_business
-        return super().create(**kwargs)
+        return self.get_queryset().filter(business=business)

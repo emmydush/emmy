@@ -1,7 +1,10 @@
 from django import forms
-from .models import BusinessSettings, BarcodeSettings, EmailSettings
+from .models import BusinessSettings, BackupSettings, BarcodeSettings, EmailSettings
 
 class BusinessSettingsForm(forms.ModelForm):
+    # Add a field to handle logo deletion
+    delete_logo = forms.BooleanField(required=False, label="Delete current logo")
+    
     class Meta:
         model = BusinessSettings
         fields = ['business_name', 'business_address', 'business_email', 'business_phone', 
@@ -12,6 +15,34 @@ class BusinessSettingsForm(forms.ModelForm):
             'expiry_alert_days': forms.NumberInput(attrs={'min': 1}),
             'near_expiry_alert_days': forms.NumberInput(attrs={'min': 1}),
             'tax_rate': forms.NumberInput(attrs={'step': '0.01'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # If there's an existing logo, show the delete option
+        if self.instance and self.instance.pk and self.instance.business_logo:
+            self.fields['delete_logo'].label = "Delete current logo"
+    
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        
+        # Handle logo deletion
+        if self.cleaned_data.get('delete_logo') and instance.business_logo:
+            # Delete the logo file
+            instance.business_logo.delete(save=False)
+            # Clear the logo field
+            instance.business_logo = None
+        
+        if commit:
+            instance.save()
+        return instance
+
+class BackupSettingsForm(forms.ModelForm):
+    class Meta:
+        model = BackupSettings
+        fields = ['frequency', 'backup_time', 'retention_days', 'is_active']
+        widgets = {
+            'retention_days': forms.NumberInput(attrs={'min': 1, 'max': 365}),
         }
 
 class BarcodeSettingsForm(forms.ModelForm):

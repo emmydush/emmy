@@ -668,8 +668,17 @@ class VoiceCommand {
     navigateToPage(page) {
         page = page.toLowerCase();
         
+        // Check what system we're currently in to determine the correct dashboard URL
+        let dashboardUrl = '/dashboard/';
+        if (window.location.pathname.startsWith('/superadmin/')) {
+            dashboardUrl = '/superadmin/';
+        } else if (window.location.pathname.startsWith('/admin_system/')) {
+            dashboardUrl = '/admin_system/';
+        }
+        
         const pages = {
-            'dashboard': '/dashboard/',
+            'dashboard': dashboardUrl,
+            'home': dashboardUrl,
             'products': '/products/',
             'product list': '/products/',
             'customers': '/customers/',
@@ -685,6 +694,15 @@ class VoiceCommand {
             'reports': '/reports/',
             'report list': '/reports/',
             'settings': '/settings/',
+            // Admin system entries
+            'admin': '/admin_system/',
+            'admin dashboard': '/admin_system/',
+            'admin system': '/admin_system/',
+            // Super admin entries
+            'super admin': '/superadmin/',
+            'superadmin': '/superadmin/',
+            'platform admin': '/superadmin/',
+            // Point of Sale entries
             'point of sale': '/sales/pos/',
             'pos': '/sales/pos/',
             'profit': '/reports/profit-loss/',

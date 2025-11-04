@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Backup Settings - {{ business_settings.business_name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2><i class="fas fa-database"></i> Backup Settings</h2>
+        <p class="text-muted">Configure automated backup schedules and retention policies.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="border rounded p-4">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="{{ form.frequency.id_for_label }}" class="form-label">Backup Frequency</label>
+                    {{ form.frequency }}
+                    {% if form.frequency.errors %}
+                        <div class="text-danger">{{ form.frequency.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.backup_time.id_for_label }}" class="form-label">Backup Time</label>
+                    {{ form.backup_time }}
+                    <div class="form-text">Time when automated backups will be created (server time)</div>
+                    {% if form.backup_time.errors %}
+                        <div class="text-danger">{{ form.backup_time.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.retention_days.id_for_label }}" class="form-label">Retention Period</label>
+                    {{ form.retention_days }}
+                    <div class="form-text">Number of days to keep backups (1-365 days)</div>
+                    {% if form.retention_days.errors %}
+                        <div class="text-danger">{{ form.retention_days.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3 form-check">
+                    {{ form.is_active }}
+                    <label for="{{ form.is_active.id_for_label }}" class="form-check-label">Enable Automated Backups</label>
+                    {% if form.is_active.errors %}
+                        <div class="text-danger">{{ form.is_active.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Save Settings</button>
+                    <a href="{% url 'settings:backup' %}" class="btn btn-secondary">Back to Backup</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="border rounded p-4">
+            <h5><i class="fas fa-info-circle"></i> Backup Information</h5>
+            <p>Automated backups help protect your business data by creating regular snapshots of your database and files.</p>
+            
+            <h6>What's Included:</h6>
+            <ul>
+                <li>Complete database backup</li>
+                <li>All uploaded media files</li>
+                <li>System configuration</li>
+            </ul>
+            
+            <h6>Storage Location:</h6>
+            <p>Backups are stored in the <code>backups/</code> directory in your project folder.</p>
+            
+            {% if backup_settings %}
+                <h6>Current Settings:</h6>
+                <ul>
+                    <li><strong>Frequency:</strong> {{ backup_settings.get_frequency_display }}</li>
+                    <li><strong>Time:</strong> {{ backup_settings.get_backup_time_display }}</li>
+                    <li><strong>Retention:</strong> {{ backup_settings.retention_days }} days</li>
+                    <li><strong>Status:</strong> 
+                        {% if backup_settings.is_active %}
+                            <span class="text-success">Active</span>
+                        {% else %}
+                            <span class="text-danger">Inactive</span>
+                        {% endif %}
+                    </li>
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

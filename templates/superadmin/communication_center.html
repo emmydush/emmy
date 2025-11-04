@@ -1,83 +1,85 @@
 {% extends 'superadmin/base.html' %}
 
-{% block title %}Communication Center - Super Admin - Smart Solution{% endblock %}
+{% block title %}Communication Center - Super Admin - {{ business_settings.business_name }}{% endblock %}
 
 {% block superadmin_content %}
-<ul class="nav nav-tabs mb-4" id="communicationTabs" role="tablist">
-  <li class="nav-item" role="presentation">
-    <button class="nav-link active" id="announcements-tab" data-bs-toggle="tab" data-bs-target="#announcements" type="button" role="tab">
-      <i class="fas fa-bullhorn me-1"></i> Announcements
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>Communication Center</h1>
+  <div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createAnnouncementModal">
+      <i class="fas fa-bullhorn me-1"></i> New Announcement
     </button>
+  </div>
+</div>
+
+<!-- Navigation Tabs -->
+<ul class="nav nav-tabs mb-4" id="communicationTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="announcements-tab" data-bs-toggle="tab" data-bs-target="#announcements" type="button" role="tab">Announcements</button>
   </li>
   <li class="nav-item" role="presentation">
-    <button class="nav-link" id="tickets-tab" data-bs-toggle="tab" data-bs-target="#tickets" type="button" role="tab">
-      <i class="fas fa-ticket-alt me-1"></i> Support Tickets
-    </button>
+    <button class="nav-link" id="support-tickets-tab" data-bs-toggle="tab" data-bs-target="#support-tickets" type="button" role="tab">Support Tickets</button>
   </li>
 </ul>
 
-<div class="tab-content" id="communicationTabsContent">
+<!-- Tab Content -->
+<div class="tab-content" id="communicationTabContent">
   <!-- Announcements Tab -->
   <div class="tab-pane fade show active" id="announcements" role="tabpanel">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>System Announcements</h2>
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createAnnouncementModal">
-        <i class="fas fa-plus me-1"></i> New Announcement
-      </button>
-    </div>
-    
-    <div class="row">
-      {% for announcement in announcements %}
-      <div class="col-md-6 mb-4">
-        <div class="card h-100">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-              <h5 class="card-title">{{ announcement.title }}</h5>
-              <div>
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">System Announcements</h5>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Content</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for announcement in announcements %}
+            <tr>
+              <td>{{ announcement.title }}</td>
+              <td>{{ announcement.content|truncatewords:10 }}</td>
+              <td>
                 <span class="badge {% if announcement.is_active %}bg-success{% else %}bg-secondary{% endif %}">
                   {% if announcement.is_active %}Active{% else %}Inactive{% endif %}
                 </span>
-              </div>
-            </div>
-            <p class="card-text">{{ announcement.content|truncatewords:30 }}</p>
-            <small class="text-muted">Created: {{ announcement.created_at|date:"M d, Y H:i" }}</small>
-          </div>
-          <div class="card-footer">
-            <button class="btn btn-sm btn-outline-primary">
-              <i class="fas fa-edit me-1"></i> Edit
-            </button>
-            <button class="btn btn-sm btn-outline-danger">
-              <i class="fas fa-trash me-1"></i> Delete
-            </button>
-          </div>
-        </div>
+              </td>
+              <td>{{ announcement.created_at|date:"M d, Y" }}</td>
+              <td>
+                <div class="btn-group btn-group-sm" role="group">
+                  <a href="#" class="btn btn-outline-primary" title="Edit">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <a href="#" class="btn btn-outline-danger" title="Delete">
+                    <i class="fas fa-trash"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center">No announcements found</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
-      {% empty %}
-      <div class="col-12">
-        <div class="text-center py-5">
-          <i class="fas fa-bullhorn fa-3x text-muted mb-3"></i>
-          <p>No announcements found</p>
-          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createAnnouncementModal">
-            <i class="fas fa-plus me-1"></i> Create First Announcement
-          </button>
-        </div>
-      </div>
-      {% endfor %}
     </div>
   </div>
   
   <!-- Support Tickets Tab -->
-  <div class="tab-pane fade" id="tickets" role="tabpanel">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>Support Tickets</h2>
-      <div>
-        <button class="btn btn-outline-secondary me-2">
-          <i class="fas fa-filter me-1"></i> Filter
-        </button>
-      </div>
-    </div>
-    
+  <div class="tab-pane fade" id="support-tickets" role="tabpanel">
     <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">Support Tickets</h5>
+      </div>
       <div class="table-responsive">
         <table class="table table-hover mb-0">
           <thead>
@@ -95,9 +97,9 @@
             {% for ticket in tickets %}
             <tr>
               <td>{{ ticket.business.company_name }}</td>
-              <td>{{ ticket.subject|truncatewords:5 }}</td>
+              <td>{{ ticket.subject }}</td>
               <td>
-                <span class="badge {% if ticket.priority == 'low' %}bg-success{% elif ticket.priority == 'medium' %}bg-warning{% elif ticket.priority == 'high' %}bg-danger{% else %}bg-dark{% endif %}">
+                <span class="badge {% if ticket.priority == 'urgent' %}bg-danger{% elif ticket.priority == 'high' %}bg-warning{% elif ticket.priority == 'medium' %}bg-info{% else %}bg-secondary{% endif %}">
                   {{ ticket.priority|title }}
                 </span>
               </td>
@@ -110,12 +112,12 @@
               <td>{{ ticket.created_at|date:"M d, Y" }}</td>
               <td>
                 <div class="btn-group btn-group-sm" role="group">
-                  <button class="btn btn-outline-primary btn-icon" data-bs-toggle="tooltip" title="View Details">
+                  <a href="#" class="btn btn-outline-primary" title="View Details">
                     <i class="fas fa-eye"></i>
-                  </button>
-                  <button class="btn btn-outline-warning btn-icon" data-bs-toggle="tooltip" title="Assign">
+                  </a>
+                  <a href="#" class="btn btn-outline-warning" title="Assign">
                     <i class="fas fa-user-plus"></i>
-                  </button>
+                  </a>
                 </div>
               </td>
             </tr>
@@ -132,26 +134,26 @@
 </div>
 
 <!-- Create Announcement Modal -->
-<div class="modal fade" id="createAnnouncementModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+<div class="modal fade" id="createAnnouncementModal" tabindex="-1" aria-labelledby="createAnnouncementModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Create New Announcement</h5>
+        <h5 class="modal-title" id="createAnnouncementModalLabel">Create New Announcement</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form>
           <div class="mb-3">
-            <label class="form-label">Title</label>
-            <input type="text" class="form-control" required>
+            <label for="announcementTitle" class="form-label">Title</label>
+            <input type="text" class="form-control" id="announcementTitle" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Content</label>
-            <textarea class="form-control" rows="5" required></textarea>
+            <label for="announcementContent" class="form-label">Content</label>
+            <textarea class="form-control" id="announcementContent" rows="4" required></textarea>
           </div>
-          <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" id="announcementActive" checked>
-            <label class="form-check-label" for="announcementActive">Active</label>
+          <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="isActive" checked>
+            <label class="form-check-label" for="isActive">Active</label>
           </div>
         </form>
       </div>

@@ -1,82 +1,50 @@
 {% extends 'superadmin/base.html' %}
 
-{% block title %}System Logs - Super Admin - Smart Solution{% endblock %}
+{% block title %}System Logs - Super Admin - {{ business_settings.business_name }}{% endblock %}
 
 {% block superadmin_content %}
-<ul class="nav nav-tabs mb-4" id="logsTabs" role="tablist">
-  <li class="nav-item" role="presentation">
-    <button class="nav-link active" id="system-logs-tab" data-bs-toggle="tab" data-bs-target="#systemLogs" type="button" role="tab">
-      <i class="fas fa-file-alt me-1"></i> System Logs
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>System Logs & Security Events</h1>
+  <div>
+    <button class="btn btn-outline-secondary">
+      <i class="fas fa-download me-1"></i> Export Logs
     </button>
+  </div>
+</div>
+
+<!-- Navigation Tabs -->
+<ul class="nav nav-tabs mb-4" id="logsTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="system-logs-tab" data-bs-toggle="tab" data-bs-target="#system-logs" type="button" role="tab">System Logs</button>
   </li>
   <li class="nav-item" role="presentation">
-    <button class="nav-link" id="security-events-tab" data-bs-toggle="tab" data-bs-target="#securityEvents" type="button" role="tab">
-      <i class="fas fa-shield-alt me-1"></i> Security Events
-    </button>
+    <button class="nav-link" id="security-events-tab" data-bs-toggle="tab" data-bs-target="#security-events" type="button" role="tab">Security Events</button>
   </li>
 </ul>
 
-<div class="tab-content" id="logsTabsContent">
+<!-- Tab Content -->
+<div class="tab-content" id="logsTabContent">
   <!-- System Logs Tab -->
-  <div class="tab-pane fade show active" id="systemLogs" role="tabpanel">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>System Logs</h2>
-      <div>
-        <button class="btn btn-outline-danger me-2">
-          <i class="fas fa-trash me-1"></i> Clear Logs
-        </button>
-        <button class="btn btn-outline-secondary">
-          <i class="fas fa-download me-1"></i> Export
-        </button>
-      </div>
-    </div>
-    
-    <!-- Filters -->
-    <div class="card mb-4">
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-3">
-            <label class="form-label">Log Level</label>
-            <select class="form-select">
-              <option>All Levels</option>
-              <option>Info</option>
-              <option>Warning</option>
-              <option>Error</option>
-              <option>Critical</option>
-            </select>
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Date Range</label>
-            <input type="date" class="form-control">
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Search</label>
-            <input type="text" class="form-control" placeholder="Search logs...">
-          </div>
-          <div class="col-md-2 d-flex align-items-end">
-            <button class="btn btn-outline-secondary w-100">
-              <i class="fas fa-filter me-1"></i> Filter
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    
+  <div class="tab-pane fade show active" id="system-logs" role="tabpanel">
     <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">System Logs</h5>
+      </div>
       <div class="table-responsive">
         <table class="table table-hover mb-0">
           <thead>
             <tr>
+              <th>Timestamp</th>
               <th>Level</th>
               <th>Message</th>
               <th>User</th>
               <th>IP Address</th>
-              <th>Timestamp</th>
             </tr>
           </thead>
           <tbody>
             {% for log in logs %}
             <tr>
+              <td>{{ log.timestamp|date:"M d, Y H:i:s" }}</td>
               <td>
                 <span class="badge {% if log.level == 'info' %}bg-info{% elif log.level == 'warning' %}bg-warning{% elif log.level == 'error' %}bg-danger{% else %}bg-dark{% endif %}">
                   {{ log.level|upper }}
@@ -85,91 +53,64 @@
               <td>{{ log.message }}</td>
               <td>{{ log.user.username|default:"System" }}</td>
               <td>{{ log.ip_address|default:"N/A" }}</td>
-              <td>{{ log.timestamp|date:"M d, Y H:i:s" }}</td>
             </tr>
             {% empty %}
             <tr>
-              <td colspan="5" class="text-center">No logs found</td>
+              <td colspan="5" class="text-center">No system logs found</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
-      
-      <!-- Pagination -->
-      <div class="card-footer">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            Showing 1 to {{ logs|length }} of {{ logs|length }} entries
-          </div>
-          <nav>
-            <ul class="pagination mb-0">
-              <li class="page-item disabled">
-                <a class="page-link" href="#" tabindex="-1">Previous</a>
-              </li>
-              <li class="page-item active">
-                <a class="page-link" href="#">1</a>
-              </li>
-              <li class="page-item disabled">
-                <a class="page-link" href="#">Next</a>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </div>
     </div>
   </div>
   
   <!-- Security Events Tab -->
-  <div class="tab-pane fade" id="securityEvents" role="tabpanel">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>Security Events</h2>
-      <button class="btn btn-outline-secondary">
-        <i class="fas fa-download me-1"></i> Export Events
-      </button>
-    </div>
-    
+  <div class="tab-pane fade" id="security-events" role="tabpanel">
     <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">Security Events</h5>
+      </div>
       <div class="table-responsive">
         <table class="table table-hover mb-0">
           <thead>
             <tr>
+              <th>Timestamp</th>
               <th>Event Type</th>
               <th>User</th>
               <th>IP Address</th>
-              <th>Details</th>
               <th>Status</th>
-              <th>Timestamp</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {% for event in security_events %}
             <tr>
+              <td>{{ event.timestamp|date:"M d, Y H:i:s" }}</td>
               <td>{{ event.event_type|title }}</td>
               <td>{{ event.user.username|default:"Unknown" }}</td>
               <td>{{ event.ip_address|default:"N/A" }}</td>
-              <td>{{ event.details|truncatewords:5 }}</td>
               <td>
-                <span class="badge {% if event.is_resolved %}bg-success{% else %}bg-warning{% endif %}">
-                  {% if event.is_resolved %}Resolved{% else %}Pending{% endif %}
+                <span class="badge {% if event.is_resolved %}bg-success{% else %}bg-danger{% endif %}">
+                  {% if event.is_resolved %}Resolved{% else %}Unresolved{% endif %}
                 </span>
               </td>
-              <td>{{ event.timestamp|date:"M d, Y H:i:s" }}</td>
               <td>
                 <div class="btn-group btn-group-sm" role="group">
-                  <button class="btn btn-outline-primary btn-icon" data-bs-toggle="tooltip" title="View Details">
+                  <a href="#" class="btn btn-outline-primary" title="View Details">
                     <i class="fas fa-eye"></i>
-                  </button>
-                  <button class="btn btn-outline-success btn-icon" data-bs-toggle="tooltip" title="Mark as Resolved">
+                  </a>
+                  {% if not event.is_resolved %}
+                  <a href="#" class="btn btn-outline-success" title="Mark as Resolved">
                     <i class="fas fa-check"></i>
-                  </button>
+                  </a>
+                  {% endif %}
                 </div>
               </td>
             </tr>
             {% empty %}
             <tr>
-              <td colspan="7" class="text-center">No security events found</td>
+              <td colspan="6" class="text-center">No security events found</td>
             </tr>
             {% endfor %}
           </tbody>

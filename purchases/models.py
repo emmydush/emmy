@@ -10,18 +10,17 @@ class PurchaseOrder(models.Model):
     
     STATUS_CHOICES = (
         ('pending', 'Pending'),
+        ('ordered', 'Ordered'),
         ('received', 'Received'),
-        ('partially_received', 'Partially Received'),
         ('cancelled', 'Cancelled'),
     )
     
     # Add business relationship for multi-tenancy
     business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='purchase_orders', null=True)
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE)
-    order_date = models.DateTimeField(auto_now_add=True)
+    order_date = models.DateField()
     expected_delivery_date = models.DateField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     notes = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -32,6 +31,14 @@ class PurchaseOrder(models.Model):
     def __str__(self):
         return f"PO-{self.pk} - {self.supplier.name}"
 
+    @property
+    def total_amount(self):
+        """Calculate total amount for this purchase order"""
+        total = 0
+        for item in self.items.all():
+            total += item.total_amount
+        return total
+
 class PurchaseItem(models.Model):
     # Use business-specific manager
     objects = BusinessSpecificManager()
@@ -40,22 +47,16 @@ class PurchaseItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.DecimalField(max_digits=10, decimal_places=2)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
-    total_price = models.DecimalField(max_digits=10, decimal_places=2)
-    received_quantity = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['product__name']
 
     def __str__(self):
         return f"{self.product.name} - {self.quantity}"
 
-    def save(self, *args, **kwargs):
-        self.total_price = self.quantity * self.unit_price
-        super().save(*args, **kwargs)
-
     @property
-    def is_fully_received(self):
-        return self.received_quantity >= self.quantity
-
-    @property
-    def pending_quantity(self):
-        return self.quantity - self.received_quantity
+    def total_amount(self):
+        """Calculate total amount for this item"""
+        return self.quantity * self.unit_price

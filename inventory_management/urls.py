@@ -14,7 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
+
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
@@ -27,7 +27,7 @@ def root_redirect(request):
 
 urlpatterns = [
     path('', root_redirect, name='home'),
-    path('admin/', admin.site.urls),
+
     path('api/v1/', include('api.urls')),
     path('dashboard/', include('dashboard.urls')),
     path('accounts/', include('authentication.urls')),
@@ -42,9 +42,6 @@ urlpatterns = [
     path('settings/', include('settings.urls')),
     path('superadmin/', include('superadmin.urls')),
     path('business-selection/', business_selection_view, name='business_selection'),
-    # Allauth URLs for social authentication
-    path('accounts/', include('allauth.urls')),
-    path('social/', include('allauth.socialaccount.urls')),
 ]
 
 if settings.DEBUG:

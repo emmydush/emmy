@@ -555,6 +555,145 @@ body {
     color: #ff6666; /* Light red for negative profit */
 }
 
+/* Custom theme */
+[data-theme="custom"] {
+    background-color: var(--theme-background);
+    color: var(--theme-text);
+}
+
+[data-theme="custom"] body {
+    background-color: var(--theme-background);
+    color: var(--theme-text);
+}
+
+[data-theme="custom"] .bg-light {
+    background-color: color-mix(in srgb, var(--theme-background) 90%, black) !important;
+}
+
+[data-theme="custom"] .sidebar {
+    background: linear-gradient(135deg, var(--theme-secondary) 0%, var(--theme-sidebar) 100%);
+    border-right: 1px solid color-mix(in srgb, var(--theme-sidebar) 80%, black);
+}
+
+[data-theme="custom"] .sidebar::before {
+    background: linear-gradient(135deg, 
+        color-mix(in srgb, var(--theme-secondary) 90%, black) 0%, 
+        color-mix(in srgb, var(--theme-sidebar) 95%, black) 100%);
+}
+
+[data-theme="custom"] .navbar-custom {
+    background: linear-gradient(135deg, var(--theme-secondary) 0%, var(--theme-sidebar) 100%) !important;
+    border-bottom: 1px solid color-mix(in srgb, var(--theme-sidebar) 80%, black);
+}
+
+[data-theme="custom"] .card {
+    background-color: var(--theme-card);
+    border: 1px solid color-mix(in srgb, var(--theme-card) 70%, black);
+}
+
+[data-theme="custom"] .stat-card {
+    background-color: var(--theme-card);
+    border: 1px solid color-mix(in srgb, var(--theme-card) 70%, black);
+}
+
+[data-theme="custom"] .card-header {
+    background-color: color-mix(in srgb, var(--theme-card) 95%, black);
+    border-bottom: 1px solid color-mix(in srgb, var(--theme-card) 70%, black);
+}
+
+[data-theme="custom"] .sidebar .nav-link {
+    color: color-mix(in srgb, var(--theme-text) 95%, white);
+}
+
+[data-theme="custom"] .sidebar .nav-link:hover {
+    background: rgba(from var(--theme-primary) r g b / 0.25);
+    color: var(--theme-primary);
+}
+
+[data-theme="custom"] .sidebar .nav-link.active {
+    background: rgba(from var(--theme-primary) r g b / 0.3);
+    color: var(--theme-primary);
+}
+
+[data-theme="custom"] .sidebar .nav-link:hover i {
+    transform: scale(1.2);
+}
+
+[data-theme="custom"] .navbar-custom .navbar-brand,
+[data-theme="custom"] .navbar-custom .navbar-nav .nav-link {
+    color: color-mix(in srgb, var(--theme-text) 95%, white) !important;
+}
+
+[data-theme="custom"] .navbar-custom .navbar-brand:hover,
+[data-theme="custom"] .navbar-custom .navbar-nav .nav-link:hover {
+    color: var(--theme-primary) !important;
+}
+
+[data-theme="custom"] .navbar-custom .user-profile-img {
+    border: 2px solid rgba(from var(--theme-text) r g b / 0.3);
+}
+
+[data-theme="custom"] .navbar-custom .nav-link:hover .user-profile-img {
+    border-color: var(--theme-primary);
+}
+
+[data-theme="custom"] .table {
+    color: var(--theme-text);
+}
+
+[data-theme="custom"] .table-striped > tbody > tr:nth-of-type(odd) {
+    --bs-table-striped-bg: color-mix(in srgb, var(--theme-background) 80%, black);
+}
+
+[data-theme="custom"] .form-control,
+[data-theme="custom"] .form-select {
+    background-color: color-mix(in srgb, var(--theme-card) 90%, black);
+    border: 1px solid color-mix(in srgb, var(--theme-card) 50%, black);
+    color: var(--theme-text);
+}
+
+[data-theme="custom"] .form-control:focus,
+[data-theme="custom"] .form-select:focus {
+    background-color: color-mix(in srgb, var(--theme-card) 90%, black);
+    border-color: var(--theme-primary);
+    color: var(--theme-text);
+}
+
+[data-theme="custom"] .btn-primary {
+    background-color: var(--theme-primary);
+    border-color: var(--theme-primary);
+}
+
+[data-theme="custom"] .btn-primary:hover {
+    background-color: color-mix(in srgb, var(--theme-primary) 80%, black);
+    border-color: color-mix(in srgb, var(--theme-primary) 80%, black);
+}
+
+/* Product list colors for custom theme */
+[data-theme="custom"] .product-quantity-high {
+    color: color-mix(in srgb, #28a745 80%, var(--theme-text));
+}
+
+[data-theme="custom"] .product-quantity-low {
+    color: color-mix(in srgb, #ffc107 80%, var(--theme-text));
+}
+
+[data-theme="custom"] .product-quantity-critical {
+    color: color-mix(in srgb, #dc3545 80%, var(--theme-text));
+}
+
+[data-theme="custom"] .product-price {
+    color: color-mix(in srgb, #007bff 80%, var(--theme-text));
+}
+
+[data-theme="custom"] .product-profit {
+    color: color-mix(in srgb, #28a745 80%, var(--theme-text));
+}
+
+[data-theme="custom"] .product-profit-negative {
+    color: color-mix(in srgb, #dc3545 80%, var(--theme-text));
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .sidebar {

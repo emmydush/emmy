@@ -1,101 +1,82 @@
 {% extends 'superadmin/base.html' %}
 
-{% block title %}Subscription Management - Super Admin - Smart Solution{% endblock %}
+{% block title %}Subscription Management - Super Admin - {{ business_settings.business_name }}{% endblock %}
 
 {% block superadmin_content %}
-<ul class="nav nav-tabs mb-4" id="subscriptionTabs" role="tablist">
-  <li class="nav-item" role="presentation">
-    <button class="nav-link active" id="plans-tab" data-bs-toggle="tab" data-bs-target="#plans" type="button" role="tab">
-      <i class="fas fa-list me-1"></i> Plans
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>Subscription Management</h1>
+  <div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createPlanModal">
+      <i class="fas fa-plus me-1"></i> Create Plan
     </button>
-  </li>
-  <li class="nav-item" role="presentation">
-    <button class="nav-link" id="subscriptions-tab" data-bs-toggle="tab" data-bs-target="#subscriptions" type="button" role="tab">
-      <i class="fas fa-file-contract me-1"></i> Subscriptions
-    </button>
-  </li>
-  <li class="nav-item" role="presentation">
-    <button class="nav-link" id="payments-tab" data-bs-toggle="tab" data-bs-target="#payments" type="button" role="tab">
-      <i class="fas fa-receipt me-1"></i> Payments
-    </button>
-  </li>
-</ul>
+  </div>
+</div>
 
-<div class="tab-content" id="subscriptionTabsContent">
-  <!-- Plans Tab -->
-  <div class="tab-pane fade show active" id="plans" role="tabpanel">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>Subscription Plans</h2>
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createPlanModal">
-        <i class="fas fa-plus me-1"></i> Add Plan
-      </button>
-    </div>
-    
-    <div class="row">
-      {% for plan in plans %}
-      <div class="col-md-4 mb-4">
-        <div class="card h-100">
-          <div class="card-body">
-            <h5 class="card-title">{{ plan.name }}</h5>
-            <h6 class="card-subtitle mb-2 text-muted">{{ plan.price|floatformat:2 }} / {{ plan.duration_days }} days</h6>
-            <ul class="list-unstyled mt-3">
-              <li class="mb-1">
-                <i class="fas fa-check text-success me-2"></i>
-                Up to {{ plan.max_products }} products
-              </li>
-              <li class="mb-1">
-                <i class="fas fa-check text-success me-2"></i>
-                Up to {{ plan.max_users }} users
-              </li>
-              <li class="mb-1">
-                <i class="fas fa-check text-success me-2"></i>
-                Up to {{ plan.max_branches }} branches
-              </li>
-            </ul>
-            <div class="form-check form-switch mt-3">
-              <input class="form-check-input" type="checkbox" id="planStatus{{ plan.id }}" {% if plan.is_active %}checked{% endif %}>
-              <label class="form-check-label" for="planStatus{{ plan.id }}">Active</label>
-            </div>
-          </div>
-          <div class="card-footer">
-            <button class="btn btn-sm btn-outline-primary">
-              <i class="fas fa-edit me-1"></i> Edit
-            </button>
-            <button class="btn btn-sm btn-outline-danger">
-              <i class="fas fa-trash me-1"></i> Delete
-            </button>
-          </div>
-        </div>
+<!-- Subscription Plans -->
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">Subscription Plans</h5>
       </div>
-      {% empty %}
-      <div class="col-12">
-        <div class="text-center py-5">
-          <i class="fas fa-file-contract fa-3x text-muted mb-3"></i>
-          <p>No subscription plans found</p>
-          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createPlanModal">
-            <i class="fas fa-plus me-1"></i> Create First Plan
-          </button>
-        </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Plan Name</th>
+              <th>Price</th>
+              <th>Duration</th>
+              <th>Max Products</th>
+              <th>Max Users</th>
+              <th>Max Branches</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for plan in plans %}
+            <tr>
+              <td>{{ plan.name }}</td>
+              <td>${{ plan.price|floatformat:2 }}</td>
+              <td>{{ plan.duration_days }} days</td>
+              <td>{{ plan.max_products }}</td>
+              <td>{{ plan.max_users }}</td>
+              <td>{{ plan.max_branches }}</td>
+              <td>
+                <span class="badge {% if plan.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                  {% if plan.is_active %}Active{% else %}Inactive{% endif %}
+                </span>
+              </td>
+              <td>
+                <div class="btn-group btn-group-sm" role="group">
+                  <a href="#" class="btn btn-outline-primary" title="Edit">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <a href="#" class="btn btn-outline-danger" title="Delete">
+                    <i class="fas fa-trash"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="8" class="text-center">No subscription plans found</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
-      {% endfor %}
     </div>
   </div>
-  
-  <!-- Subscriptions Tab -->
-  <div class="tab-pane fade" id="subscriptions" role="tabpanel">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>Subscriptions</h2>
-      <div>
-        <button class="btn btn-outline-secondary me-2">
-          <i class="fas fa-filter me-1"></i> Filter
-        </button>
-        <button class="btn btn-primary">
-          <i class="fas fa-plus me-1"></i> Add Subscription
-        </button>
-      </div>
-    </div>
-    
+</div>
+
+<!-- Active Subscriptions -->
+<div class="row">
+  <div class="col-md-12">
     <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">Active Subscriptions</h5>
+      </div>
       <div class="table-responsive">
         <table class="table table-hover mb-0">
           <thead>
@@ -122,15 +103,15 @@
               </td>
               <td>
                 <div class="btn-group btn-group-sm" role="group">
-                  <button class="btn btn-outline-primary btn-icon" data-bs-toggle="tooltip" title="View Details">
+                  <a href="#" class="btn btn-outline-primary" title="View Details">
                     <i class="fas fa-eye"></i>
-                  </button>
-                  <button class="btn btn-outline-warning btn-icon" data-bs-toggle="tooltip" title="Edit">
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button class="btn btn-outline-danger btn-icon" data-bs-toggle="tooltip" title="Cancel">
+                  </a>
+                  <a href="#" class="btn btn-outline-warning" title="Renew">
+                    <i class="fas fa-redo"></i>
+                  </a>
+                  <a href="#" class="btn btn-outline-danger" title="Cancel">
                     <i class="fas fa-times"></i>
-                  </button>
+                  </a>
                 </div>
               </td>
             </tr>
@@ -144,94 +125,45 @@
       </div>
     </div>
   </div>
-  
-  <!-- Payments Tab -->
-  <div class="tab-pane fade" id="payments" role="tabpanel">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>Payments</h2>
-      <div>
-        <button class="btn btn-outline-secondary me-2">
-          <i class="fas fa-filter me-1"></i> Filter
-        </button>
-      </div>
-    </div>
-    
-    <div class="card">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead>
-            <tr>
-              <th>Business</th>
-              <th>Amount</th>
-              <th>Method</th>
-              <th>Transaction ID</th>
-              <th>Status</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for payment in payments %}
-            <tr>
-              <td>{{ payment.subscription.business.company_name }}</td>
-              <td>{{ payment.amount|floatformat:2 }}</td>
-              <td>{{ payment.payment_method }}</td>
-              <td>{{ payment.transaction_id }}</td>
-              <td>
-                <span class="badge {% if payment.status == 'completed' %}bg-success{% elif payment.status == 'pending' %}bg-warning{% elif payment.status == 'failed' %}bg-danger{% else %}bg-secondary{% endif %}">
-                  {{ payment.status|title }}
-                </span>
-              </td>
-              <td>{{ payment.created_at|date:"M d, Y" }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="6" class="text-center">No payments found</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- Create Plan Modal -->
-<div class="modal fade" id="createPlanModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="createPlanModal" tabindex="-1" aria-labelledby="createPlanModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Create Subscription Plan</h5>
+        <h5 class="modal-title" id="createPlanModalLabel">Create New Subscription Plan</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form>
           <div class="mb-3">
-            <label class="form-label">Plan Name</label>
-            <input type="text" class="form-control" required>
+            <label for="planName" class="form-label">Plan Name</label>
+            <input type="text" class="form-control" id="planName" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Price</label>
-            <input type="number" class="form-control" step="0.01" min="0" required>
+            <label for="price" class="form-label">Price ($)</label>
+            <input type="number" class="form-control" id="price" step="0.01" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Duration (days)</label>
-            <input type="number" class="form-control" min="1" required>
+            <label for="duration" class="form-label">Duration (days)</label>
+            <input type="number" class="form-control" id="duration" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Max Products</label>
-            <input type="number" class="form-control" min="1" value="100">
+            <label for="maxProducts" class="form-label">Max Products</label>
+            <input type="number" class="form-control" id="maxProducts" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Max Users</label>
-            <input type="number" class="form-control" min="1" value="5">
+            <label for="maxUsers" class="form-label">Max Users</label>
+            <input type="number" class="form-control" id="maxUsers" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Max Branches</label>
-            <input type="number" class="form-control" min="1" value="1">
+            <label for="maxBranches" class="form-label">Max Branches</label>
+            <input type="number" class="form-control" id="maxBranches" required>
           </div>
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="planActive" checked>
-            <label class="form-check-label" for="planActive">Active</label>
+          <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="isActive" checked>
+            <label class="form-check-label" for="isActive">Active</label>
           </div>
         </form>
       </div>

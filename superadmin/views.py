@@ -29,6 +29,7 @@ class SuperAdminDashboardView(TemplateView):
         context['total_businesses'] = Business.objects.count()
         context['active_businesses'] = Business.objects.filter(status='active').count()
         context['pending_businesses'] = Business.objects.filter(status='pending').count()
+        context['suspended_businesses'] = Business.objects.filter(status='suspended').count()
         context['total_users'] = User.objects.count()
         
         # Subscription & Billing stats
@@ -48,6 +49,15 @@ class SuperAdminDashboardView(TemplateView):
         context['recent_users'] = User.objects.order_by('-date_joined')[:5]
         context['recent_logs'] = SystemLog.objects.order_by('-timestamp')[:10]
         
+        # Security monitoring
+        context['recent_security_events'] = SecurityEvent.objects.order_by('-timestamp')[:10]
+        context['unresolved_security_events'] = SecurityEvent.objects.filter(is_resolved=False).count()
+        context['suspended_users'] = User.objects.filter(is_active=False).count()
+        
+        # API monitoring
+        context['api_clients'] = APIClient.objects.count()
+        context['active_api_clients'] = APIClient.objects.filter(is_active=True).count()
+        
         return context
 
 @method_decorator([staff_member_required, user_passes_test(is_superadmin)], name='dispatch')
@@ -57,6 +67,7 @@ class BusinessManagementView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['businesses'] = Business.objects.all()
+        context['users'] = User.objects.all()
         return context
 
 @method_decorator([staff_member_required, user_passes_test(is_superadmin)], name='dispatch')
