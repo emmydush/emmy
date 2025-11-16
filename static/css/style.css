@@ -71,7 +71,8 @@ body {
     transition: all 0.3s ease;
     box-shadow: 3px 0 10px rgba(0, 0, 0, 0.1);
     position: relative;
-    overflow: hidden;
+    overflow-y: auto; /* Changed from hidden to auto to allow scrolling */
+    overflow-x: hidden; /* Keep horizontal overflow hidden */
 }
 
 .sidebar::before {

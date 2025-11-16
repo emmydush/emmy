@@ -53,18 +53,17 @@
                 <span>{{ business_settings.business_name }}</span>
             </a>
             
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'dashboard:index' %}"><i class="fas fa-home" aria-hidden="true"></i> Home</a>
-                    </li>
+
                 </ul>
                 
                 <ul class="navbar-nav ms-auto">
+                    <!-- Current Time -->
+                    <li class="nav-item me-3 d-flex align-items-center">
+                        <span id="currentTime" class="text-white"></span>
+                    </li>
+                    
                     <!-- Notifications -->
                     <li class="nav-item dropdown me-2">
                         <a class="nav-link dropdown-toggle position-relative" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -101,13 +100,6 @@
                         </select>
                     </li>
                     
-                    <!-- Theme Toggle Button -->
-                    <li class="nav-item me-2">
-                        <button id="themeToggle" class="theme-toggle btn btn-sm btn-outline-light" aria-label="Toggle theme">
-                            <i class="fas fa-moon"></i>
-                        </button>
-                    </li>
-                    
                     <!-- User Menu -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -134,7 +126,7 @@
         <div class="row">
             <!-- Sidebar -->
             <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-                <div class="position-sticky pt-3">
+                <div class="position-sticky pt-3" style="height: calc(100vh - 56px);">
                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'dashboard:index' %}">
@@ -237,6 +229,18 @@
                     icon.classList.add('fa-palette');
                 }
             }
+            
+            // Update current time
+            function updateTime() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const dateString = now.toLocaleDateString([], {weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'});
+                document.getElementById('currentTime').textContent = `${dateString} ${timeString}`;
+            }
+            
+            // Update time immediately and then every minute
+            updateTime();
+            setInterval(updateTime, 60000);
         });
     </script>
 </body>

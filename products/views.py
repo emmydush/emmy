@@ -107,8 +107,16 @@ def product_json(request, pk):
     """
     API endpoint to return product details as JSON
     """
+    # Get current business from middleware
+    from superadmin.middleware import get_current_business
+    current_business = get_current_business()
+    
+    if not current_business:
+        return JsonResponse({'error': 'No business context found'}, status=400)
+    
     try:
-        product = get_object_or_404(Product.objects.business_specific(), pk=pk, is_active=True)
+        # Make sure the product belongs to the current business
+        product = get_object_or_404(Product.objects.filter(business=current_business), pk=pk, is_active=True)
         return JsonResponse({
             'id': product.id,
             'name': product.name,

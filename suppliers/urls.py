@@ -9,4 +9,5 @@ urlpatterns = [
     path('<int:pk>/', views.supplier_detail, name='detail'),
     path('<int:pk>/update/', views.supplier_update, name='update'),
     path('<int:pk>/delete/', views.supplier_delete, name='delete'),
+    path('<int:pk>/json/', views.supplier_json, name='json'),
 ]

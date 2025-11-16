@@ -9,10 +9,15 @@ class ExpenseForm(forms.ModelForm):
         current_business = get_current_business()
         if current_business:
             # Filter categories by current business
-            self.fields['category'].queryset = ExpenseCategory.objects.filter(business=current_business)
+            categories = ExpenseCategory.objects.filter(business=current_business)
+            self.fields['category'].queryset = categories
+            # If no categories exist, add a helpful message
+            if not categories.exists():
+                self.fields['category'].help_text = 'No categories available. Please create a category first.'
         else:
             # If no business context, show all categories (fallback)
             self.fields['category'].queryset = ExpenseCategory.objects.all()
+            self.fields['category'].help_text = 'No business context found. Please select a business.'
     
     class Meta:
         model = Expense

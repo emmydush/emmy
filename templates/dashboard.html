@@ -9,13 +9,31 @@
     <p>Welcome back, {{ user.username }}! Here's what's happening with your business today.</p>
 </div>
 
+<!-- Search Bar -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form id="dashboardSearchForm">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="dashboardSearch" placeholder="Search products, sales, customers..." aria-label="Search">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Dashboard Stats -->
 <div class="dashboard-stats">
     <div class="row">
-        <!-- Products - Visible to all roles -->
-        <div class="col-md-3 mb-4">
+        <!-- Total Products -->
+        <div class="col-md-2 mb-3">
             <div class="stat-card card-gradient-1">
-                <div class="card-body text-center">
+                <div class="card-body text-center p-2">
                     <div class="stat-icon text-white">
                         <i class="fas fa-box"></i>
                     </div>
@@ -24,11 +42,11 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Low Stock Products - Visible to all roles -->
-        <div class="col-md-3 mb-4">
+
+        <!-- Low Stock Items -->
+        <div class="col-md-2 mb-3">
             <div class="stat-card card-gradient-2">
-                <div class="card-body text-center">
+                <div class="card-body text-center p-2">
                     <div class="stat-icon text-white">
                         <i class="fas fa-exclamation-triangle"></i>
                     </div>
@@ -37,103 +55,189 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Sales - Now visible to all roles -->
-        <div class="col-md-3 mb-4">
+
+        <!-- Out of Stock Items -->
+        <div class="col-md-2 mb-3">
             <div class="stat-card card-gradient-3">
-                <div class="card-body text-center">
+                <div class="card-body text-center p-2">
+                    <div class="stat-icon text-white">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="stat-number text-white">{{ out_of_stock_count }}</div>
+                    <div class="stat-title text-white">Out of Stock Items</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Categories -->
+        <div class="col-md-2 mb-3">
+            <div class="stat-card card-gradient-4">
+                <div class="card-body text-center p-2">
+                    <div class="stat-icon text-white">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <div class="stat-number text-white">{{ total_categories }}</div>
+                    <div class="stat-title text-white">Total Categories</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Sales -->
+        <div class="col-md-2 mb-3">
+            <div class="stat-card card-gradient-5">
+                <div class="card-body text-center p-2">
                     <div class="stat-icon text-white">
                         <i class="fas fa-shopping-cart"></i>
                     </div>
-                    <div class="stat-number text-white">{{ today_sales }}</div>
+                    <div class="stat-number text-white">{{ todays_sales_count }}</div>
                     <div class="stat-title text-white">Today's Sales</div>
                 </div>
             </div>
         </div>
-        
-        <!-- Today's Profit -->
-        <div class="col-md-3 mb-4">
-            <div class="stat-card card-gradient-4">
-                <div class="card-body text-center">
+
+        <!-- Product Value in Stock -->
+        <div class="col-md-2 mb-3">
+            <div class="stat-card card-gradient-6">
+                <div class="card-body text-center p-2">
                     <div class="stat-icon text-white">
-                        <i class="fas fa-chart-line"></i>
+                        <i class="fas fa-dollar-sign"></i>
                     </div>
-                    <div class="stat-number text-white">{{ business_settings.currency_symbol }}{{ today_profit|floatformat:2 }}</div>
-                    <div class="stat-title text-white">Today's Profit</div>
+                    <div class="stat-number text-white">{{ product_value_in_stock|floatformat:2 }}</div>
+                    <div class="stat-title text-white">Stock Value ({{ business_settings.currency_symbol }})</div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Charts and Recent Activity Section -->
-<div class="section-header">
-    <h2>Business Insights</h2>
-    <p>Key performance indicators and recent activities</p>
+<!-- Charts Section -->
+<div class="row mt-4">
+    <!-- Fast-Moving vs Slow-Moving Items Chart -->
+    <div class="col-md-6 mb-4">
+        <div class="card bg-light text-dark">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Fast-Moving vs Slow-Moving Items</h5>
+                <div class="chart-controls">
+                    <button class="btn btn-sm btn-outline-secondary chart-refresh" data-chart="fastSlowChart">
+                        <i class="fas fa-sync"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="fastSlowChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category-wise Stock Distribution Chart -->
+    <div class="col-md-6 mb-4">
+        <div class="card bg-light text-dark">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Category-wise Stock Distribution</h5>
+                <div class="chart-controls">
+                    <button class="btn btn-sm btn-outline-secondary chart-refresh" data-chart="categoryStockChart">
+                        <i class="fas fa-sync"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="categoryStockChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Sales Chart -->
+    <div class="col-md-6 mb-4">
+        <div class="card bg-light text-dark">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Daily Sales</h5>
+                <div class="chart-controls">
+                    <button class="btn btn-sm btn-outline-secondary chart-refresh" data-chart="dailySalesChart">
+                        <i class="fas fa-sync"></i>
+                    </button>
+                    <select class="form-select form-select-sm chart-timeframe" data-chart="dailySalesChart">
+                        <option value="7">Last 7 Days</option>
+                        <option value="14">Last 14 Days</option>
+                        <option value="30">Last 30 Days</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="dailySalesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Selling Products Chart -->
+    <div class="col-md-6 mb-4">
+        <div class="card bg-light text-dark">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Top Selling Products</h5>
+                <div class="chart-controls">
+                    <button class="btn btn-sm btn-outline-secondary chart-refresh" data-chart="topSellingChart">
+                        <i class="fas fa-sync"></i>
+                    </button>
+                    <select class="form-select form-select-sm chart-limit" data-chart="topSellingChart">
+                        <option value="5">Top 5</option>
+                        <option value="10" selected>Top 10</option>
+                        <option value="15">Top 15</option>
+                        <option value="20">Top 20</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="topSellingChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="row">
-    <!-- Sales Info -->
-    <div class="col-md-8 mb-4">
-        <div class="card card-gradient-1">
+<!-- Additional Insights Section -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card bg-light text-dark">
             <div class="card-header">
-                <h5 class="text-white"><i class="fas fa-chart-line"></i> Sales Information</h5>
+                <h5 class="mb-0">Business Insights</h5>
             </div>
             <div class="card-body">
-                <p class="text-white">Total Sales: {{ total_sales }}</p>
-                <p class="text-white">Today's Sales: {{ today_sales }}</p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Stock Info -->
-    <div class="col-md-4 mb-4">
-        <div class="card card-gradient-2">
-            <div class="card-header">
-                <h5 class="text-white"><i class="fas fa-boxes"></i> Stock Information</h5>
-            </div>
-            <div class="card-body">
-                <p class="text-white">Total Products: {{ total_products }}</p>
-                <p class="text-white">Low Stock Items: {{ low_stock_count }}</p>
-                <p class="text-white">Out of Stock Items: {{ out_of_stock_count }}</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <!-- Customer Info -->
-    <div class="col-md-8 mb-4">
-        <div class="card card-gradient-3">
-            <div class="card-header">
-                <h5 class="text-white"><i class="fas fa-users"></i> Customer Information</h5>
-            </div>
-            <div class="card-body">
-                <p class="text-white">Total Customers: {{ total_customers }}</p>
-                <p class="text-white">Total Purchases: {{ total_purchases }}</p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Low Stock Alert -->
-    <div class="col-md-4 mb-4">
-        <div class="card card-gradient-4">
-            <div class="card-header">
-                <h5 class="text-white"><i class="fas fa-exclamation-circle"></i> Low Stock Alert</h5>
-            </div>
-            <div class="card-body">
-                {% if low_stock_products %}
-                    <ul class="list-group">
-                        {% for product in low_stock_products|slice:":5" %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            {{ product.name }}
-                            <span class="badge bg-warning rounded-pill">{{ product.quantity }} in stock</span>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p class="text-center text-white">No low stock items</p>
-                {% endif %}
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="insight-card p-3 mb-3 bg-white rounded">
+                            <h6>Total Revenue</h6>
+                            <h4>{{ business_settings.currency_symbol }}{{ total_profit|floatformat:2 }}</h4>
+                            <small class="text-muted">All time</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="insight-card p-3 mb-3 bg-white rounded">
+                            <h6>Today's Profit</h6>
+                            <h4>{{ business_settings.currency_symbol }}{{ today_profit|floatformat:2 }}</h4>
+                            <small class="text-muted">Today only</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="insight-card p-3 mb-3 bg-white rounded">
+                            <h6>Avg. Sales per Day</h6>
+                            <h4>{{ todays_sales_count }}</h4>
+                            <small class="text-muted">Last 7 days</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="insight-card p-3 mb-3 bg-white rounded">
+                            <h6>Stock Turnover</h6>
+                            <h4>{{ total_products|floatformat:0 }}</h4>
+                            <small class="text-muted">Active products</small>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -141,5 +245,695 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- No JavaScript for this simplified version -->
+<!-- Custom styles for compact dashboard cards -->
+<style>
+    .stat-card {
+        height: 120px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: 1px solid rgba(0, 0, 0, 0.125);
+    }
+    
+    /* Define gradient classes for dashboard cards */
+    .card-gradient-1 {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    }
+    
+    .card-gradient-2 {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    .card-gradient-3 {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+    
+    .card-gradient-4 {
+        background: linear-gradient(135deg, #ff5858 0%, #f09819 100%);
+    }
+    
+    .card-gradient-5 {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    
+    .card-gradient-6 {
+        background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+    }
+    
+    .stat-card .card-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .stat-icon {
+        font-size: 1.2rem;
+        margin-bottom: 5px;
+    }
+    
+    .stat-number {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 3px;
+    }
+    
+    .stat-title {
+        font-size: 0.7rem;
+        text-align: center;
+    }
+    
+    .small {
+        font-size: 0.8rem !important;
+    }
+    
+    @media (max-width: 768px) {
+        .stat-card {
+            height: 100px;
+        }
+        
+        .stat-number {
+            font-size: 1rem;
+        }
+        
+        .stat-icon {
+            font-size: 1rem;
+        }
+    }
+    
+    /* Fix for chart containers */
+    .chart-container {
+        position: relative;
+        height: 300px;
+        width: 100%;
+    }
+    
+    /* Chart header controls */
+    .chart-controls {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    /* Insight cards */
+    .insight-card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: 1px solid rgba(0, 0, 0, 0.125);
+    }
+    
+    /* Refresh button animation */
+    .chart-refresh.spin {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* No data message */
+    .no-data-message {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        color: #6c757d;
+        font-style: italic;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    /* Search bar styling */
+    #dashboardSearchForm .input-group {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    
+    #dashboardSearch {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+    
+    #dashboardSearchForm .btn {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+</style>
+
+<!-- Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Dashboard search functionality
+    function initDashboardSearch() {
+        const searchForm = document.getElementById('dashboardSearchForm');
+        const searchInput = document.getElementById('dashboardSearch');
+        
+        if (searchForm && searchInput) {
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const searchTerm = searchInput.value.trim();
+                
+                if (searchTerm) {
+                    // Redirect to search results page
+                    window.location.href = `/dashboard/search/?q=${encodeURIComponent(searchTerm)}`;
+                }
+            });
+        }
+    }
+    
+    // Initialize search when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initDashboardSearch);
+    } else {
+        // DOM is already loaded
+        initDashboardSearch();
+    }
+</script>
+
+<!-- Chart initialization scripts -->
+<script>
+    // Store chart instances
+    const chartInstances = {};
+    
+    // Wait for the DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            // Parse JSON data with error handling
+            let fastSlowData, categoryStockData, dailySalesData, topSellingData;
+            
+            try {
+                fastSlowData = JSON.parse('{{ fast_slow_products_json|escapejs }}');
+                categoryStockData = JSON.parse('{{ category_stock_json|escapejs }}');
+                dailySalesData = JSON.parse('{{ daily_sales_json|escapejs }}');
+                topSellingData = JSON.parse('{{ top_selling_json|escapejs }}');
+                
+                // Log the data for debugging
+                console.log('Fast/Slow Data:', fastSlowData);
+                console.log('Category Stock Data:', categoryStockData);
+                console.log('Daily Sales Data:', dailySalesData);
+                console.log('Top Selling Data:', topSellingData);
+            } catch (e) {
+                console.error('Error parsing chart data:', e);
+                return;
+            }
+            
+            // Initialize all charts
+            initializeAllCharts();
+            
+            // Set up event listeners for chart controls
+            setupChartControls();
+            
+            function initializeAllCharts() {
+                initializeFastSlowChart();
+                initializeCategoryStockChart();
+                initializeDailySalesChart();
+                initializeTopSellingChart();
+            }
+            
+            function initializeFastSlowChart() {
+                const canvasId = 'fastSlowChart';
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                
+                // Destroy existing chart if it exists
+                if (Chart.getChart(ctx)) {
+                    Chart.getChart(ctx).destroy();
+                }
+                
+                // Process fast and slow moving data
+                let fastLabels = [];
+                let fastQuantities = [];
+                let slowLabels = [];
+                let slowQuantities = [];
+                
+                // Handle the data structure properly
+                if (fastSlowData && fastSlowData.fast_moving && Array.isArray(fastSlowData.fast_moving)) {
+                    fastLabels = fastSlowData.fast_moving.map(item => {
+                        // Handle different possible property names
+                        return item.product__name || item.name || item.label || 'Unknown';
+                    });
+                    fastQuantities = fastSlowData.fast_moving.map(item => {
+                        // Handle different possible property names
+                        return item.total_quantity || item.quantity || item.value || 0;
+                    });
+                }
+                
+                if (fastSlowData && fastSlowData.slow_moving && Array.isArray(fastSlowData.slow_moving)) {
+                    slowLabels = fastSlowData.slow_moving.map(item => {
+                        // Handle different possible property names
+                        return item.product__name || item.name || item.label || 'Unknown';
+                    });
+                    slowQuantities = fastSlowData.slow_moving.map(item => {
+                        // Handle different possible property names
+                        return item.total_quantity || item.quantity || item.value || 0;
+                    });
+                }
+                
+                // Debugging: Log the processed data
+                console.log('Fast Labels:', fastLabels);
+                console.log('Fast Quantities:', fastQuantities);
+                console.log('Slow Labels:', slowLabels);
+                console.log('Slow Quantities:', slowQuantities);
+                
+                // Create combined labels and data
+                const labels = [...fastLabels, ...slowLabels];
+                const data = [...fastQuantities, ...slowQuantities];
+                const backgroundColors = [
+                    ...Array(fastLabels.length).fill('rgba(40, 167, 69, 0.7)'),  // Fast moving - green
+                    ...Array(slowLabels.length).fill('rgba(220, 53, 69, 0.7)')    // Slow moving - red
+                ];
+                
+                // Debugging: Log the final data structure
+                console.log('Combined Labels:', labels);
+                console.log('Combined Data:', data);
+                console.log('Background Colors:', backgroundColors);
+                
+                // Only create chart if we have data
+                if (labels.length > 0 && data.length > 0) {
+                    chartInstances[canvasId] = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Units Sold',
+                                data: data,
+                                backgroundColor: backgroundColors,
+                                borderColor: [
+                                    ...Array(fastLabels.length).fill('rgba(40, 167, 69, 1)'),
+                                    ...Array(slowLabels.length).fill('rgba(220, 53, 69, 1)')
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: {
+                                duration: 1000 // Enable animation for better UX
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.1)'
+                                    },
+                                    ticks: {
+                                        color: 'black'
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.1)'
+                                    },
+                                    ticks: {
+                                        color: 'black',
+                                        autoSkip: false,
+                                        maxRotation: 45,
+                                        minRotation: 45
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: 'black'
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return context.dataset.label + ': ' + context.parsed.y;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    console.log('No data available for Fast/Slow chart');
+                    // Show a message when no data is available
+                    const canvas = document.getElementById(canvasId);
+                    const parent = canvas.parentElement;
+                    parent.innerHTML = '<div class="no-data-message">No data available for this chart</div>';
+                }
+            }
+            
+            function initializeCategoryStockChart() {
+                const canvasId = 'categoryStockChart';
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                
+                // Destroy existing chart if it exists
+                if (Chart.getChart(ctx)) {
+                    Chart.getChart(ctx).destroy();
+                }
+                
+                // Process category stock data
+                let categoryLabels = [];
+                let categoryValues = [];
+                
+                // Handle the data structure properly
+                if (categoryStockData && Array.isArray(categoryStockData)) {
+                    categoryLabels = categoryStockData.map(item => {
+                        // Handle different possible property names
+                        return item.category__name || item.name || item.label || 'Unknown';
+                    });
+                    categoryValues = categoryStockData.map(item => {
+                        // Handle different possible property names
+                        return item.total_value || item.value || item.total || 0;
+                    });
+                }
+                
+                // Debugging: Log the processed data
+                console.log('Category Labels:', categoryLabels);
+                console.log('Category Values:', categoryValues);
+                
+                // Only create chart if we have data
+                if (categoryLabels.length > 0 && categoryValues.length > 0) {
+                    // Generate colors for each category
+                    const backgroundColors = categoryLabels.map((_, index) => {
+                        const colors = [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(153, 102, 255, 0.7)',
+                            'rgba(255, 159, 64, 0.7)',
+                            'rgba(199, 199, 199, 0.7)'
+                        ];
+                        return colors[index % colors.length];
+                    });
+                    
+                    const borderColors = categoryLabels.map((_, index) => {
+                        const colors = [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(199, 199, 199, 1)'
+                        ];
+                        return colors[index % colors.length];
+                    });
+                    
+                    chartInstances[canvasId] = new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: categoryLabels,
+                            datasets: [{
+                                label: 'Stock Value',
+                                data: categoryValues,
+                                backgroundColor: backgroundColors,
+                                borderColor: borderColors,
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: {
+                                duration: 1000 // Enable animation for better UX
+                            },
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        color: 'black',
+                                        font: {
+                                            size: 10
+                                        }
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return context.label + ': ' + context.parsed + ' ({{ business_settings.currency_symbol }})';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    console.log('No data available for Category Stock chart');
+                    // Show a message when no data is available
+                    const canvas = document.getElementById(canvasId);
+                    const parent = canvas.parentElement;
+                    parent.innerHTML = '<div class="no-data-message">No data available for this chart</div>';
+                }
+            }
+            
+            function initializeDailySalesChart() {
+                const canvasId = 'dailySalesChart';
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                
+                // Destroy existing chart if it exists
+                if (Chart.getChart(ctx)) {
+                    Chart.getChart(ctx).destroy();
+                }
+                
+                // Process daily sales data
+                let salesDates = [];
+                let salesAmounts = [];
+                
+                // Handle the data structure properly
+                if (dailySalesData && Array.isArray(dailySalesData)) {
+                    salesDates = dailySalesData.map(item => {
+                        // Handle different possible property names
+                        return item.date || item.day || item.label || 'Unknown';
+                    });
+                    salesAmounts = dailySalesData.map(item => {
+                        // Handle different possible property names
+                        return item.total_sales || item.sales || item.value || item.total || 0;
+                    });
+                }
+                
+                // Debugging: Log the processed data
+                console.log('Sales Dates:', salesDates);
+                console.log('Sales Amounts:', salesAmounts);
+                
+                // Only create chart if we have data
+                if (salesDates.length > 0 && salesAmounts.length > 0) {
+                    chartInstances[canvasId] = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: salesDates,
+                            datasets: [{
+                                label: 'Daily Sales ({{ business_settings.currency_symbol }})',
+                                data: salesAmounts,
+                                fill: false,
+                                borderColor: 'rgba(13, 110, 253, 1)',
+                                backgroundColor: 'rgba(13, 110, 253, 0.2)',
+                                tension: 0.1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: {
+                                duration: 1000 // Enable animation for better UX
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.1)'
+                                    },
+                                    ticks: {
+                                        color: 'black',
+                                        callback: function(value) {
+                                            return '{{ business_settings.currency_symbol }}' + value;
+                                        }
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.1)'
+                                    },
+                                    ticks: {
+                                        color: 'black'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: 'black'
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return context.dataset.label + ': {{ business_settings.currency_symbol }}' + context.parsed.y;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    console.log('No data available for Daily Sales chart');
+                    // Show a message when no data is available
+                    const canvas = document.getElementById(canvasId);
+                    const parent = canvas.parentElement;
+                    parent.innerHTML = '<div class="no-data-message">No data available for this chart</div>';
+                }
+            }
+            
+            function initializeTopSellingChart() {
+                const canvasId = 'topSellingChart';
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                
+                // Destroy existing chart if it exists
+                if (Chart.getChart(ctx)) {
+                    Chart.getChart(ctx).destroy();
+                }
+                
+                // Process top selling products data
+                let productLabels = [];
+                let productRevenues = [];
+                
+                // Handle the data structure properly
+                if (topSellingData && Array.isArray(topSellingData)) {
+                    productLabels = topSellingData.map(item => {
+                        // Handle different possible property names
+                        return item.product__name || item.name || item.label || 'Unknown';
+                    });
+                    productRevenues = topSellingData.map(item => {
+                        // Handle different possible property names
+                        return item.total_revenue || item.revenue || item.value || item.total || 0;
+                    });
+                }
+                
+                // Debugging: Log the processed data
+                console.log('Product Labels:', productLabels);
+                console.log('Product Revenues:', productRevenues);
+                
+                // Only create chart if we have data
+                if (productLabels.length > 0 && productRevenues.length > 0) {
+                    chartInstances[canvasId] = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: productLabels,
+                            datasets: [{
+                                label: 'Revenue ({{ business_settings.currency_symbol }})',
+                                data: productRevenues,
+                                backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                                borderColor: 'rgba(13, 110, 253, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: {
+                                duration: 1000 // Enable animation for better UX
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.1)'
+                                    },
+                                    ticks: {
+                                        color: 'black',
+                                        callback: function(value) {
+                                            return '{{ business_settings.currency_symbol }}' + value;
+                                        }
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.1)'
+                                    },
+                                    ticks: {
+                                        color: 'black',
+                                        autoSkip: false,
+                                        maxRotation: 45,
+                                        minRotation: 45
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: 'black'
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return context.dataset.label + ': {{ business_settings.currency_symbol }}' + context.parsed.y;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    console.log('No data available for Top Selling chart');
+                    // Show a message when no data is available
+                    const canvas = document.getElementById(canvasId);
+                    const parent = canvas.parentElement;
+                    parent.innerHTML = '<div class="no-data-message">No data available for this chart</div>';
+                }
+            }
+            
+            function setupChartControls() {
+                // Set up refresh buttons
+                document.querySelectorAll('.chart-refresh').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const chartId = this.getAttribute('data-chart');
+                        refreshChart(chartId);
+                    });
+                });
+                
+                // Set up timeframe selectors
+                document.querySelectorAll('.chart-timeframe').forEach(select => {
+                    select.addEventListener('change', function() {
+                        const chartId = this.getAttribute('data-chart');
+                        const days = this.value;
+                        // In a real implementation, this would fetch new data
+                        console.log(`Changing timeframe for ${chartId} to ${days} days`);
+                    });
+                });
+                
+                // Set up limit selectors
+                document.querySelectorAll('.chart-limit').forEach(select => {
+                    select.addEventListener('change', function() {
+                        const chartId = this.getAttribute('data-chart');
+                        const limit = this.value;
+                        // In a real implementation, this would fetch new data
+                        console.log(`Changing limit for ${chartId} to ${limit} items`);
+                    });
+                });
+            }
+            
+            function refreshChart(chartId) {
+                // Add spin animation to refresh button
+                const refreshButton = document.querySelector(`[data-chart="${chartId}"].chart-refresh`);
+                refreshButton.classList.add('spin');
+                
+                // Simulate refresh delay
+                setTimeout(() => {
+                    refreshButton.classList.remove('spin');
+                    
+                    // In a real implementation, this would fetch new data and re-render the chart
+                    console.log(`Chart ${chartId} refreshed`);
+                }, 1000);
+            }
+        } catch (error) {
+            console.error('Error initializing charts:', error);
+        }
+    });
+    
+    // Handle window resize
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+            // Charts will automatically resize due to responsive: true
+        }, 100);
+    });
+</script>
 {% endblock %}

@@ -10,4 +10,5 @@ urlpatterns = [
     path('manager/', views.dashboard_view, name='manager'),
     path('stock-manager/', views.dashboard_view, name='stock_manager'),
     path('cashier/', views.dashboard_view, name='cashier'),
+    path('search/', views.search_view, name='search'),  # Add search URL
 ]

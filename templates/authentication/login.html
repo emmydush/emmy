@@ -64,16 +64,26 @@
                     <!-- Welcome message for users who just registered -->
                     {% if messages %}
                         {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3" role="alert">
-                                {% if message.tags == 'success' and 'Account created successfully' in message.message %}
+                            {% if 'You have been logged out' in message.message %}
+                                <!-- Display logout message more subtly -->
+                                <div class="alert alert-info alert-dismissible fade show mb-3" role="alert">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    You have been logged out successfully.
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% elif message.tags == 'success' and 'Account created successfully' in message.message %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3" role="alert">
                                     <h5 class="alert-heading fw-bold fs-6"><i class="fas fa-check-circle me-1"></i>Welcome to {{ business_settings.business_name }}!</h5>
                                     <p class="mb-1 small">{{ message.message }}</p>
                                     <p class="mb-0 fw-bold small">Intelligent. Efficient. Simplified.</p>
-                                {% else %}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3" role="alert">
                                     {{ message }}
-                                {% endif %}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endif %}
                         {% endfor %}
                     {% endif %}
                     

@@ -98,7 +98,16 @@ WSGI_APPLICATION = 'inventory_management.wsgi.application'
 # Import database configuration from local settings
 # PostgreSQL is the only supported database for this application
 # SQLite fallback has been removed to ensure consistent database behavior
-from .local_settings import DATABASES
+try:
+    from .local_settings import DATABASES
+except ImportError:
+    # Fallback to SQLite if local_settings.py is not available
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -154,10 +163,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'authentication.User'
 
 # Login/Logout URLs
-LOGIN_URL = '/auth/login/'
-LOGOUT_URL = '/auth/logout/'
+LOGIN_URL = '/accounts/login/'
+LOGOUT_URL = '/accounts/logout/'
 LOGIN_REDIRECT_URL = '/dashboard/'
-LOGOUT_REDIRECT_URL = '/auth/login/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
+
+# Ensure Django admin is not referenced accidentally
+# This prevents the NoReverseMatch error for 'admin' namespace
 
 # Email backend (using console backend for development)
 # In production, you would use a real email backend like SMTP

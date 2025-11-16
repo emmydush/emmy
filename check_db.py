@@ -1,34 +1,28 @@
+import sqlite3
 import os
-import django
 
-# Set up Django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'inventory_management.settings')
-django.setup()
-
-from django.db import connection
-
-# Check if branch_id column exists in suppliers_supplier table
-cursor = connection.cursor()
-cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'suppliers_supplier' AND column_name = 'branch_id'")
-result = cursor.fetchone()
-print("Branch ID column exists:", result)
-
-# Check foreign key constraints
-cursor.execute("""
-    SELECT 
-        tc.table_name, 
-        kcu.column_name, 
-        ccu.table_name AS foreign_table_name,
-        ccu.column_name AS foreign_column_name 
-    FROM 
-        information_schema.table_constraints AS tc 
-        JOIN information_schema.key_column_usage AS kcu
-          ON tc.constraint_name = kcu.constraint_name
-          AND tc.table_schema = kcu.table_schema
-        JOIN information_schema.constraint_column_usage AS ccu
-          ON ccu.constraint_name = tc.constraint_name
-          AND ccu.table_schema = tc.table_schema
-    WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name='suppliers_supplier'
-""")
-foreign_keys = cursor.fetchall()
-print("Foreign keys for suppliers_supplier:", foreign_keys)
+# Check if db.sqlite3 exists
+if os.path.exists('db.sqlite3'):
+    print("Database file exists")
+    conn = sqlite3.connect('db.sqlite3')
+    cursor = conn.cursor()
+    
+    # Check if the settings_businesssettings table exists
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='settings_businesssettings'")
+    result = cursor.fetchone()
+    print(f"settings_businesssettings table exists: {result is not None}")
+    
+    if result:
+        # Try to query the table
+        try:
+            cursor.execute("SELECT COUNT(*) FROM settings_businesssettings")
+            count = cursor.fetchone()[0]
+            print(f"Number of records in settings_businesssettings: {count}")
+        except Exception as e:
+            print(f"Error querying table: {e}")
+    else:
+        print("settings_businesssettings table does not exist")
+    
+    conn.close()
+else:
+    print("Database file does not exist")

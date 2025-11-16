@@ -13,14 +13,14 @@ def purchase_order_list(request):
 
 @login_required
 def purchase_order_create(request):
+    # Get the current business from the request
+    from superadmin.middleware import get_current_business
+    current_business = get_current_business()
+    
     if request.method == 'POST':
         form = PurchaseOrderForm(request.POST)
         formset = PurchaseItemFormSet(request.POST)
         if form.is_valid() and formset.is_valid():
-            # Get the current business from the request
-            from superadmin.middleware import get_current_business
-            current_business = get_current_business()
-            
             if not current_business:
                 messages.error(request, 'No business context found. Please select a business before creating purchase orders.')
                 return render(request, 'purchases/form.html', {
@@ -32,6 +32,10 @@ def purchase_order_create(request):
             # Save the purchase order with business context
             purchase_order = form.save(commit=False)
             purchase_order.business = current_business
+            # Set the order_date to today if not provided
+            if not purchase_order.order_date:
+                from django.utils import timezone
+                purchase_order.order_date = timezone.now().date()
             purchase_order.save()
             
             # Save the formset instances
@@ -42,13 +46,14 @@ def purchase_order_create(request):
             # Delete any instances marked for deletion
             for obj in formset.deleted_objects:
                 obj.delete()
-            # Calculate total amount
-            total_amount = sum(item.total_price for item in purchase_order.items.all())
-            purchase_order.total_amount = total_amount
+            # Note: total_amount is a calculated property, so we don't need to set it
             purchase_order.save()
             messages.success(request, 'Purchase order created successfully!')
             return redirect('purchases:detail', pk=purchase_order.pk)
     else:
+        if not current_business:
+            messages.error(request, 'No business context found. Please select a business before creating purchase orders.')
+            return redirect('business_selection')
         form = PurchaseOrderForm()
         formset = PurchaseItemFormSet()
     
@@ -67,14 +72,14 @@ def purchase_order_detail(request, pk):
 def purchase_order_update(request, pk):
     purchase_order = get_object_or_404(PurchaseOrder.objects.business_specific(), pk=pk)
     
+    # Get the current business from the request
+    from superadmin.middleware import get_current_business
+    current_business = get_current_business()
+    
     if request.method == 'POST':
         form = PurchaseOrderForm(request.POST, instance=purchase_order)
         formset = PurchaseItemFormSet(request.POST, instance=purchase_order)
         if form.is_valid() and formset.is_valid():
-            # Get the current business from the request
-            from superadmin.middleware import get_current_business
-            current_business = get_current_business()
-            
             if not current_business:
                 messages.error(request, 'No business context found. Please select a business before updating purchase orders.')
                 return render(request, 'purchases/form.html', {
@@ -97,13 +102,14 @@ def purchase_order_update(request, pk):
             # Delete any instances marked for deletion
             for obj in formset.deleted_objects:
                 obj.delete()
-            # Calculate total amount
-            total_amount = sum(item.total_price for item in purchase_order.items.all())
-            purchase_order.total_amount = total_amount
+            # Note: total_amount is a calculated property, so we don't need to set it
             purchase_order.save()
             messages.success(request, 'Purchase order updated successfully!')
             return redirect('purchases:detail', pk=purchase_order.pk)
     else:
+        if not current_business:
+            messages.error(request, 'No business context found. Please select a business before updating purchase orders.')
+            return redirect('business_selection')
         form = PurchaseOrderForm(instance=purchase_order)
         formset = PurchaseItemFormSet(instance=purchase_order)
     

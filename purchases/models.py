@@ -47,6 +47,7 @@ class PurchaseItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.DecimalField(max_digits=10, decimal_places=2)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    received_quantity = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Add this field
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -60,3 +61,8 @@ class PurchaseItem(models.Model):
     def total_amount(self):
         """Calculate total amount for this item"""
         return self.quantity * self.unit_price
+
+    @property
+    def is_fully_received(self):  # Add this property
+        """Check if this item is fully received"""
+        return self.received_quantity >= self.quantity

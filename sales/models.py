@@ -4,6 +4,7 @@ from customers.models import Customer
 from superadmin.models import Business
 from superadmin.managers import BusinessSpecificManager
 from authentication.models import User
+from decimal import Decimal
 
 class Cart(models.Model):
     objects = BusinessSpecificManager()
@@ -73,6 +74,17 @@ class Sale(models.Model):
     
     def __str__(self):
         return f"Sale #{self.id} - {self.total_amount}"
+        
+    @property
+    def total_profit(self):
+        """Calculate total profit for this sale based on sale items"""
+        profit = Decimal('0.00')
+        for item in self.items.all():
+            # Calculate profit for this item (selling price - cost price) * quantity
+            if item.product and hasattr(item.product, 'cost_price'):
+                item_profit = (Decimal(str(item.unit_price)) - Decimal(str(item.product.cost_price))) * Decimal(str(item.quantity))
+                profit += item_profit
+        return profit
 
 class SaleItem(models.Model):
     objects = BusinessSpecificManager()

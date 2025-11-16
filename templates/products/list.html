@@ -89,6 +89,7 @@
                                     <th>Category</th>
                                     <th>Quantity</th>
                                     <th>Price</th>
+                                    <th>Profit/Unit</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
@@ -114,6 +115,7 @@
                                         </span>
                                     </td>
                                     <td class="product-price">{{ product.selling_price|floatformat:2 }}</td>
+                                    <td class="product-profit">{{ business_settings.currency_symbol }} {{ product.profit_per_unit|floatformat:2 }}</td>
                                     <td>
                                         {% if product.is_active %}
                                             <span class="badge bg-success">Active</span>
@@ -204,6 +206,11 @@
     background-color: #f8f9fa;
     border-radius: 4px;
     color: #6c757d;
+}
+
+.product-profit {
+    font-weight: bold;
+    color: #28a745;
 }
 
 .voice-status-indicator {

@@ -114,9 +114,17 @@
             
             // Fetch the product price from the server
             fetch(`/products/${productId}/json/`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    if (data.selling_price) {
+                    if (data.error) {
+                        console.error('Error from server:', data.error);
+                        priceInput.value = '';
+                    } else if (data.selling_price) {
                         priceInput.value = data.selling_price;
                         // Trigger calculation after auto-filling price
                         calculateTotal(priceInput);
@@ -124,6 +132,37 @@
                 })
                 .catch(error => {
                     console.error('Error fetching product price:', error);
+                    priceInput.value = '';
+                });
+        }
+        
+        // Function to get supplier information
+        function getSupplierInfo(supplierId, supplierInfoElement) {
+            if (!supplierId) {
+                supplierInfoElement.textContent = '';
+                return;
+            }
+            
+            // Fetch the supplier info from the server
+            fetch(`/suppliers/${supplierId}/json/`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        console.error('Error from server:', data.error);
+                        supplierInfoElement.textContent = 'Error loading supplier info';
+                    } else {
+                        // Display supplier contact info
+                        supplierInfoElement.textContent = `${data.name} - ${data.phone || ''} ${data.email || ''}`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching supplier info:', error);
+                    supplierInfoElement.textContent = 'Error loading supplier info';
                 });
         }
         
@@ -159,6 +198,19 @@
                 }
             });
         });
+        
+        // Add event listener to supplier select to show supplier info
+        const supplierSelect = document.getElementById('id_supplier');
+        if (supplierSelect) {
+            const supplierInfo = document.createElement('div');
+            supplierInfo.className = 'form-text';
+            supplierInfo.id = 'supplier-info';
+            supplierSelect.parentNode.appendChild(supplierInfo);
+            
+            supplierSelect.addEventListener('change', function() {
+                getSupplierInfo(this.value, supplierInfo);
+            });
+        }
         
         // Add event listeners to quantity and price inputs for real-time calculation
         document.querySelectorAll('input[name$="quantity"], input[name$="unit_price"]').forEach(input => {
@@ -243,6 +295,17 @@
                     const totalForms = document.getElementById('id_items-TOTAL_FORMS');
                     totalForms.value = formset.length;
                 }
+            }
+        });
+        
+        // Initialize calculations for existing forms
+        document.querySelectorAll('.item-form').forEach(form => {
+            const quantityInput = form.querySelector('input[name$="quantity"]');
+            const priceInput = form.querySelector('input[name$="unit_price"]');
+            if (quantityInput) {
+                calculateTotal(quantityInput);
+            } else if (priceInput) {
+                calculateTotal(priceInput);
             }
         });
     });

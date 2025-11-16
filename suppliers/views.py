@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse
 from .models import Supplier
 from .forms import SupplierForm
 from superadmin.middleware import get_current_business
@@ -66,3 +67,28 @@ def supplier_delete(request, pk):
         return redirect('suppliers:list')
     
     return render(request, 'suppliers/confirm_delete.html', {'supplier': supplier})
+
+@login_required
+def supplier_json(request, pk):
+    """
+    API endpoint to return supplier details as JSON
+    """
+    # Get current business from middleware
+    from superadmin.middleware import get_current_business
+    current_business = get_current_business()
+    
+    if not current_business:
+        return JsonResponse({'error': 'No business context found'}, status=400)
+    
+    try:
+        # Make sure the supplier belongs to the current business
+        supplier = get_object_or_404(Supplier.objects.filter(business=current_business), pk=pk, is_active=True)
+        return JsonResponse({
+            'id': supplier.id,
+            'name': supplier.name,
+            'email': supplier.email,
+            'phone': supplier.phone,
+            'address': supplier.address,
+        })
+    except Supplier.DoesNotExist:
+        return JsonResponse({'error': 'Supplier not found'}, status=404)

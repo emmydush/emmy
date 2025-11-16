@@ -2,6 +2,8 @@ from django import forms
 from django.forms import inlineformset_factory
 from .models import PurchaseOrder, PurchaseItem
 from products.models import Product
+from suppliers.models import Supplier
+from superadmin.middleware import get_current_business
 
 class PurchaseOrderForm(forms.ModelForm):
     class Meta:
@@ -11,14 +13,22 @@ class PurchaseOrderForm(forms.ModelForm):
             'expected_delivery_date': forms.DateInput(attrs={'type': 'date'}),
             'notes': forms.Textarea(attrs={'rows': 3}),
         }
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Get current business from middleware
+        current_business = get_current_business()
+        if current_business:
+            # Filter suppliers by current business
+            self.fields['supplier'].queryset = Supplier.objects.filter(
+                business=current_business, 
+                is_active=True
+            )
+        else:
+            # If no business context, show empty queryset
+            self.fields['supplier'].queryset = Supplier.objects.none()
 
 class PurchaseItemForm(forms.ModelForm):
-    # Explicitly define the product field to help static analysis tools
-    product = forms.ModelChoiceField(
-        queryset=Product.objects.filter(is_active=True),
-        widget=forms.Select(attrs={'class': 'form-control product-select'})
-    )
-    
     class Meta:
         model = PurchaseItem
         fields = ['product', 'quantity', 'unit_price']
@@ -30,7 +40,19 @@ class PurchaseItemForm(forms.ModelForm):
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Ensure the product field has the correct class
+        # Get current business from middleware
+        current_business = get_current_business()
+        if current_business:
+            # Filter products by current business
+            self.fields['product'].queryset = Product.objects.filter(
+                business=current_business, 
+                is_active=True
+            )
+        else:
+            # If no business context, show empty queryset
+            self.fields['product'].queryset = Product.objects.none()
+            
+        # Ensure the fields have the correct classes
         self.fields['product'].widget.attrs.update({'class': 'form-control product-select'})
         self.fields['quantity'].widget.attrs.update({'class': 'form-control'})
         self.fields['unit_price'].widget.attrs.update({'class': 'form-control unit-price-input'})

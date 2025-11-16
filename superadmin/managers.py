@@ -14,7 +14,24 @@ class BusinessSpecificManager(models.Manager):
         queryset = super().get_queryset()
         current_business = get_current_business()
         if current_business:
-            return queryset.filter(business=current_business)
+            # Check if the model has a direct business field
+            if hasattr(self.model, 'business'):
+                return queryset.filter(business=current_business)
+            # Check if the model has a purchase_order relationship (for PurchaseItem)
+            elif hasattr(self.model, 'purchase_order'):
+                return queryset.filter(purchase_order__business=current_business)
+            # Check if the model has a product relationship that can lead to business
+            elif hasattr(self.model, 'product'):
+                return queryset.filter(product__business=current_business)
+            # Check if the model has a supplier relationship that can lead to business
+            elif hasattr(self.model, 'supplier'):
+                return queryset.filter(supplier__business=current_business)
+            # Check if the model has a customer relationship that can lead to business
+            elif hasattr(self.model, 'customer'):
+                return queryset.filter(customer__business=current_business)
+            else:
+                # If no recognizable relationship to business, return empty queryset
+                return queryset.none()
         # If no business context, return empty queryset to prevent data leakage
         return queryset.none()
     
@@ -29,4 +46,21 @@ class BusinessSpecificManager(models.Manager):
         """
         Filter objects by a specific business.
         """
-        return self.get_queryset().filter(business=business)
+        # Check if the model has a direct business field
+        if hasattr(self.model, 'business'):
+            return self.get_queryset().filter(business=business)
+        # Check if the model has a purchase_order relationship (for PurchaseItem)
+        elif hasattr(self.model, 'purchase_order'):
+            return self.get_queryset().filter(purchase_order__business=business)
+        # Check if the model has a product relationship that can lead to business
+        elif hasattr(self.model, 'product'):
+            return self.get_queryset().filter(product__business=business)
+        # Check if the model has a supplier relationship that can lead to business
+        elif hasattr(self.model, 'supplier'):
+            return self.get_queryset().filter(supplier__business=business)
+        # Check if the model has a customer relationship that can lead to business
+        elif hasattr(self.model, 'customer'):
+            return self.get_queryset().filter(customer__business=business)
+        else:
+            # If no recognizable relationship to business, return empty queryset
+            return self.get_queryset().none()

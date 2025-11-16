@@ -412,7 +412,8 @@ def process_pos_sale(request):
                         product=product,  # Use the product object instead of product_id
                         quantity=quantity,
                         unit_price=price,
-                        total_price=total_price
+                        total_price=total_price,
+                        business=current_business  # Set business context for multi-tenancy
                     )
                     logger.info(f"Sale item created: {sale_item}")
                 except Exception as e:

@@ -30,6 +30,15 @@ class ProductForm(forms.ModelForm):
         self.fields['barcode'].help_text = 'Leave blank to automatically generate a barcode'
         self.fields['barcode_format'].help_text = 'Select the barcode format for scanning compatibility'
         
+        # If we have a business context, filter categories and units by business
+        if self.business:
+            self.fields['category'].queryset = Category.objects.filter(business=self.business)
+            self.fields['unit'].queryset = Unit.objects.filter(business=self.business)
+        else:
+            # If no business context, show empty querysets
+            self.fields['category'].queryset = Category.objects.none()
+            self.fields['unit'].queryset = Unit.objects.none()
+        
     def clean_sku(self):
         sku = self.cleaned_data['sku']
         # If we have a business context, check for duplicate SKUs

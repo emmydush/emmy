@@ -46,7 +46,7 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    messages.info(request, 'You have been logged out.')
+    messages.info(request, 'You have been logged out successfully.')
     return redirect('authentication:login')
 
 def register_view(request):
@@ -214,3 +214,47 @@ def edit_user_view(request, user_id):
         'form': form,
         'user_to_edit': user_to_edit
     })
+
+@login_required
+def create_business_view(request):
+    """View for users to create a new business"""
+    # Check if user already has a business
+    from superadmin.models import Business
+    existing_business = Business.objects.filter(owner=request.user)
+    if existing_business.exists():
+        # If user already has a business, redirect to dashboard
+        messages.info(request, 'You already have a business.')
+        return redirect('dashboard:index')
+    
+    from superadmin.forms import BusinessDetailsForm
+    if request.method == 'POST':
+        form = BusinessDetailsForm(request.POST)
+        if form.is_valid():
+            # Create the business
+            business = form.save(commit=False)
+            business.owner = request.user
+            business.plan_type = 'free'
+            business.status = 'active'
+            business.save()
+            
+            # Set the business owner as admin
+            business.owner.role = 'admin'
+            # Associate owner with the business
+            business.owner.businesses.add(business)
+            business.owner.save()
+            
+            # Set the business in session
+            request.session['current_business_id'] = business.id
+            
+            # Also set in middleware thread-local storage
+            from superadmin.middleware import set_current_business
+            set_current_business(business)
+            
+            messages.success(request, 'Business created successfully!')
+            return redirect('dashboard:index')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = BusinessDetailsForm()
+    
+    return render(request, 'authentication/create_business.html', {'form': form})

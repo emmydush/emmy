@@ -42,7 +42,7 @@ class BusinessContextMiddleware:
         
         response = self.get_response(request)
         
-        # Clear the business context at the end of the request
-        clear_current_business()
+        # Note: We don't clear the business context here anymore
+        # It will be cleared at the start of the next request
         
         return response

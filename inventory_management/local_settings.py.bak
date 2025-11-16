@@ -1,0 +1,31 @@
+# Local Settings - Keep this file out of version control
+# This file contains sensitive information and should not be committed to version control
+
+from pathlib import Path
+import os
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Database Configuration
+# Using PostgreSQL for production environment
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'ims_db',
+        'USER': 'postgres',
+        'PASSWORD': 'Jesuslove@12',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
+
+# Email Configuration
+# For development, you can use the console email backend to see emails in the terminal
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST_USER = 'webmaster@localhost'
+EMAIL_HOST_PASSWORD = ''
+DEFAULT_FROM_EMAIL = 'Inventory Management System <webmaster@localhost>'
+
+# Additional email settings
+EMAIL_TIMEOUT = 30
