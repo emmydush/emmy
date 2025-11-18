@@ -82,7 +82,7 @@ def register_view(request):
     else:
         form = CustomUserCreationForm()
     
-    return render(request, 'authentication/register_simple.html', {
+    return render(request, 'authentication/register.html', {
         'form': form
     })
 
