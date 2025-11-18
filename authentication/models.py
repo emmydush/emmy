@@ -20,6 +20,40 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
 
+class UserPermission(models.Model):
+    """Model to store specific permissions for users beyond role-based permissions"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='custom_permissions')
+    
+    # Module permissions
+    can_access_products = models.BooleanField(default=True)
+    can_access_sales = models.BooleanField(default=True)
+    can_access_purchases = models.BooleanField(default=True)
+    can_access_customers = models.BooleanField(default=True)
+    can_access_suppliers = models.BooleanField(default=True)
+    can_access_expenses = models.BooleanField(default=True)
+    can_access_reports = models.BooleanField(default=True)
+    can_access_settings = models.BooleanField(default=False)
+    
+    # User management permissions
+    can_manage_users = models.BooleanField(default=False)
+    can_create_users = models.BooleanField(default=False)
+    can_edit_users = models.BooleanField(default=False)
+    can_delete_users = models.BooleanField(default=False)
+    
+    # Action permissions
+    can_create = models.BooleanField(default=False)
+    can_edit = models.BooleanField(default=False)
+    can_delete = models.BooleanField(default=False)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = ('user',)
+    
+    def __str__(self):
+        return f"Permissions for {self.user.username}"
+
 class UserThemePreference(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='theme_preference')
     

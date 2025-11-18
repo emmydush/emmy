@@ -48,6 +48,22 @@
     </div>
 </div>
 
+<!-- Success Messages -->
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == 'success' %}
+            <div class="container">
+                <div class="success-message-bar">
+                    <div class="check-circle">
+                        <i class="fas fa-check check-icon"></i>
+                    </div>
+                    <p class="message-text">{{ message }}</p>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
 <!-- Registration Form Container -->
 <div class="container d-flex align-items-center justify-content-center" style="min-height: calc(100vh - 120px);">
     <div class="card shadow-lg rounded-4 border-0" style="width: 100%; max-width: 500px;">
@@ -198,10 +214,6 @@
     .form-control {
         padding: 0.5rem 0.75rem;
         font-size: 0.875rem;
-    }
-    
-    .form-label {
-        font-weight: 500;
     }
 </style>
 

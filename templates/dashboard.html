@@ -3,6 +3,44 @@
 {% block title %}Dashboard - {{ business_settings.business_name }}{% endblock %}
 
 {% block content %}
+<!-- Permission Warnings -->
+{% if user.is_authenticated %}
+    {% load authentication_extras %}
+    {% check_permission user 'can_create' as can_create %}
+    {% check_permission user 'can_edit' as can_edit %}
+    {% check_permission user 'can_delete' as can_delete %}
+    
+    {% if not can_create and not can_edit and not can_delete %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <strong>Read-Only Access:</strong> You currently have read-only access to this system. 
+            You cannot create, edit, or delete any records. Contact your administrator if you need additional permissions.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% elif not can_create %}
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Limited Create Access:</strong> You do not have permission to create new records. 
+            You can view and edit existing records as permitted.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% elif not can_edit %}
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Limited Edit Access:</strong> You do not have permission to edit existing records. 
+            You can view records and create new ones as permitted.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% elif not can_delete %}
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Limited Delete Access:</strong> You do not have permission to delete records. 
+            You can view, create, and edit records as permitted.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+{% endif %}
+
 <!-- Dashboard Header -->
 <div class="dashboard-header">
     <h1>{% if current_business %}{{ current_business.company_name }}{% endif %}</h1>

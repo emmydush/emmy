@@ -1,0 +1,91 @@
+{% extends 'authentication/base_auth.html' %}
+
+{% block title %}Login Success - {{ business_settings.business_name }}{% endblock %}
+
+{% block content %}
+<!-- Beautiful Header -->
+<div class="container-fluid bg-success text-white py-3 mb-0">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                    {% if business_settings.business_logo %}
+                        <img src="{{ business_settings.business_logo.url }}" alt="{{ business_settings.business_name }} Logo" class="me-3" style="max-height: 40px; width: auto;">
+                    {% endif %}
+                    <div>
+                        <h1 class="h3 fw-bold mb-1">
+                            {{ business_settings.business_name }}
+                        </h1>
+                        <p class="mb-0 small">Intelligent. Efficient. Simplified.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <div class="d-flex justify-content-md-end align-items-center gap-2">
+                    <!-- Super Admin Link -->
+                    <a href="{% url 'superadmin:dashboard' %}" class="btn btn-sm btn-outline-light" role="button">
+                        <i class="fas fa-crown me-1"></i>
+                        <span class="d-none d-sm-inline">Super Admin</span>
+                    </a>
+                    
+                    <!-- Language Selector -->
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-globe me-1"></i>
+                            <span class="d-none d-sm-inline">Language</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+                            <li><a class="dropdown-item" href="#" data-lang="en">English</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="es">Español</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="fr">Français</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="de">Deutsch</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Dialog Modal -->
+<div id="successDialog" class="success-dialog-overlay show">
+    <div class="success-dialog-card">
+        <div class="success-circle">
+            <i class="fas fa-check"></i>
+        </div>
+        <h2 class="success-title">Welcome, {{ user.get_full_name|default:user.username }}!</h2>
+        <p class="success-message">You have been logged in successfully. We're glad to see you again!</p>
+        <button class="success-ok-btn" id="successOkBtn">OK</button>
+    </div>
+</div>
+
+<!-- Custom styles for the header -->
+<style>
+    .theme-toggle, .dropdown-toggle {
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .theme-toggle:hover, .dropdown-toggle:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .theme-toggle i {
+        font-size: 0.9rem;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const successOkBtn = document.getElementById('successOkBtn');
+        
+        // Redirect to dashboard when OK button is clicked
+        if (successOkBtn) {
+            successOkBtn.addEventListener('click', function() {
+                window.location.href = "{% url 'dashboard:index' %}";
+            });
+        }
+    });
+</script>
+{% endblock %}

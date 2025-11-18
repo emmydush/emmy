@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Approve Stock Adjustment - {{ business_settings.business_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2><i class="fas fa-clipboard-list me-2"></i>Approve Stock Adjustment</h2>
+    <a href="{% url 'products:stock_adjustment_list' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Back to Requests
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-check-circle me-2"></i>Review and Approve Request</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.status.id_for_label }}" class="form-label">Decision *</label>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                            <div class="text-danger">{{ form.status.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.approval_notes.id_for_label }}" class="form-label">Notes</label>
+                        {{ form.approval_notes }}
+                        {% if form.approval_notes.errors %}
+                            <div class="text-danger">{{ form.approval_notes.errors }}</div>
+                        {% endif %}
+                        <div class="form-text">Add any notes about your decision.</div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check-circle me-1"></i>Process Decision
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle me-2"></i>Request Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6>Product</h6>
+                    <p class="mb-1">{{ adjustment.product.name }}</p>
+                    <small class="text-muted">{{ adjustment.product.sku }}</small>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>Adjustment</h6>
+                    <p>
+                        <span class="badge bg-{{ adjustment.adjustment_type|yesno:'success,danger' }}">
+                            <i class="fas fa-{{ adjustment.adjustment_icon }} me-1"></i>
+                            {{ adjustment.get_adjustment_type_display }}
+                        </span>
+                        <span class="ms-2">{{ adjustment.quantity }}</span>
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>Reason</h6>
+                    <p>
+                        <span class="badge bg-secondary">{{ adjustment.get_reason_display }}</span>
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>Description</h6>
+                    <p>{{ adjustment.description|default:"No description provided." }}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>Requested By</h6>
+                    <p>
+                        {% if adjustment.requested_by %}
+                            <span class="badge bg-info">{{ adjustment.requested_by.username }}</span>
+                        {% else %}
+                            <span class="badge bg-light text-dark">System</span>
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>Requested At</h6>
+                    <p>
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>{{ adjustment.requested_at|date:"M d, Y H:i" }}
+                        </small>
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>Current Stock</h6>
+                    <p>
+                        <span class="badge bg-primary">{{ adjustment.product.quantity }} {{ adjustment.product.unit.name }}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -20,6 +20,7 @@ from products.models import Product
 from customers.models import Customer
 from superadmin.models import Business
 from superadmin.middleware import get_current_business
+from authentication.utils import check_user_permission
 import json
 
 @login_required
@@ -29,6 +30,11 @@ def sale_list(request):
 
 @login_required
 def sale_create(request):
+    # Account owners have access to everything
+    if request.user.role != 'admin' and not check_user_permission(request.user, 'can_create'):
+        messages.error(request, 'You do not have permission to create sales.')
+        return redirect('sales:list')
+        
     if request.method == 'POST':
         form = SaleForm(request.POST)
         if form.is_valid():
@@ -57,6 +63,11 @@ def sale_create(request):
 
 @login_required
 def sale_update(request, pk):
+    # Account owners have access to everything
+    if request.user.role != 'admin' and not check_user_permission(request.user, 'can_edit'):
+        messages.error(request, 'You do not have permission to edit sales.')
+        return redirect('sales:list')
+        
     sale = get_object_or_404(Sale.objects.business_specific(), pk=pk)
     
     if request.method == 'POST':
@@ -76,6 +87,11 @@ def sale_update(request, pk):
 
 @login_required
 def sale_delete(request, pk):
+    # Account owners have access to everything
+    if request.user.role != 'admin' and not check_user_permission(request.user, 'can_delete'):
+        messages.error(request, 'You do not have permission to delete sales.')
+        return redirect('sales:list')
+        
     sale = get_object_or_404(Sale.objects.business_specific(), pk=pk)
     
     if request.method == 'POST':

@@ -4,6 +4,7 @@ from django.contrib import messages
 from .models import Customer
 from .forms import CustomerForm
 from superadmin.middleware import get_current_business
+from authentication.utils import check_user_permission
 
 @login_required
 def customer_list(request):
@@ -12,6 +13,11 @@ def customer_list(request):
 
 @login_required
 def customer_create(request):
+    # Account owners have access to everything
+    if request.user.role != 'admin' and not check_user_permission(request.user, 'can_create'):
+        messages.error(request, 'You do not have permission to create customers.')
+        return redirect('customers:list')
+        
     if request.method == 'POST':
         form = CustomerForm(request.POST)
         if form.is_valid():
@@ -38,6 +44,11 @@ def customer_detail(request, pk):
 
 @login_required
 def customer_update(request, pk):
+    # Account owners have access to everything
+    if request.user.role != 'admin' and not check_user_permission(request.user, 'can_edit'):
+        messages.error(request, 'You do not have permission to edit customers.')
+        return redirect('customers:list')
+        
     customer = get_object_or_404(Customer.objects.business_specific(), pk=pk)
     
     if request.method == 'POST':
@@ -57,6 +68,11 @@ def customer_update(request, pk):
 
 @login_required
 def customer_delete(request, pk):
+    # Account owners have access to everything
+    if request.user.role != 'admin' and not check_user_permission(request.user, 'can_delete'):
+        messages.error(request, 'You do not have permission to delete customers.')
+        return redirect('customers:list')
+        
     customer = get_object_or_404(Customer.objects.business_specific(), pk=pk)
     
     if request.method == 'POST':

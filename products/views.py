@@ -10,13 +10,15 @@ from django.core.files.base import ContentFile
 from django.conf import settings
 from django.views.decorators.http import require_http_methods
 from django.db import IntegrityError
+from django.utils import timezone
+from decimal import Decimal
 import qrcode
 import csv
 import io
-from decimal import Decimal
-from .models import Product, Category, Unit
-from .forms import ProductForm, CategoryForm, UnitForm
+from .models import Product, Category, Unit, StockAdjustment, StockAlert, StockMovement
+from .forms import ProductForm, CategoryForm, UnitForm, StockAdjustmentForm, StockAdjustmentApprovalForm
 from .utils import generate_product_qr_code
+from authentication.utils import check_user_permission, require_permission
 
 @login_required
 def product_list(request):
@@ -132,6 +134,11 @@ def product_json(request, pk):
 
 @login_required
 def product_create(request):
+    # Account owners have access to everything
+    if request.user.role != 'admin' and not check_user_permission(request.user, 'can_create'):
+        messages.error(request, 'You do not have permission to create products.')
+        return redirect('products:list')
+        
     # Get the current business from the request
     from superadmin.middleware import get_current_business
     current_business = get_current_business()
@@ -182,6 +189,11 @@ def product_detail(request, pk):
 
 @login_required
 def product_update(request, pk):
+    # Account owners have access to everything
+    if request.user.role != 'admin' and not check_user_permission(request.user, 'can_edit'):
+        messages.error(request, 'You do not have permission to edit products.')
+        return redirect('products:list')
+        
     product = get_object_or_404(Product.objects.business_specific(), pk=pk)
     
     # Get the current business from the request
@@ -217,6 +229,11 @@ def product_update(request, pk):
 
 @login_required
 def product_delete(request, pk):
+    # Account owners have access to everything
+    if request.user.role != 'admin' and not check_user_permission(request.user, 'can_delete'):
+        messages.error(request, 'You do not have permission to delete products.')
+        return redirect('products:list')
+        
     product = get_object_or_404(Product.objects.business_specific(), pk=pk)
     
     if request.method == 'POST':
@@ -495,3 +512,182 @@ def download_template(request):
     ])
         
     return response
+
+@login_required
+def request_stock_adjustment(request):
+    """View for requesting stock adjustments"""
+    from superadmin.middleware import get_current_business
+    current_business = get_current_business()
+    
+    if request.method == 'POST':
+        form = StockAdjustmentForm(request.POST, business=current_business)
+        if form.is_valid():
+            adjustment = form.save(commit=False)
+            adjustment.business = current_business
+            adjustment.requested_by = request.user
+            adjustment.save()
+            messages.success(request, 'Stock adjustment request submitted successfully!')
+            return redirect('products:stock_adjustment_list')
+    else:
+        form = StockAdjustmentForm(business=current_business)
+    
+    return render(request, 'products/request_stock_adjustment.html', {
+        'form': form,
+        'business': current_business
+    })
+
+@login_required
+def stock_adjustment_list(request):
+    """View for listing stock adjustment requests"""
+    from superadmin.middleware import get_current_business
+    current_business = get_current_business()
+    
+    # Get filter parameters
+    status_filter = request.GET.get('status', '')
+    type_filter = request.GET.get('type', '')
+    product_filter = request.GET.get('product', '')
+    
+    # Start with all adjustments for this business
+    adjustments = StockAdjustment.objects.filter(business=current_business)
+    
+    # Apply filters
+    if status_filter:
+        adjustments = adjustments.filter(status=status_filter)
+    if type_filter:
+        adjustments = adjustments.filter(adjustment_type=type_filter)
+    if product_filter:
+        adjustments = adjustments.filter(product__id=product_filter)
+    
+    # Paginate the adjustments
+    from django.core.paginator import Paginator
+    paginator = Paginator(adjustments, 25)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Get filter options
+    products = Product.objects.filter(business=current_business).order_by('name')
+    
+    context = {
+        'page_obj': page_obj,
+        'products': products,
+        'status_filter': status_filter,
+        'type_filter': type_filter,
+        'product_filter': product_filter,
+    }
+    
+    return render(request, 'products/stock_adjustment_list.html', context)
+
+@login_required
+def approve_stock_adjustment(request, pk):
+    """View for approving/rejecting stock adjustments"""
+    from superadmin.middleware import get_current_business
+    current_business = get_current_business()
+    
+    adjustment = get_object_or_404(StockAdjustment, pk=pk, business=current_business)
+    
+    # Only allow approval/rejection of pending requests
+    if adjustment.status != 'pending':
+        messages.error(request, 'This adjustment request has already been processed.')
+        return redirect('products:stock_adjustment_list')
+    
+    if request.method == 'POST':
+        form = StockAdjustmentApprovalForm(request.POST, instance=adjustment)
+        if form.is_valid():
+            adjustment = form.save(commit=False)
+            adjustment.approved_by = request.user
+            adjustment.approved_at = timezone.now()
+            adjustment.save()
+            
+            # If approved, process the stock adjustment
+            if adjustment.status == 'approved':
+                # Update product quantity
+                if adjustment.adjustment_type == 'in':
+                    adjustment.product.quantity += adjustment.quantity
+                else:  # out
+                    adjustment.product.quantity -= adjustment.quantity
+                adjustment.product.save()
+                
+                messages.success(request, f'Stock adjustment approved and processed successfully! {adjustment.product.name} quantity updated.')
+            elif adjustment.status == 'rejected':
+                messages.success(request, 'Stock adjustment request rejected.')
+            
+            return redirect('products:stock_adjustment_list')
+    else:
+        form = StockAdjustmentApprovalForm(instance=adjustment)
+    
+    return render(request, 'products/approve_stock_adjustment.html', {
+        'form': form,
+        'adjustment': adjustment,
+    })
+
+@login_required
+def stock_adjustment_detail(request, pk):
+    """View for viewing stock adjustment details"""
+    from superadmin.middleware import get_current_business
+    current_business = get_current_business()
+    
+    adjustment = get_object_or_404(StockAdjustment, pk=pk, business=current_business)
+    
+    return render(request, 'products/stock_adjustment_detail.html', {
+        'adjustment': adjustment,
+    })
+
+
+@login_required
+def stock_alerts_list(request):
+    """View for listing stock alerts"""
+    from superadmin.middleware import get_current_business
+    current_business = get_current_business()
+    
+    # Get filter parameters
+    alert_type_filter = request.GET.get('alert_type', '')
+    severity_filter = request.GET.get('severity', '')
+    status_filter = request.GET.get('status', 'unresolved')
+    
+    # Start with all alerts for this business
+    alerts = StockAlert.objects.filter(business=current_business)
+    
+    # Apply filters
+    if alert_type_filter:
+        alerts = alerts.filter(alert_type=alert_type_filter)
+    if severity_filter:
+        alerts = alerts.filter(severity=severity_filter)
+    if status_filter == 'resolved':
+        alerts = alerts.filter(is_resolved=True)
+    elif status_filter == 'unresolved':
+        alerts = alerts.filter(is_resolved=False)
+    
+    # Paginate the alerts
+    from django.core.paginator import Paginator
+    paginator = Paginator(alerts, 25)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'alert_type_filter': alert_type_filter,
+        'severity_filter': severity_filter,
+        'status_filter': status_filter,
+    }
+    
+    return render(request, 'products/stock_alerts_list.html', context)
+
+@login_required
+def resolve_stock_alert(request, pk):
+    """View for resolving stock alerts"""
+    from superadmin.middleware import get_current_business
+    current_business = get_current_business()
+    
+    alert = get_object_or_404(StockAlert, pk=pk, business=current_business)
+    
+    if request.method == 'POST':
+        alert.is_resolved = True
+        alert.resolved_at = timezone.now()
+        alert.resolved_by = request.user
+        alert.save()
+        messages.success(request, 'Stock alert marked as resolved!')
+        return redirect('products:stock_alerts_list')
+    
+    return render(request, 'products/resolve_stock_alert.html', {
+        'alert': alert,
+    })

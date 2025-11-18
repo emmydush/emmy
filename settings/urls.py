@@ -14,4 +14,5 @@ urlpatterns = [
     path('theme/', views.theme_settings, name='theme'),
     path('email/', views.email_settings, name='email'),
     path('voice/', views.voice_assistant, name='voice'),
+    path('audit-logs/', views.audit_logs, name='audit_logs'),
 ]

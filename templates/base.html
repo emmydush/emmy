@@ -38,6 +38,177 @@
             background-color: var(--theme-background);
             color: var(--theme-text);
         }
+        
+        /* Fixed header and sidebar styles */
+        .navbar-custom {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 56px; /* Height of navbar */
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            overflow-y: auto;
+            box-shadow: 2px 0 4px rgba(0,0,0,.1);
+        }
+        
+        /* Main content padding to account for fixed header */
+        main {
+            padding-top: 20px;
+            margin-top: 56px; /* Height of navbar */
+        }
+        
+        /* Adjust container to account for fixed sidebar */
+        .container-fluid {
+            padding-left: 0;
+        }
+        
+        .success-message-bar {
+            display: flex;
+            align-items: center;
+            background-color: #d4edda;
+            color: #155724;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #c3e6cb;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .check-circle {
+            background-color: #28a745;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .check-icon {
+            color: white;
+            font-size: 16px;
+        }
+        
+        .message-text {
+            margin: 0;
+            font-weight: 500;
+        }
+        
+        /* New styles for error messages */
+        .error-message-bar {
+            display: flex;
+            align-items: center;
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #f5c6cb;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .error-circle {
+            background-color: #dc3545;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .error-icon {
+            color: white;
+            font-size: 16px;
+        }
+        
+        /* New styles for warning messages */
+        .warning-message-bar {
+            display: flex;
+            align-items: center;
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ffeaa7;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .warning-circle {
+            background-color: #ffc107;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .warning-icon {
+            color: #212529;
+            font-size: 16px;
+        }
+        
+        /* New styles for info messages */
+        .info-message-bar {
+            display: flex;
+            align-items: center;
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #bee5eb;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .info-circle {
+            background-color: #17a2b8;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .info-icon {
+            color: white;
+            font-size: 16px;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
     </style>
 </head>
 <body>
@@ -55,7 +226,6 @@
             
             <div class="" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-
                 </ul>
                 
                 <ul class="navbar-nav ms-auto">
@@ -122,11 +292,48 @@
         </div>
     </nav>
 
-    <div class="container-fluid">
+    <!-- Messages -->
+    {% if messages %}
+        <div class="container-fluid mt-3">
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    <div class="success-message-bar">
+                        <div class="check-circle">
+                            <i class="fas fa-check check-icon"></i>
+                        </div>
+                        <p class="message-text">{{ message }}</p>
+                    </div>
+                {% elif message.tags == 'error' %}
+                    <div class="error-message-bar">
+                        <div class="error-circle">
+                            <i class="fas fa-exclamation-triangle error-icon"></i>
+                        </div>
+                        <p class="message-text">{{ message }}</p>
+                    </div>
+                {% elif message.tags == 'warning' %}
+                    <div class="warning-message-bar">
+                        <div class="warning-circle">
+                            <i class="fas fa-exclamation-circle warning-icon"></i>
+                        </div>
+                        <p class="message-text">{{ message }}</p>
+                    </div>
+                {% elif message.tags == 'info' %}
+                    <div class="info-message-bar">
+                        <div class="info-circle">
+                            <i class="fas fa-info-circle info-icon"></i>
+                        </div>
+                        <p class="message-text">{{ message }}</p>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="container-fluid" style="padding-top: 56px;">
         <div class="row">
             <!-- Sidebar -->
             <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-                <div class="position-sticky pt-3" style="height: calc(100vh - 56px);">
+                <div class="position-sticky pt-3" style="height: calc(100vh - 56px); overflow-y: auto;">
                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'dashboard:index' %}">
@@ -141,6 +348,11 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'products:category_list' %}">
                                 <i class="fas fa-tags" aria-hidden="true"></i> Categories
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'products:unit_list' %}">
+                                <i class="fas fa-ruler" aria-hidden="true"></i> Units
                             </a>
                         </li>
                         <li class="nav-item">
@@ -188,7 +400,7 @@
             </nav>
 
             <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" style="margin-left: 16.66666667%;">
                 {% block content %}
                 <!-- Content will be placed here by child templates -->
                 {% endblock %}

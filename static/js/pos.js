@@ -3,24 +3,19 @@ class POSSystem {
     constructor() {
         this.cart = [];
         this.scannerActive = false;
-        this.lastScannedBarcode = null;
-        this.lastScanTime = 0;
-        this.scanDebounceTime = 2000; // 2 seconds as per specification
         this.scannerStopping = false;
         this.scanProcessing = false;
+        this.lastScannedBarcode = null;
+        this.lastScanTime = 0;
+        this.scanDebounceTime = 2000; // Increased from 1000ms to 2000ms to prevent duplicate scans
+        this.autoStopScanner = false; // Whether to auto-stop scanner after each scan
         this.pendingRequests = new Map(); // Track pending requests to prevent duplicates
-        this.autoStopScanner = false; // Changed default to false for continuous scanning
-        this.init();
-    }
-
-    init() {
-        // Initialize the POS system
-        this.bindEvents();
         this.loadCartFromStorage();
-        this.updateCartDisplay();
+        this.initializeEventListeners();
+        this.initializeKeyboardShortcuts();
     }
 
-    bindEvents() {
+    initializeEventListeners() {
         // Add product to cart when product card is clicked
         document.addEventListener('click', (e) => {
             // Handle product card clicks
@@ -117,50 +112,6 @@ class POSSystem {
             }
         });
 
-        // Handle keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            // Ctrl+S to process sale - ONLY process if not already handled
-            if (e.ctrlKey && e.key === 's' && !e.saleProcessed) {
-                e.preventDefault();
-                const processButton = document.getElementById('processSale');
-                if (processButton) {
-                    // Mark this sale as processed to prevent duplicate processing
-                    e.saleProcessed = true;
-                    this.animateButton(processButton);
-                    this.processSale();
-                }
-            }
-            
-            // Enter to checkout - ONLY process if not already handled
-            if (e.key === 'Enter' && !e.target.matches('input, textarea') && !e.saleProcessed) {
-                const checkoutButton = document.getElementById('checkoutButton');
-                if (checkoutButton && !checkoutButton.disabled) {
-                    // Mark this sale as processed to prevent duplicate processing
-                    e.saleProcessed = true;
-                    this.animateButton(checkoutButton);
-                    checkoutButton.click();
-                }
-            }
-            
-            // Ctrl+B to open barcode scanner
-            if (e.ctrlKey && e.key === 'b') {
-                e.preventDefault();
-                const scanButton = document.getElementById('scanButton');
-                if (scanButton) {
-                    // Check if this event is already being handled by another system
-                    if (e.cartSystemHandled) {
-                        return;
-                    }
-                    
-                    // Mark this event as handled by POS system
-                    e.cartSystemHandled = true;
-                    
-                    this.animateButton(scanButton);
-                    this.openScanner();
-                }
-            }
-        });
-
         // Handle discount input changes
         const discountInput = document.getElementById('discountInput');
         if (discountInput) {
@@ -218,6 +169,53 @@ class POSSystem {
                 this.animateButton(e.target);
             });
         });
+    }
+
+    initializeKeyboardShortcuts() {
+        // Handle keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+S to process sale - ONLY process if not already handled
+            if (e.ctrlKey && e.key === 's' && !e.saleProcessed) {
+                e.preventDefault();
+                const processButton = document.getElementById('processSale');
+                if (processButton) {
+                    // Mark this sale as processed to prevent duplicate processing
+                    e.saleProcessed = true;
+                    this.animateButton(processButton);
+                    this.processSale();
+                }
+            }
+            
+            // Enter to checkout - ONLY process if not already handled
+            if (e.key === 'Enter' && !e.target.matches('input, textarea') && !e.saleProcessed) {
+                const checkoutButton = document.getElementById('checkoutButton');
+                if (checkoutButton && !checkoutButton.disabled) {
+                    // Mark this sale as processed to prevent duplicate processing
+                    e.saleProcessed = true;
+                    this.animateButton(checkoutButton);
+                    checkoutButton.click();
+                }
+            }
+            
+            // Ctrl+B to open barcode scanner
+            if (e.ctrlKey && e.key === 'b') {
+                e.preventDefault();
+                const scanButton = document.getElementById('scanButton');
+                if (scanButton) {
+                    // Check if this event is already being handled by another system
+                    if (e.cartSystemHandled) {
+                        return;
+                    }
+                    
+                    // Mark this event as handled by POS system
+                    e.cartSystemHandled = true;
+                    
+                    this.animateButton(scanButton);
+                    this.openScanner();
+                }
+            }
+        });
+
     }
 
     // Add animation effect to buttons
@@ -336,7 +334,7 @@ class POSSystem {
         scannerStatus.textContent = 'Initializing camera...';
         scannerStatus.className = 'mt-2 alert alert-warning';
 
-        // Configure QuaggaJS with improved settings
+        // Configure QuaggaJS with IMPROVED settings for better accuracy
         const config = {
             inputStream: {
                 name: "Live",
@@ -344,8 +342,9 @@ class POSSystem {
                 target: scannerVideo,
                 constraints: {
                     facingMode: "environment", // Use rear camera
-                    width: { min: 640 },
-                    height: { min: 480 }
+                    width: { min: 800, ideal: 1280, max: 1920 },
+                    height: { min: 600, ideal: 720, max: 1080 },
+                    aspectRatio: { min: 1.333, ideal: 1.777, max: 2 }
                 }
             },
             decoder: {
@@ -354,16 +353,32 @@ class POSSystem {
                     "ean_reader",
                     "ean_8_reader",
                     "code_39_reader",
-                    "code_39_vin_reader",
-                    "codabar_reader",
                     "upc_reader",
                     "upc_e_reader",
-                    "i2of5_reader"
+                    "codabar_reader"
                 ]
             },
             locator: {
                 halfSample: false,
-                patchSize: "medium"
+                patchSize: "medium", // medium is better for accuracy than small
+                area: {
+                    top: "10%",
+                    right: "10%",
+                    left: "10%",
+                    bottom: "10%"
+                }
+            },
+            frequency: 10, // Reduce frequency to prevent overload
+            decoder: {
+                readers: [
+                    "code_128_reader",
+                    "ean_reader",
+                    "ean_8_reader",
+                    "code_39_reader",
+                    "upc_reader",
+                    "upc_e_reader",
+                    "codabar_reader"
+                ]
             }
         };
 
@@ -372,7 +387,7 @@ class POSSystem {
                 console.error('Error initializing scanner:', err);
                 let errorMessage = 'Error initializing camera';
                 if (err.message) {
-                    errorMessage += ': ' + + err.message;
+                    errorMessage += ': ' + err.message;
                 } else if (typeof err === 'string') {
                     errorMessage += ': ' + err;
                 }
@@ -428,7 +443,7 @@ class POSSystem {
             });
         });
 
-        // Register callback for detected barcodes - IMPROVED FOR CONTINUOUS SCANNING
+        // Register callback for detected barcodes - ENHANCED FOR BETTER ACCURACY
         Quagga.onDetected((result) => {
             // Immediate check to prevent any processing if scanner is not active or already processing
             if (!this.scannerActive || this.scannerStopping) {
@@ -436,7 +451,17 @@ class POSSystem {
             }
 
             const code = result.codeResult.code;
-            console.log('Barcode detected:', code);
+            const format = result.codeResult.format;
+            const confidence = result.codeResult.decodedCodes ? 
+                result.codeResult.decodedCodes.reduce((sum, code) => sum + (code.quality || 0), 0) / result.codeResult.decodedCodes.length : 0;
+            
+            console.log('Barcode detected:', {code, format, confidence});
+            
+            // Only process barcodes with high confidence (above 0.5)
+            if (confidence < 0.5) {
+                console.log('Ignoring low confidence barcode:', code, 'Confidence:', confidence);
+                return;
+            }
             
             // Check if this is the same barcode detected recently (debounce)
             const currentTime = Date.now();
@@ -461,7 +486,7 @@ class POSSystem {
             
             const scannerStatus = document.getElementById('dynamicScannerStatus');
             if (scannerStatus) {
-                scannerStatus.textContent = 'Barcode detected: ' + code;
+                scannerStatus.textContent = `Barcode detected: ${code} (${format})`;
                 scannerStatus.className = 'mt-2 alert alert-success';
             }
             
@@ -495,7 +520,12 @@ class POSSystem {
             inputStream: {
                 name: "Live",
                 type: "LiveStream",
-                target: scannerVideo
+                target: scannerVideo,
+                constraints: {
+                    facingMode: "environment", // Use rear camera
+                    width: { min: 640, ideal: 1280 },
+                    height: { min: 480, ideal: 720 }
+                }
             },
             decoder: {
                 readers: [
@@ -503,13 +533,22 @@ class POSSystem {
                     "ean_reader",
                     "ean_8_reader",
                     "code_39_reader",
-                    "code_39_vin_reader",
-                    "codabar_reader",
                     "upc_reader",
                     "upc_e_reader",
-                    "i2of5_reader"
+                    "codabar_reader"
                 ]
-            }
+            },
+            locator: {
+                halfSample: false,
+                patchSize: "medium",
+                area: {
+                    top: "10%",
+                    right: "10%",
+                    left: "10%",
+                    bottom: "10%"
+                }
+            },
+            frequency: 10
         };
 
         Quagga.init(defaultConfig, (err) => {

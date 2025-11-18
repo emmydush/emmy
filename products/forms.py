@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Product, Category, Unit
+from .models import Product, Category, Unit, StockAdjustment
 
 class ProductForm(forms.ModelForm):
     class Meta:
@@ -64,3 +64,65 @@ class UnitForm(forms.ModelForm):
     class Meta:
         model = Unit
         fields = ['name', 'symbol']
+
+class StockAdjustmentForm(forms.ModelForm):
+    """Form for requesting stock adjustments"""
+    
+    class Meta:
+        model = StockAdjustment
+        fields = ['product', 'adjustment_type', 'quantity', 'reason', 'description']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+            'quantity': forms.NumberInput(attrs={'step': '0.01'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        self.business = kwargs.pop('business', None)
+        super().__init__(*args, **kwargs)
+        
+        # Filter products by business
+        if self.business:
+            self.fields['product'].queryset = Product.objects.filter(business=self.business)
+        
+        # Add CSS classes
+        for field in self.fields:
+            if not isinstance(self.fields[field], forms.BooleanField):
+                self.fields[field].widget.attrs.update({'class': 'form-control'})
+    
+    def clean_quantity(self):
+        quantity = self.cleaned_data.get('quantity')
+        if quantity <= 0:
+            raise forms.ValidationError("Quantity must be greater than zero.")
+        return quantity
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        adjustment_type = cleaned_data.get('adjustment_type')
+        product = cleaned_data.get('product')
+        quantity = cleaned_data.get('quantity')
+        
+        # For stock out requests, check if there's enough stock
+        if adjustment_type == 'out' and product and quantity:
+            if quantity > product.quantity:
+                raise forms.ValidationError(
+                    f"Cannot remove {quantity} items. Only {product.quantity} available in stock."
+                )
+        
+        return cleaned_data
+
+class StockAdjustmentApprovalForm(forms.ModelForm):
+    """Form for approving/rejecting stock adjustments"""
+    
+    class Meta:
+        model = StockAdjustment
+        fields = ['status', 'approval_notes']
+        widgets = {
+            'approval_notes': forms.Textarea(attrs={'rows': 3}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Add CSS classes
+        for field in self.fields:
+            if not isinstance(self.fields[field], forms.BooleanField):
+                self.fields[field].widget.attrs.update({'class': 'form-control'})

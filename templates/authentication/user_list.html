@@ -1,4 +1,4 @@
-{% extends 'authentication/base_auth.html' %}
+{% extends 'base.html' %}
 
 {% block title %}User List{% endblock %}
 
@@ -8,11 +8,15 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Users</h3>
+                    <h3 class="card-title">All Users</h3>
                     <div class="card-tools">
-                        <a href="{% url 'authentication:create_user' %}" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Create User
-                        </a>
+                        {% load authentication_extras %}
+                        {% check_permission user 'can_create_users' as can_create_users %}
+                        {% if can_create_users or user.role|lower == 'admin' %}
+                            <a href="{% url 'authentication:create_user' %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Create User
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="card-body">
@@ -39,13 +43,16 @@
                                     <td>{{ user.email }}</td>
                                     <td>{{ user.first_name }}</td>
                                     <td>{{ user.last_name }}</td>
-                                    <td>{{ user.role }}</td>
+                                    <td>{{ user.get_role_display }}</td>
                                     <td>{{ user.phone|default:"-" }}</td>
                                     <td>{{ user.date_joined|date:"M d, Y" }}</td>
                                     <td>
-                                        <a href="{% url 'authentication:edit_user' user.id %}" class="btn btn-sm btn-warning">
-                                            <i class="fas fa-edit"></i> Edit
-                                        </a>
+                                        {% check_permission request.user 'can_edit_users' as can_edit_users %}
+                                        {% if can_edit_users or request.user.role|lower == 'admin' %}
+                                            <a href="{% url 'authentication:edit_user' user.id %}" class="btn btn-sm btn-warning">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% empty %}

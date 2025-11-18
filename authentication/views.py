@@ -22,19 +22,32 @@ def login_view(request):
                 if not form.cleaned_data.get('remember_me'):
                     request.session.set_expiry(0)
                 
-                # Check if user has a business
-                user_businesses = Business.objects.filter(owner=user)
+                # Check if user has a business associated with them
+                user_businesses = user.businesses.all()
                 if not user_businesses.exists():
-                    # Redirect to business details page
-                    return redirect('authentication:business_details')
+                    # Check if user owns a business (for business owners)
+                    owned_businesses = Business.objects.filter(owner=user)
+                    if not owned_businesses.exists():
+                        # Redirect to business details page for business owners
+                        return redirect('authentication:business_details')
+                    else:
+                        # Set the first owned business as the current business in session
+                        first_business = owned_businesses.first()
+                        request.session['current_business_id'] = first_business.id
+                        # Also set in middleware thread-local storage
+                        from superadmin.middleware import set_current_business
+                        set_current_business(first_business)
+                        # Redirect to success page instead of dashboard directly
+                        return redirect('authentication:login_success')
                 else:
-                    # Set the first business as the current business in session
+                    # Set the first associated business as the current business in session
                     first_business = user_businesses.first()
                     request.session['current_business_id'] = first_business.id
                     # Also set in middleware thread-local storage
                     from superadmin.middleware import set_current_business
                     set_current_business(first_business)
-                    return redirect('dashboard:index')
+                    # Redirect to success page instead of dashboard directly
+                    return redirect('authentication:login_success')
             else:
                 messages.error(request, 'Invalid username or password.')
         else:
@@ -43,6 +56,12 @@ def login_view(request):
         form = CustomAuthenticationForm()
     
     return render(request, 'authentication/login.html', {'form': form})
+
+
+def login_success_view(request):
+    """View to show success dialog after login before redirecting to dashboard"""
+    return render(request, 'authentication/login_success.html')
+
 
 def logout_view(request):
     logout(request)
@@ -125,27 +144,40 @@ def profile_view(request):
 @login_required
 def user_list_view(request):
     from .models import User
-    # Only show users from the same business
-    from superadmin.middleware import get_current_business
-    current_business = get_current_business()
-    if current_business:
-        # Get all users associated with this business
-        users = User.objects.filter(
-            businesses=current_business
-        ).exclude(id=request.user.id)  # Exclude current user
+    from .utils import check_user_permission
+    
+    # Account owners and admins have access to everything
+    if request.user.role.lower() != 'admin' and not check_user_permission(request.user, 'can_manage_users'):
+        messages.error(request, 'You do not have permission to manage users.')
+        return redirect('dashboard:index')
+    
+    # For admins, show all users. For other users, show only users from the same business
+    if request.user.role.lower() == 'admin':
+        # Admins can see all users
+        users = User.objects.all().order_by('-date_joined')
     else:
-        users = User.objects.none()
+        # Only show users from the same business
+        from superadmin.middleware import get_current_business
+        current_business = get_current_business()
+        if current_business:
+            # Get all users associated with this business
+            users = User.objects.filter(
+                businesses=current_business
+            ).exclude(id=request.user.id)  # Exclude current user
+        else:
+            users = User.objects.none()
     return render(request, 'authentication/user_list.html', {'users': users})
 
 def password_reset_view(request):
     # For now, we'll just render a simple template
-    # In a real application, you would implement password reset functionality
+    # In In a real application, you would implement password reset functionality
     return render(request, 'authentication/password_reset.html')
 
 @login_required
 def create_user_view(request):
     from .forms import AdminUserCreationForm
     from .models import User
+    from .utils import check_user_permission
     from superadmin.middleware import get_current_business
     
     current_business = get_current_business()
@@ -153,8 +185,8 @@ def create_user_view(request):
         messages.error(request, 'No business context found.')
         return redirect('dashboard:index')
     
-    # Only admins can create users
-    if request.user.role != 'admin':
+    # Account owners have access to everything
+    if request.user.role != 'admin' and not check_user_permission(request.user, 'can_create_users'):
         messages.error(request, 'You do not have permission to create users.')
         return redirect('dashboard:index')
     
@@ -173,8 +205,9 @@ def create_user_view(request):
 
 @login_required
 def edit_user_view(request, user_id):
-    from .forms import UserProfileForm
-    from .models import User
+    from .forms import UserProfileForm, UserPermissionForm
+    from .models import User, UserPermission
+    from .utils import check_user_permission
     from superadmin.middleware import get_current_business
     
     current_business = get_current_business()
@@ -182,8 +215,8 @@ def edit_user_view(request, user_id):
         messages.error(request, 'No business context found.')
         return redirect('dashboard:index')
     
-    # Only admins can edit users
-    if request.user.role != 'admin':
+    # Account owners have access to everything
+    if request.user.role != 'admin' and not check_user_permission(request.user, 'can_edit_users'):
         messages.error(request, 'You do not have permission to edit users.')
         return redirect('dashboard:index')
     
@@ -195,23 +228,31 @@ def edit_user_view(request, user_id):
         return redirect('authentication:user_list')
     
     # Check if the user belongs to the same business
-    if not user_to_edit.businesses.filter(id=current_business.id).exists():
+    # Admins can edit any user in their business, others are restricted by business membership
+    if request.user.role != 'admin' and not user_to_edit.businesses.filter(id=current_business.id).exists():
         messages.error(request, 'You do not have permission to edit this user.')
         return redirect('authentication:user_list')
     
+    # Get or create user permissions
+    user_permission, created = UserPermission.objects.get_or_create(user=user_to_edit)
+    
     if request.method == 'POST':
         form = UserProfileForm(request.POST, request.FILES, instance=user_to_edit)
-        if form.is_valid():
+        permission_form = UserPermissionForm(request.POST, instance=user_permission)
+        if form.is_valid() and permission_form.is_valid():
             form.save()
+            permission_form.save()
             messages.success(request, f'User {user_to_edit.username} updated successfully!')
             return redirect('authentication:user_list')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
         form = UserProfileForm(instance=user_to_edit)
+        permission_form = UserPermissionForm(instance=user_permission)
     
     return render(request, 'authentication/edit_user.html', {
         'form': form,
+        'permission_form': permission_form,
         'user_to_edit': user_to_edit
     })
 

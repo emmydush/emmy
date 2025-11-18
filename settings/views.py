@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import HttpResponse, Http404, HttpResponseForbidden
@@ -15,7 +15,7 @@ import io
 import json
 import subprocess
 from datetime import datetime
-from .models import BusinessSettings, BarcodeSettings, EmailSettings, BackupSettings
+from .models import BusinessSettings, BarcodeSettings, EmailSettings, BackupSettings, AuditLog
 from .forms import BusinessSettingsForm, BarcodeSettingsForm, EmailSettingsForm, BackupSettingsForm
 from authentication.models import User, UserThemePreference
 from authentication.forms import UserThemePreferenceForm
@@ -355,3 +355,61 @@ def theme_settings(request):
         'form': form,
         'theme_preference': theme_preference
     })
+
+@login_required
+@user_passes_test(is_admin)
+def audit_logs(request):
+    """
+    View to display audit logs with filtering capabilities.
+    Only accessible by admin users.
+    """
+    # Get filter parameters
+    action_filter = request.GET.get('action', '')
+    user_filter = request.GET.get('user', '')
+    model_filter = request.GET.get('model', '')
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+    
+    # Start with all audit logs
+    logs = AuditLog.objects.select_related('user').all()
+    
+    # Apply filters
+    if action_filter:
+        logs = logs.filter(action=action_filter)
+    
+    if user_filter:
+        logs = logs.filter(user_id=user_filter)
+    
+    if model_filter:
+        logs = logs.filter(model_name=model_filter)
+    
+    if date_from:
+        logs = logs.filter(timestamp__gte=date_from)
+    
+    if date_to:
+        logs = logs.filter(timestamp__lte=date_to)
+    
+    # Get filter options
+    users = User.objects.all()
+    models = AuditLog.objects.values_list('model_name', flat=True).distinct()
+    actions = [choice[0] for choice in AuditLog.ACTION_CHOICES]
+    
+    # Paginate the logs
+    from django.core.paginator import Paginator
+    paginator = Paginator(logs, 50)  # Show 50 logs per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'users': users,
+        'models': models,
+        'actions': actions,
+        'action_filter': action_filter,
+        'user_filter': user_filter,
+        'model_filter': model_filter,
+        'date_from': date_from,
+        'date_to': date_to,
+    }
+    
+    return render(request, 'settings/audit_logs.html', context)

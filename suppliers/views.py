@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from .models import Supplier
 from .forms import SupplierForm
 from superadmin.middleware import get_current_business
+from authentication.utils import check_user_permission
 
 @login_required
 def supplier_list(request):
@@ -13,6 +14,11 @@ def supplier_list(request):
 
 @login_required
 def supplier_create(request):
+    # Account owners have access to everything
+    if request.user.role != 'admin' and not check_user_permission(request.user, 'can_create'):
+        messages.error(request, 'You do not have permission to create suppliers.')
+        return redirect('suppliers:list')
+        
     if request.method == 'POST':
         form = SupplierForm(request.POST)
         if form.is_valid():
@@ -39,6 +45,11 @@ def supplier_detail(request, pk):
 
 @login_required
 def supplier_update(request, pk):
+    # Account owners have access to everything
+    if request.user.role != 'admin' and not check_user_permission(request.user, 'can_edit'):
+        messages.error(request, 'You do not have permission to edit suppliers.')
+        return redirect('suppliers:list')
+        
     supplier = get_object_or_404(Supplier.objects.business_specific(), pk=pk)
     
     if request.method == 'POST':
@@ -58,6 +69,11 @@ def supplier_update(request, pk):
 
 @login_required
 def supplier_delete(request, pk):
+    # Account owners have access to everything
+    if request.user.role != 'admin' and not check_user_permission(request.user, 'can_delete'):
+        messages.error(request, 'You do not have permission to delete suppliers.')
+        return redirect('suppliers:list')
+        
     supplier = get_object_or_404(Supplier.objects.business_specific(), pk=pk)
     
     if request.method == 'POST':

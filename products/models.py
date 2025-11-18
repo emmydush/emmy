@@ -259,3 +259,224 @@ class Product(models.Model):
     def total_profit(self):
         """Calculate total profit based on current quantity"""
         return self.profit_per_unit * float(self.quantity)  # type: ignore
+
+class StockAdjustment(models.Model):
+    """Model for stock adjustment requests that require approval"""
+    
+    # Use business-specific manager
+    objects = BusinessSpecificManager()
+    
+    ADJUSTMENT_TYPE_CHOICES = [
+        ('in', 'Stock In'),
+        ('out', 'Stock Out'),
+    ]
+    
+    REASON_CHOICES = [
+        ('expired', 'Expired Items'),
+        ('damaged', 'Damaged Items'),
+        ('lost', 'Lost Items'),
+        ('found', 'Found Items'),
+        ('correction', 'Inventory Correction'),
+        ('other', 'Other'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('pending', 'Pending Approval'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+    
+    # Add business relationship for multi-tenancy
+    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='stock_adjustments', null=True)
+    
+    # Product being adjusted
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='adjustments')
+    
+    # Adjustment details
+    adjustment_type = models.CharField(max_length=10, choices=ADJUSTMENT_TYPE_CHOICES)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    reason = models.CharField(max_length=20, choices=REASON_CHOICES)
+    description = models.TextField(blank=True, null=True)
+    
+    # Request information
+    requested_by = models.ForeignKey('authentication.User', on_delete=models.SET_NULL, null=True, related_name='stock_requests')
+    requested_at = models.DateTimeField(auto_now_add=True)
+    
+    # Approval information
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    approved_by = models.ForeignKey('authentication.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='stock_approvals')
+    approved_at = models.DateTimeField(null=True, blank=True)
+    approval_notes = models.TextField(blank=True, null=True)
+    
+    # Audit fields
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Stock Adjustment'
+        verbose_name_plural = 'Stock Adjustments'
+        ordering = ['-requested_at']
+    
+    def __str__(self):
+        return f"{self.adjustment_type.title()} {self.quantity} {self.product.name} - {self.status.title()}"
+    
+    def save(self, *args, **kwargs):
+        # Automatically set approved_at when status changes to approved or rejected
+        if self.status in ['approved', 'rejected'] and not self.approved_at:
+            from django.utils import timezone
+            self.approved_at = timezone.now()
+        
+        super().save(*args, **kwargs)
+        
+        # If approved, automatically adjust the product quantity and track movement
+        if self.status == 'approved':
+            self.process_adjustment()
+    
+    def process_adjustment(self):
+        """Process the stock adjustment by updating the product quantity and tracking movement"""
+        from decimal import Decimal
+        from .models import StockMovement
+        
+        # Track the stock movement before updating
+        previous_quantity = self.product.quantity
+        adjustment_quantity = Decimal(str(self.quantity))
+        
+        if self.adjustment_type == 'in':
+            new_quantity = previous_quantity + adjustment_quantity
+        else:  # out
+            new_quantity = previous_quantity - adjustment_quantity
+            
+        # Track stock movement for analysis
+        StockMovement.objects.create(
+            business=self.business,
+            product=self.product,
+            movement_type='adjustment',
+            quantity=adjustment_quantity,
+            previous_quantity=previous_quantity,
+            new_quantity=new_quantity,
+            reference_id=str(self.id),
+            reference_model='StockAdjustment',
+            created_by=self.approved_by
+        )
+        
+        # Update product quantity
+        self.product.quantity = new_quantity
+        self.product.save()
+
+class StockAlert(models.Model):
+    """Model for stock-related alerts"""
+    
+    # Use business-specific manager
+    objects = BusinessSpecificManager()
+    
+    ALERT_TYPE_CHOICES = [
+        ('low_stock', 'Low Stock'),
+        ('abnormal_reduction', 'Abnormal Reduction'),
+        ('fast_moving', 'Fast Moving'),
+        ('expired', 'Expired Items'),
+    ]
+    
+    SEVERITY_CHOICES = [
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+        ('critical', 'Critical'),
+    ]
+    
+    # Add business relationship for multi-tenancy
+    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='stock_alerts', null=True)
+    
+    # Product related to this alert
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='stock_alerts')
+    
+    # Alert details
+    alert_type = models.CharField(max_length=20, choices=ALERT_TYPE_CHOICES)
+    severity = models.CharField(max_length=10, choices=SEVERITY_CHOICES, default='medium')
+    message = models.TextField()
+    
+    # Stock information
+    current_stock = models.DecimalField(max_digits=10, decimal_places=2)
+    previous_stock = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    threshold = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    
+    # Resolution information
+    is_resolved = models.BooleanField(default=False)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+    resolved_by = models.ForeignKey('authentication.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='resolved_alerts')
+    
+    # Audit fields
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Stock Alert'
+        verbose_name_plural = 'Stock Alerts'
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.get_alert_type_display()} - {self.product.name}"
+    
+    @property
+    def alert_icon(self):
+        """Return appropriate icon for alert type"""
+        icons = {
+            'low_stock': 'exclamation-triangle',
+            'abnormal_reduction': 'chart-line',
+            'fast_moving': 'bolt',
+            'expired': 'calendar-times',
+        }
+        return icons.get(self.alert_type, 'exclamation-circle')
+    
+    @property
+    def severity_badge_class(self):
+        """Return appropriate Bootstrap badge class for severity"""
+        classes = {
+            'low': 'secondary',
+            'medium': 'warning',
+            'high': 'danger',
+            'critical': 'danger',
+        }
+        return classes.get(self.severity, 'secondary')
+
+class StockMovement(models.Model):
+    """Model for tracking stock movements for analysis"""
+    
+    # Use business-specific manager
+    objects = BusinessSpecificManager()
+    
+    MOVEMENT_TYPE_CHOICES = [
+        ('sale', 'Sale'),
+        ('purchase', 'Purchase'),
+        ('adjustment', 'Adjustment'),
+        ('transfer', 'Transfer'),
+    ]
+    
+    # Add business relationship for multi-tenancy
+    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='stock_movements', null=True)
+    
+    # Product being moved
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='movements')
+    
+    # Movement details
+    movement_type = models.CharField(max_length=15, choices=MOVEMENT_TYPE_CHOICES)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    previous_quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    new_quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    # Reference information
+    reference_id = models.CharField(max_length=100, null=True, blank=True)
+    reference_model = models.CharField(max_length=50, null=True, blank=True)
+    
+    # User who created the movement
+    created_by = models.ForeignKey('authentication.User', on_delete=models.SET_NULL, null=True, blank=True)
+    
+    # Audit fields
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = 'Stock Movement'
+        verbose_name_plural = 'Stock Movements'
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.get_movement_type_display()} - {self.product.name} ({self.quantity})"

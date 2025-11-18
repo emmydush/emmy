@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}Stock Adjustment Details - {{ business_settings.business_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2><i class="fas fa-clipboard-list me-2"></i>Stock Adjustment Details</h2>
+    <a href="{% url 'products:stock_adjustment_list' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Back to Requests
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle me-2"></i>Request Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Product</label>
+                            <p>{{ adjustment.product.name }}</p>
+                            <small class="text-muted">{{ adjustment.product.sku }}</small>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Adjustment Type</label>
+                            <p>
+                                <span class="badge bg-{{ adjustment.adjustment_type|yesno:'success,danger' }}">
+                                    <i class="fas fa-{{ adjustment.adjustment_icon }} me-1"></i>
+                                    {{ adjustment.get_adjustment_type_display }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Quantity</label>
+                            <p>{{ adjustment.quantity }} {{ adjustment.product.unit.name }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Reason</label>
+                            <p>
+                                <span class="badge bg-secondary">{{ adjustment.get_reason_display }}</span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Description</label>
+                            <p>{{ adjustment.description|default:"No description provided." }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% if adjustment.status != 'pending' %}
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="fas fa-check-circle me-2"></i>Approval Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Status</label>
+                            <p>
+                                <span class="badge bg-{{ adjustment.status_badge_class }}">
+                                    {{ adjustment.get_status_display }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Approved By</label>
+                            <p>
+                                {% if adjustment.approved_by %}
+                                    <span class="badge bg-info">{{ adjustment.approved_by.username }}</span>
+                                {% else %}
+                                    <span class="text-muted">Not approved</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Approved At</label>
+                            <p>
+                                {% if adjustment.approved_at %}
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>{{ adjustment.approved_at|date:"M d, Y H:i" }}
+                                    </small>
+                                {% else %}
+                                    <span class="text-muted">Not approved</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Approval Notes</label>
+                            <p>{{ adjustment.approval_notes|default:"No notes provided." }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-user me-2"></i>Request Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Requested By</label>
+                    <p>
+                        {% if adjustment.requested_by %}
+                            <span class="badge bg-info">{{ adjustment.requested_by.username }}</span>
+                        {% else %}
+                            <span class="badge bg-light text-dark">System</span>
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Requested At</label>
+                    <p>
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>{{ adjustment.requested_at|date:"M d, Y H:i" }}
+                        </small>
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Current Stock</label>
+                    <p>
+                        <span class="badge bg-primary">{{ adjustment.product.quantity }} {{ adjustment.product.unit.name }}</span>
+                    </p>
+                </div>
+                
+                {% if adjustment.status == 'pending' %}
+                <div class="d-grid gap-2 mt-4">
+                    <a href="{% url 'products:approve_stock_adjustment' adjustment.pk %}" class="btn btn-success">
+                        <i class="fas fa-check-circle me-1"></i>Approve/Reject Request
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,8 +1,12 @@
 from django.db import models
+from django.contrib.auth import get_user_model
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing import Any
+
+User = get_user_model()
+
 
 class BusinessSettings(models.Model):
     business_name = models.CharField(max_length=200, default='Smart Solution')
@@ -118,3 +122,33 @@ class EmailSettings(models.Model):
 
     def __str__(self) -> str:  # type: ignore
         return "Email Configuration"  # type: ignore
+
+
+class AuditLog(models.Model):
+    ACTION_CHOICES = [
+        ('CREATE', 'Create'),
+        ('UPDATE', 'Update'),
+        ('DELETE', 'Delete'),
+        ('LOGIN', 'Login'),
+        ('LOGOUT', 'Logout'),
+        ('VIEW', 'View'),
+        ('OTHER', 'Other'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES)
+    model_name = models.CharField(max_length=100)
+    object_id = models.CharField(max_length=100, null=True, blank=True)
+    object_repr = models.CharField(max_length=200)
+    change_message = models.TextField(blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True, null=True)  # Make this field nullable
+    timestamp = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = 'Audit Log'
+        verbose_name_plural = 'Audit Logs'
+        ordering = ['-timestamp']
+    
+    def __str__(self):
+        return f"{self.action} {self.model_name} by {self.user or 'Anonymous'} at {self.timestamp}"

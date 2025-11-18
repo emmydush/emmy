@@ -19,4 +19,10 @@ urlpatterns = [
     path('categories/<int:pk>/delete/', views.category_delete, name='category_delete'),
     path('units/', views.unit_list, name='unit_list'),
     path('units/create/', views.unit_create, name='unit_create'),
+    path('stock-adjustments/', views.stock_adjustment_list, name='stock_adjustment_list'),
+    path('stock-adjustments/request/', views.request_stock_adjustment, name='request_stock_adjustment'),
+    path('stock-adjustments/<int:pk>/', views.stock_adjustment_detail, name='stock_adjustment_detail'),
+    path('stock-adjustments/<int:pk>/approve/', views.approve_stock_adjustment, name='approve_stock_adjustment'),
+    path('stock-alerts/', views.stock_alerts_list, name='stock_alerts_list'),
+    path('stock-alerts/<int:pk>/resolve/', views.resolve_stock_alert, name='resolve_stock_alert'),
 ]

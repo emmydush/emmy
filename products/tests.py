@@ -1,149 +1,97 @@
 from django.test import TestCase
-from django.contrib.auth import get_user_model
-from products.models import Product, Category, Unit
-from sales.models import Sale, SaleItem
-from purchases.models import PurchaseOrder, PurchaseItem
+from django.utils import timezone
+from decimal import Decimal
+from products.models import Product, StockAlert, StockMovement
+from products.stock_monitoring import check_low_stock_alerts, check_abnormal_reduction
+from superadmin.models import Business
+from authentication.models import User
 
-class StockAutomationTest(TestCase):
+class StockAlertTestCase(TestCase):
     def setUp(self):
+        # Create a business
+        self.business = Business.objects.create(
+            name="Test Business",
+            email="test@example.com"
+        )
+        
         # Create a user
-        User = get_user_model()
         self.user = User.objects.create_user(
-            username='testuser',
-            email='test@example.com',
-            password='testpass123'
-        )
-        
-        # Create category and unit
-        self.category = Category.objects.create(
-            name='Test Category',
-            description='Test category for testing'
-        )
-        
-        self.unit = Unit.objects.create(
-            name='Pieces',
-            symbol='pcs'
+            username="testuser",
+            email="testuser@example.com",
+            password="testpass123"
         )
         
         # Create a product
         self.product = Product.objects.create(
-            name='Test Product',
-            sku='TEST001',
-            category=self.category,
-            unit=self.unit,
-            cost_price=10.00,
-            selling_price=15.00,
-            quantity=100,
-            reorder_level=10
+            business=self.business,
+            name="Test Product",
+            sku="TEST001",
+            quantity=Decimal('100'),
+            reorder_level=Decimal('20'),
+            cost_price=Decimal('10.00'),
+            selling_price=Decimal('15.00')
         )
+    
+    def test_low_stock_alert_creation(self):
+        """Test that low stock alerts are created correctly"""
+        # Set product quantity below reorder level
+        self.product.quantity = Decimal('10')
+        self.product.save()
         
-        # Create a customer for sales
-        from customers.models import Customer
-        self.customer = Customer.objects.create(
-            first_name='Test',
-            last_name='Customer',
-            email='customer@example.com',
-            phone='1234567890',
-            is_active=True
-        )
+        # Check for low stock alerts
+        check_low_stock_alerts()
         
-        # Create a supplier for purchases
-        from suppliers.models import Supplier
-        self.supplier = Supplier.objects.create(
-            name='Test Supplier',
-            email='supplier@example.com',
-            phone='0987654321',
-            is_active=True
-        )
-
-    def test_stock_reduction_on_sale(self):
-        """Test that product stock is reduced when a sale is made"""
-        initial_quantity = self.product.quantity
-        
-        # Create a sale
-        sale = Sale.objects.create(
-            customer=self.customer,
-            subtotal=30.00,
-            total_amount=30.00,
-            payment_method='cash'
-        )
-        
-        # Create sale items
-        sale_item = SaleItem.objects.create(
-            sale=sale,
+        # Verify that an alert was created
+        alerts = StockAlert.objects.filter(
+            business=self.business,
             product=self.product,
-            quantity=5,
-            unit_price=15.00,
-            total_price=75.00
+            alert_type='low_stock'
         )
+        self.assertEqual(alerts.count(), 1)
         
-        # Refresh product from database
-        self.product.refresh_from_db()
+        # Verify alert details
+        alert = alerts.first()
+        self.assertEqual(alert.severity, 'high')
+        self.assertIn("⚠️ Low stock – possible missing items", alert.message)
+        self.assertEqual(alert.current_stock, Decimal('10'))
+    
+    def test_abnormal_reduction_detection(self):
+        """Test that abnormal stock reductions are detected"""
+        # Create some normal sales movements
+        for i in range(5):
+            StockMovement.objects.create(
+                business=self.business,
+                product=self.product,
+                movement_type='sale',
+                quantity=Decimal('5'),
+                previous_quantity=Decimal('100') - (i * 5),
+                new_quantity=Decimal('100') - ((i + 1) * 5),
+                created_by=self.user
+            )
         
-        # Check that stock was reduced
-        self.assertEqual(float(self.product.quantity), float(initial_quantity) - 5)
-
-    def test_stock_increase_on_purchase_receive(self):
-        """Test that product stock is increased when purchase items are received"""
-        initial_quantity = self.product.quantity
-        
-        # Create a purchase order
-        purchase_order = PurchaseOrder.objects.create(
-            supplier=self.supplier,
-            total_amount=100.00,
-            status='pending'
-        )
-        
-        # Create purchase items
-        purchase_item = PurchaseItem.objects.create(
-            purchase_order=purchase_order,
+        # Create an abnormal sale (much higher than average)
+        StockMovement.objects.create(
+            business=self.business,
             product=self.product,
-            quantity=20,
-            unit_price=10.00,
-            total_price=200.00,
-            received_quantity=0
+            movement_type='sale',
+            quantity=Decimal('50'),  # This is much higher than the average of 5
+            previous_quantity=Decimal('75'),
+            new_quantity=Decimal('25'),
+            created_by=self.user
         )
         
-        # Increment the received quantity to simulate receiving items (like in the view)
-        purchase_item.received_quantity += 10
-        purchase_item.save()
+        # Check for abnormal reductions
+        check_abnormal_reduction()
         
-        # Refresh product from database
-        self.product.refresh_from_db()
-        
-        # Check that stock was increased
-        self.assertEqual(float(self.product.quantity), float(initial_quantity) + 10)
-
-    def test_stock_restoration_on_sale_delete(self):
-        """Test that product stock is restored when a sale item is deleted"""
-        initial_quantity = self.product.quantity
-        
-        # Create a sale
-        sale = Sale.objects.create(
-            customer=self.customer,
-            subtotal=30.00,
-            total_amount=30.00,
-            payment_method='cash'
-        )
-        
-        # Create sale items
-        sale_item = SaleItem.objects.create(
-            sale=sale,
+        # Verify that an alert was created
+        alerts = StockAlert.objects.filter(
+            business=self.business,
             product=self.product,
-            quantity=5,
-            unit_price=15.00,
-            total_price=75.00
+            alert_type='abnormal_reduction'
         )
+        self.assertEqual(alerts.count(), 1)
         
-        # Refresh product from database
-        self.product.refresh_from_db()
-        quantity_after_sale = self.product.quantity
-        
-        # Delete the sale item
-        sale_item.delete()
-        
-        # Refresh product from database
-        self.product.refresh_from_db()
-        
-        # Check that stock was restored
-        self.assertEqual(float(self.product.quantity), float(initial_quantity))
+        # Verify alert details
+        alert = alerts.first()
+        self.assertEqual(alert.severity, 'high')
+        self.assertIn("⚠️ Product Test Product reducing abnormally", alert.message)

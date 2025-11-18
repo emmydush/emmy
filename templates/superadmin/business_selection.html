@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Select Business - {{ business_settings.business_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Select Your Business</h3>
+                </div>
+                <div class="card-body">
+                    <p>Please select the business you want to work with:</p>
+                    
+                    {% if businesses %}
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="row">
+                                {% for business in businesses %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ business.company_name }}</h5>
+                                            <p class="card-text">
+                                                <strong>Status:</strong> 
+                                                <span class="badge {% if business.status == 'active' %}bg-success{% elif business.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                                    {{ business.get_status_display }}
+                                                </span>
+                                                <br>
+                                                <strong>Plan:</strong> {{ business.get_plan_type_display }}
+                                            </p>
+                                            {% if business.status == 'active' %}
+                                                <button type="submit" name="business_id" value="{{ business.id }}" class="btn btn-primary">
+                                                    Select Business
+                                                </button>
+                                            {% else %}
+                                                <button type="button" class="btn btn-secondary" disabled>
+                                                    {% if business.status == 'pending' %}Pending Approval{% else %}Inactive{% endif %}
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <h4>No Businesses Found</h4>
+                            <p>You don't have any businesses registered yet.</p>
+                            <a href="{% url 'authentication:create_business' %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Create Your Business
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

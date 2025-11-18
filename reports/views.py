@@ -1,5 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.db.models import Sum, F, Q, Count
 from products.models import Product
 from sales.models import Sale, SaleItem
@@ -12,9 +13,15 @@ import json
 from decimal import Decimal
 import csv
 from django.http import HttpResponse
+from authentication.utils import check_user_permission
 
 @login_required
 def report_list(request):
+    # Account owners have access to everything
+    if request.user.role != 'admin' and not check_user_permission(request.user, 'can_access_reports'):
+        messages.error(request, 'You do not have permission to access reports.')
+        return redirect('dashboard:index')
+        
     return render(request, 'reports/list.html')
 
 def get_date_ranges():
@@ -51,6 +58,11 @@ def get_date_ranges():
 
 @login_required
 def quick_report(request, period):
+    # Account owners have access to everything
+    if request.user.role != 'admin' and not check_user_permission(request.user, 'can_access_reports'):
+        messages.error(request, 'You do not have permission to access reports.')
+        return redirect('dashboard:index')
+        
     """Generate a quick report for predefined periods"""
     date_ranges = get_date_ranges()
     

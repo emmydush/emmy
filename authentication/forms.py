@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import User, UserThemePreference
+from .models import User, UserThemePreference, UserPermission
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -29,6 +29,9 @@ class CustomUserCreationForm(UserCreationForm):
 class AdminUserCreationForm(forms.Form):
     username = forms.CharField(max_length=150, required=True)
     email = forms.EmailField(required=False)
+    first_name = forms.CharField(max_length=30, required=False)
+    last_name = forms.CharField(max_length=30, required=False)
+    phone = forms.CharField(max_length=15, required=False)
     password = forms.CharField(widget=forms.PasswordInput, required=True)
     role = forms.ChoiceField(choices=User.ROLE_CHOICES, initial='cashier')
     
@@ -42,9 +45,9 @@ class AdminUserCreationForm(forms.Form):
         
         # Set additional fields
         user.role = self.cleaned_data['role']
-        user.first_name = ''
-        user.last_name = ''
-        user.phone = ''
+        user.first_name = self.cleaned_data.get('first_name', '')
+        user.last_name = self.cleaned_data.get('last_name', '')
+        user.phone = self.cleaned_data.get('phone', '')
         
         # Associate user with the business
         user.businesses.add(business)
@@ -72,6 +75,34 @@ class UserProfileForm(forms.ModelForm):
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'profile_picture': forms.FileInput(attrs={'class': 'form-control'}),
+        }
+
+class UserPermissionForm(forms.ModelForm):
+    class Meta:
+        model = UserPermission
+        fields = [
+            'can_access_products', 'can_access_sales', 'can_access_purchases',
+            'can_access_customers', 'can_access_suppliers', 'can_access_expenses',
+            'can_access_reports', 'can_access_settings', 
+            'can_manage_users', 'can_create_users', 'can_edit_users', 'can_delete_users',
+            'can_create', 'can_edit', 'can_delete'
+        ]
+        widgets = {
+            'can_access_products': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'can_access_sales': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'can_access_purchases': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'can_access_customers': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'can_access_suppliers': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'can_access_expenses': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'can_access_reports': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'can_access_settings': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'can_manage_users': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'can_create_users': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'can_edit_users': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'can_delete_users': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'can_create': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'can_edit': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'can_delete': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
 class UserThemePreferenceForm(forms.ModelForm):

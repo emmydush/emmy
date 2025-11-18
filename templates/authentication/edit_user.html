@@ -11,29 +11,11 @@
                     <h3 class="card-title">Edit User: {{ user_to_edit.username }}</h3>
                 </div>
                 <div class="card-body">
-                    <form method="post">
+                    <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="{{ form.username.id_for_label }}">Username</label>
-                                    {{ form.username }}
-                                    {% if form.username.errors %}
-                                        <div class="text-danger">{{ form.username.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="{{ form.email.id_for_label }}">Email</label>
-                                    {{ form.email }}
-                                    {% if form.email.errors %}
-                                        <div class="text-danger">{{ form.email.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
                         
+                        <!-- User Profile Section -->
+                        <h4>User Profile</h4>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -58,6 +40,15 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
+                                    <label for="{{ form.email.id_for_label }}">Email</label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="text-danger">{{ form.email.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
                                     <label for="{{ form.phone.id_for_label }}">Phone</label>
                                     {{ form.phone }}
                                     {% if form.phone.errors %}
@@ -65,22 +56,171 @@
                                     {% endif %}
                                 </div>
                             </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.address.id_for_label }}">Address</label>
+                            {{ form.address }}
+                            {% if form.address.errors %}
+                                <div class="text-danger">{{ form.address.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.profile_picture.id_for_label }}">Profile Picture</label>
+                            {{ form.profile_picture }}
+                            {% if form.profile_picture.errors %}
+                                <div class="text-danger">{{ form.profile_picture.errors }}</div>
+                            {% endif %}
+                            {% if user_to_edit.profile_picture %}
+                                <div class="mt-2">
+                                    <img src="{{ user_to_edit.profile_picture.url }}" alt="Profile Picture" class="img-thumbnail" style="max-height: 100px;">
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Permissions Section -->
+                        <h4 class="mt-4">Access Permissions</h4>
+                        <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="role">Role</label>
-                                    <select name="role" class="form-control" id="role">
-                                        <option value="cashier" {% if user_to_edit.role == 'cashier' %}selected{% endif %}>Cashier</option>
-                                        <option value="manager" {% if user_to_edit.role == 'manager' %}selected{% endif %}>Manager</option>
-                                        <option value="stock_manager" {% if user_to_edit.role == 'stock_manager' %}selected{% endif %}>Stock Manager</option>
-                                        {% if request.user.role == 'admin' %}
-                                        <option value="admin" {% if user_to_edit.role == 'admin' %}selected{% endif %}>Admin</option>
-                                        {% endif %}
-                                    </select>
+                                    <div class="form-check">
+                                        {{ permission_form.can_access_products }}
+                                        <label class="form-check-label" for="{{ permission_form.can_access_products.id_for_label }}">
+                                            Can Access Products
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        {{ permission_form.can_access_sales }}
+                                        <label class="form-check-label" for="{{ permission_form.can_access_sales.id_for_label }}">
+                                            Can Access Sales
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        {{ permission_form.can_access_purchases }}
+                                        <label class="form-check-label" for="{{ permission_form.can_access_purchases.id_for_label }}">
+                                            Can Access Purchases
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        {{ permission_form.can_access_customers }}
+                                        <label class="form-check-label" for="{{ permission_form.can_access_customers.id_for_label }}">
+                                            Can Access Customers
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        {{ permission_form.can_access_suppliers }}
+                                        <label class="form-check-label" for="{{ permission_form.can_access_suppliers.id_for_label }}">
+                                            Can Access Suppliers
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        {{ permission_form.can_access_expenses }}
+                                        <label class="form-check-label" for="{{ permission_form.can_access_expenses.id_for_label }}">
+                                            Can Access Expenses
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        {{ permission_form.can_access_reports }}
+                                        <label class="form-check-label" for="{{ permission_form.can_access_reports.id_for_label }}">
+                                            Can Access Reports
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        {{ permission_form.can_access_settings }}
+                                        <label class="form-check-label" for="{{ permission_form.can_access_settings.id_for_label }}">
+                                            Can Access Settings
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="form-group">
+                        <h5 class="mt-4">User Management Permissions</h5>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        {{ permission_form.can_manage_users }}
+                                        <label class="form-check-label" for="{{ permission_form.can_manage_users.id_for_label }}">
+                                            Can Manage Users
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        {{ permission_form.can_create_users }}
+                                        <label class="form-check-label" for="{{ permission_form.can_create_users.id_for_label }}">
+                                            Can Create Users
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        {{ permission_form.can_edit_users }}
+                                        <label class="form-check-label" for="{{ permission_form.can_edit_users.id_for_label }}">
+                                            Can Edit Users
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        {{ permission_form.can_delete_users }}
+                                        <label class="form-check-label" for="{{ permission_form.can_delete_users.id_for_label }}">
+                                            Can Delete Users
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h5 class="mt-4">Action Permissions</h5>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        {{ permission_form.can_create }}
+                                        <label class="form-check-label" for="{{ permission_form.can_create.id_for_label }}">
+                                            Can Create Records
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        {{ permission_form.can_edit }}
+                                        <label class="form-check-label" for="{{ permission_form.can_edit.id_for_label }}">
+                                            Can Edit Records
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        {{ permission_form.can_delete }}
+                                        <label class="form-check-label" for="{{ permission_form.can_delete.id_for_label }}">
+                                            Can Delete Records
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mt-4">
                             <button type="submit" class="btn btn-primary">Update User</button>
                             <a href="{% url 'authentication:user_list' %}" class="btn btn-secondary">Cancel</a>
                         </div>

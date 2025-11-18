@@ -1,9 +1,10 @@
 from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 from django.db import transaction
+from django.utils import timezone
 from sales.models import SaleItem
 from purchases.models import PurchaseItem
-from products.models import Product
+from products.models import Product, StockMovement
 from notifications.models import Notification
 import logging
 
@@ -40,10 +41,28 @@ def update_product_stock_on_sale(sender, instance, created, **kwargs):
                 logger.info(f"Updating stock for product {product.name} (ID: {product.id})")
                 logger.info(f"Current stock: {product.quantity}, Quantity sold: {instance.quantity}")
                 
-                # Reduce product quantity by the sold amount
+                # Track the stock movement before updating
+                previous_quantity = product.quantity
                 # Convert to the same type to avoid type errors
                 from decimal import Decimal
-                product.quantity -= Decimal(str(instance.quantity))
+                quantity_sold = Decimal(str(instance.quantity))
+                new_quantity = previous_quantity - quantity_sold
+                
+                # Track stock movement for analysis
+                StockMovement.objects.create(
+                    business=product.business,
+                    product=product,
+                    movement_type='sale',
+                    quantity=quantity_sold,
+                    previous_quantity=previous_quantity,
+                    new_quantity=new_quantity,
+                    reference_id=str(instance.sale.id),
+                    reference_model='Sale',
+                    created_by=instance.sale.created_by if hasattr(instance.sale, 'created_by') else None
+                )
+                
+                # Reduce product quantity by the sold amount
+                product.quantity = new_quantity
                 product.save()
                 
                 logger.info(f"New stock after sale: {product.quantity}")
@@ -88,10 +107,29 @@ def update_product_stock_on_purchase_receive(sender, instance, created, **kwargs
             if quantity_difference > 0:
                 with transaction.atomic():  # type: ignore
                     product = instance.product
-                    # Increase product quantity by the received amount
+                    
+                    # Track the stock movement before updating
+                    previous_quantity = product.quantity
                     # Convert to the same type to avoid type errors
                     from decimal import Decimal
-                    product.quantity += Decimal(str(quantity_difference))
+                    quantity_received = Decimal(str(quantity_difference))
+                    new_quantity = previous_quantity + quantity_received
+                    
+                    # Track stock movement for analysis
+                    StockMovement.objects.create(
+                        business=product.business,
+                        product=product,
+                        movement_type='purchase',
+                        quantity=quantity_received,
+                        previous_quantity=previous_quantity,
+                        new_quantity=new_quantity,
+                        reference_id=str(instance.purchase.id),
+                        reference_model='Purchase',
+                        created_by=instance.purchase.created_by if hasattr(instance.purchase, 'created_by') else None
+                    )
+                    
+                    # Increase product quantity by the received amount
+                    product.quantity = new_quantity
                     product.save()
         except Exception as e:
             # Log the error or handle it appropriately
@@ -116,10 +154,29 @@ def restore_product_stock_on_sale_delete(sender, instance, **kwargs):
     try:
         with transaction.atomic():  # type: ignore
             product = instance.product
-            # Increase product quantity by the sold amount
+            
+            # Track the stock movement before updating
+            previous_quantity = product.quantity
             # Convert to the same type to avoid type errors
             from decimal import Decimal
-            product.quantity += Decimal(str(instance.quantity))
+            quantity_restored = Decimal(str(instance.quantity))
+            new_quantity = previous_quantity + quantity_restored
+            
+            # Track stock movement for analysis
+            StockMovement.objects.create(
+                business=product.business,
+                product=product,
+                movement_type='sale',
+                quantity=quantity_restored,
+                previous_quantity=previous_quantity,
+                new_quantity=new_quantity,
+                reference_id=str(instance.sale.id) if hasattr(instance, 'sale') else 'deleted_sale',
+                reference_model='Sale',
+                created_by=None  # No user context available for deletions
+            )
+            
+            # Increase product quantity by the sold amount
+            product.quantity = new_quantity
             product.save()
     except Exception as e:
         # Log the error or handle it appropriately

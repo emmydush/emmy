@@ -6,6 +6,7 @@ This document explains how to set up scheduled tasks for automatic expiry date a
 
 1. `generate_notifications` - Creates in-app notifications for low stock, expired, and near expiry products
 2. `send_expiry_emails` - Sends email notifications for expired and near expiry products
+3. `check_stock_alerts` - Checks for abnormal stock reductions and low stock situations
 
 ## Setting Up Scheduled Tasks
 
@@ -19,6 +20,9 @@ Add the following lines to your crontab (`crontab -e`):
 
 # Send expiry emails every day at 9:30 AM
 30 9 * * * cd /path/to/your/project && python manage.py send_expiry_emails
+
+# Check stock alerts every hour during business hours (9 AM to 6 PM)
+0 9-18 * * * cd /path/to/your/project && python manage.py check_stock_alerts
 ```
 
 ### Option 2: Using Windows Task Scheduler
@@ -29,7 +33,16 @@ Add the following lines to your crontab (`crontab -e`):
 4. Set action to run a program:
    - Program: `python`
    - Arguments: `manage.py generate_notifications`
-   - Start in: `C:\path\to\your\project`
+   - Start in: `C:\path/to/your/project`
+
+For stock alerts, create a separate task:
+1. Open Task Scheduler
+2. Create a new task
+3. Set trigger to run every hour during business hours
+4. Set action to run a program:
+   - Program: `python`
+   - Arguments: `manage.py check_stock_alerts`
+   - Start in: `C:\path/to/your/project`
 
 ### Option 3: Using Celery (Advanced)
 
@@ -132,6 +145,9 @@ python manage.py generate_notifications
 
 # Test email alerts
 python manage.py send_expiry_emails
+
+# Test stock alerts
+python manage.py check_stock_alerts
 ```
 
 Check the console output for any errors or success messages.

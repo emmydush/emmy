@@ -62,6 +62,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'superadmin.middleware.BusinessContextMiddleware',  # Add this line for multi-tenancy
+    'settings.middleware.AuditLogMiddleware',  # Add this line for audit logging
+    'settings.middleware.EmailSettingsMiddleware',  # Add this line for email settings
 ]
 
 ROOT_URLCONF = 'inventory_management.urls'

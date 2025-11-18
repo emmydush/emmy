@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}Resolve Stock Alert - {{ business_settings.business_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2><i class="fas fa-check-circle me-2"></i>Resolve Stock Alert</h2>
+    <a href="{% url 'products:stock_alerts_list' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Back to Alerts
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-exclamation-triangle me-2"></i>Alert Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Product</label>
+                            <p>{{ alert.product.name }}</p>
+                            <small class="text-muted">{{ alert.product.sku }}</small>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Alert Type</label>
+                            <p>
+                                <span class="badge bg-secondary">
+                                    <i class="fas fa-{{ alert.alert_icon }} me-1"></i>
+                                    {{ alert.get_alert_type_display }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Severity</label>
+                            <p>
+                                <span class="badge bg-{{ alert.severity_badge_class }}">
+                                    {{ alert.get_severity_display }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Status</label>
+                            <p>
+                                {% if alert.is_resolved %}
+                                    <span class="badge bg-success">Resolved</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Unresolved</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Current Stock</label>
+                            <p>
+                                <span class="badge bg-primary">{{ alert.current_stock }} {{ alert.product.unit.symbol|default:'' }}</span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    {% if alert.previous_stock %}
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Previous Stock</label>
+                            <p>
+                                <span class="badge bg-secondary">{{ alert.previous_stock }} {{ alert.product.unit.symbol|default:'' }}</span>
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Message</label>
+                            <p>{{ alert.message }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="fas fa-check me-2"></i>Resolve Alert</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <p>Are you sure you want to mark this alert as resolved?</p>
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'products:stock_alerts_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check-circle me-1"></i>Mark as Resolved
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle me-2"></i>Product Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Category</label>
+                    <p>{{ alert.product.category.name|default:'N/A' }}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Cost Price</label>
+                    <p>{{ alert.product.cost_price }}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Selling Price</label>
+                    <p>{{ alert.product.selling_price }}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Reorder Level</label>
+                    <p>{{ alert.product.reorder_level }} {{ alert.product.unit.symbol|default:'' }}</p>
+                </div>
+                
+                {% if alert.product.expiry_date %}
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Expiry Date</label>
+                    <p>{{ alert.product.expiry_date }}</p>
+                </div>
+                {% endif %}
+                
+                <div class="d-grid gap-2">
+                    <a href="{% url 'products:detail' alert.product.pk %}" class="btn btn-primary">
+                        <i class="fas fa-eye me-1"></i>View Product Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

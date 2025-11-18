@@ -54,6 +54,30 @@
     </div>
 </div>
 
+<!-- Success Messages -->
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == 'success' and 'login_success:' in message.message %}
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Extract the message content after the prefix
+                    var messageText = "{{ message.message|cut:'login_success:' }}";
+                    showSuccessDialog(messageText);
+                });
+            </script>
+        {% elif message.tags == 'success' %}
+            <div class="container">
+                <div class="success-message-bar">
+                    <div class="check-circle">
+                        <i class="fas fa-check check-icon"></i>
+                    </div>
+                    <p class="message-text">{{ message }}</p>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
 <!-- Single container for login and welcome -->
 <div class="container d-flex align-items-center justify-content-center" style="min-height: calc(100vh - 120px);">
     <div class="card shadow-lg rounded-4 border-0" style="width: 100%; max-width: 800px;">
@@ -61,26 +85,14 @@
             <!-- Login Form Section -->
             <div class="col-md-6">
                 <div class="card-body p-4">
-                    <!-- Welcome message for users who just registered -->
+                    <!-- Messages are now handled globally in base template -->
                     {% if messages %}
                         {% for message in messages %}
-                            {% if 'You have been logged out' in message.message %}
+                            {% if 'You have been logged out' in message.message and message.tags != 'success' %}
                                 <!-- Display logout message more subtly -->
                                 <div class="alert alert-info alert-dismissible fade show mb-3" role="alert">
                                     <i class="fas fa-info-circle me-1"></i>
                                     You have been logged out successfully.
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            {% elif message.tags == 'success' and 'Account created successfully' in message.message %}
-                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3" role="alert">
-                                    <h5 class="alert-heading fw-bold fs-6"><i class="fas fa-check-circle me-1"></i>Welcome to {{ business_settings.business_name }}!</h5>
-                                    <p class="mb-1 small">{{ message.message }}</p>
-                                    <p class="mb-0 fw-bold small">Intelligent. Efficient. Simplified.</p>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            {% else %}
-                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3" role="alert">
-                                    {{ message }}
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
                             {% endif %}
@@ -200,9 +212,9 @@
             });
         });
         
-        // Password visibility toggle
+        // Password toggle functionality
         const togglePassword = document.querySelector('#togglePassword');
-        const password = document.querySelector('#id_password');
+        const password = document.querySelector('#{{ form.password.id_for_label }}');
         
         if (togglePassword && password) {
             togglePassword.addEventListener('click', function () {
@@ -212,13 +224,8 @@
                 
                 // Toggle the eye icon
                 const eyeIcon = this.querySelector('i');
-                if (type === 'password') {
-                    eyeIcon.classList.remove('fa-eye-slash');
-                    eyeIcon.classList.add('fa-eye');
-                } else {
-                    eyeIcon.classList.remove('fa-eye');
-                    eyeIcon.classList.add('fa-eye-slash');
-                }
+                eyeIcon.classList.toggle('fa-eye');
+                eyeIcon.classList.toggle('fa-eye-slash');
             });
         }
     });

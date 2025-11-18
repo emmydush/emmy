@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from .models import PurchaseOrder, PurchaseItem
 from .forms import PurchaseOrderForm, PurchaseItemFormSet
 from products.models import Product
+from authentication.utils import check_user_permission
 
 @login_required
 def purchase_order_list(request):
@@ -13,6 +14,11 @@ def purchase_order_list(request):
 
 @login_required
 def purchase_order_create(request):
+    # Account owners have access to everything
+    if request.user.role != 'admin' and not check_user_permission(request.user, 'can_create'):
+        messages.error(request, 'You do not have permission to create purchase orders.')
+        return redirect('purchases:list')
+        
     # Get the current business from the request
     from superadmin.middleware import get_current_business
     current_business = get_current_business()
@@ -70,6 +76,11 @@ def purchase_order_detail(request, pk):
 
 @login_required
 def purchase_order_update(request, pk):
+    # Account owners have access to everything
+    if request.user.role != 'admin' and not check_user_permission(request.user, 'can_edit'):
+        messages.error(request, 'You do not have permission to edit purchase orders.')
+        return redirect('purchases:list')
+        
     purchase_order = get_object_or_404(PurchaseOrder.objects.business_specific(), pk=pk)
     
     # Get the current business from the request
@@ -122,6 +133,11 @@ def purchase_order_update(request, pk):
 
 @login_required
 def purchase_order_delete(request, pk):
+    # Account owners have access to everything
+    if request.user.role != 'admin' and not check_user_permission(request.user, 'can_delete'):
+        messages.error(request, 'You do not have permission to delete purchase orders.')
+        return redirect('purchases:list')
+        
     purchase_order = get_object_or_404(PurchaseOrder.objects.business_specific(), pk=pk)
     
     if request.method == 'POST':
@@ -133,6 +149,11 @@ def purchase_order_delete(request, pk):
 
 @login_required
 def receive_items(request, pk):
+    # Account owners have access to everything
+    if request.user.role != 'admin' and not check_user_permission(request.user, 'can_edit'):
+        messages.error(request, 'You do not have permission to receive items for purchase orders.')
+        return redirect('purchases:list')
+        
     purchase_order = get_object_or_404(PurchaseOrder.objects.business_specific(), pk=pk)
     
     if request.method == 'POST':

@@ -3,6 +3,18 @@
 {% block title %}Reports - Inventory Management System{% endblock %}
 
 {% block content %}
+<!-- Permission Warnings -->
+{% load authentication_extras %}
+{% check_permission user 'can_access_reports' as can_access_reports %}
+
+{% if not can_access_reports %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>Access Restricted:</strong> You do not have permission to access reports.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endif %}
+
 <div class="row">
     <div class="col-md-12">
         <h2>Reports</h2>

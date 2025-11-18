@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Request Stock Adjustment - {{ business.company_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2><i class="fas fa-clipboard-list me-2"></i>Request Stock Adjustment</h2>
+    <a href="{% url 'products:stock_adjustment_list' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Back to Requests
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5><i class="fas fa-plus-circle me-2"></i>New Stock Adjustment Request</h5>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="{{ form.product.id_for_label }}" class="form-label">Product *</label>
+                        {{ form.product }}
+                        {% if form.product.errors %}
+                            <div class="text-danger">{{ form.product.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="{{ form.adjustment_type.id_for_label }}" class="form-label">Adjustment Type *</label>
+                        {{ form.adjustment_type }}
+                        {% if form.adjustment_type.errors %}
+                            <div class="text-danger">{{ form.adjustment_type.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="{{ form.quantity.id_for_label }}" class="form-label">Quantity *</label>
+                        {{ form.quantity }}
+                        {% if form.quantity.errors %}
+                            <div class="text-danger">{{ form.quantity.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="{{ form.reason.id_for_label }}" class="form-label">Reason *</label>
+                        {{ form.reason }}
+                        {% if form.reason.errors %}
+                            <div class="text-danger">{{ form.reason.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <div class="text-danger">{{ form.description.errors }}</div>
+                {% endif %}
+                <div class="form-text">Provide additional details about this adjustment request.</div>
+            </div>
+            
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane me-1"></i>Submit Request
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listener to show current stock when product is selected
+    const productSelect = document.getElementById('{{ form.product.id_for_label }}');
+    if (productSelect) {
+        productSelect.addEventListener('change', function() {
+            const productId = this.value;
+            if (productId) {
+                // In a real implementation, you would fetch the current stock via AJAX
+                console.log('Selected product ID:', productId);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
