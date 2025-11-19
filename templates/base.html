@@ -269,8 +269,7 @@
                             <option value="fr">Français</option>
                             <option value="de">Deutsch</option>
                         </select>
-                        {# Hidden language form that posts to user preference endpoint when logged in,
-                           otherwise to Django's set_language view #}
+                        {# Hidden language form that posts to user preference endpoint when logged in, otherwise to Django's set_language view #}
                         <form id="language-form" action="{% if user.is_authenticated %}{% url 'authentication:set_user_language' %}{% else %}{% url 'set_language' %}{% endif %}" method="post" style="display:none;">
                           {% csrf_token %}
                           <input type="hidden" name="next" value="{{ request.get_full_path }}">
