@@ -126,19 +126,26 @@
                         <span class="d-none d-sm-inline">Back to App</span>
                     </a>
                     
-                    <!-- Language Selector -->
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-globe me-1"></i>
-                            <span class="d-none d-sm-inline">Language</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
-                            <li><a class="dropdown-item" href="#" data-lang="en">English</a></li>
-                            <li><a class="dropdown-item" href="#" data-lang="es">Español</a></li>
-                            <li><a class="dropdown-item" href="#" data-lang="fr">Français</a></li>
-                            <li><a class="dropdown-item" href="#" data-lang="de">Deutsch</a></li>
-                        </ul>
-                    </div>
+          <!-- Language Selector -->
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-globe me-1"></i>
+              <span class="d-none d-sm-inline">Language</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+              <li><a class="dropdown-item" href="#" data-lang="en">English</a></li>
+              <li><a class="dropdown-item" href="#" data-lang="rw">Kinyarwanda</a></li>
+              <li><a class="dropdown-item" href="#" data-lang="es">Español</a></li>
+              <li><a class="dropdown-item" href="#" data-lang="fr">Français</a></li>
+              <li><a class="dropdown-item" href="#" data-lang="de">Deutsch</a></li>
+            </ul>
+            {# Hidden language form that posts to Django's set_language view #}
+            <form id="language-form" action="{% url 'set_language' %}" method="post" style="display:none;">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <input type="hidden" name="language" id="language-input" value="">
+            </form>
+          </div>
                     
                     <!-- Theme Toggle Button -->
                     <div class="theme-toggle-container">
@@ -220,6 +227,20 @@ document.addEventListener('DOMContentLoaded', function() {
   var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl)
   })
+  // Language switcher: submit hidden form to Django's set_language view
+  var langLinks = document.querySelectorAll('.dropdown-menu a[data-lang]');
+  var langInput = document.getElementById('language-input');
+  var langForm = document.getElementById('language-form');
+  if (langLinks && langForm && langInput) {
+    langLinks.forEach(function(link) {
+      link.addEventListener('click', function(ev) {
+        ev.preventDefault();
+        var lang = this.getAttribute('data-lang');
+        langInput.value = lang;
+        langForm.submit();
+      });
+    });
+  }
 });
 </script>
 {% endblock %}

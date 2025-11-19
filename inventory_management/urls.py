@@ -43,6 +43,8 @@ urlpatterns = [
     path("settings/", include("settings.urls")),
     path("superadmin/", include("superadmin.urls")),
     path("business-selection/", business_selection_view, name="business_selection"),
+    # Django i18n set_language view (language switching)
+    path("i18n/", include("django.conf.urls.i18n")),
 ]
 
 if settings.DEBUG:
