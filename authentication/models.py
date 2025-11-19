@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 
 class User(AbstractUser):
@@ -16,6 +18,13 @@ class User(AbstractUser):
     profile_picture = models.ImageField(upload_to="profiles/", blank=True, null=True)
     businesses = models.ManyToManyField(
         "superadmin.Business", related_name="users", blank=True
+    )
+    # Preferred language for the user (matches settings.LANGUAGES codes)
+    language = models.CharField(
+        max_length=10,
+        choices=getattr(settings, "LANGUAGES", [("en", "English")]),
+        default="en",
+        verbose_name=_("Preferred language"),
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

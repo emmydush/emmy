@@ -7,6 +7,8 @@ from .forms import CustomUserCreationForm, CustomAuthenticationForm, UserProfile
 from .models import User
 from superadmin.models import Business
 from superadmin.forms import BusinessDetailsForm
+from django.conf import settings
+from django.utils import translation
 
 
 def login_view(request):
@@ -149,6 +151,28 @@ def profile_view(request):
         form = UserProfileForm(instance=request.user)
 
     return render(request, "authentication/profile.html", {"form": form})
+
+
+@login_required
+def set_user_language(request):
+    """Set the logged-in user's preferred language and update the session.
+
+    Falls back to session-only change for anonymous users (handled by Django's
+    built-in set_language view).
+    """
+    if request.method == "POST":
+        lang = request.POST.get("language")
+        next_url = request.POST.get("next") or request.META.get("HTTP_REFERER", "/")
+        # Validate language
+        available = dict(getattr(settings, "LANGUAGES", [("en", "English")]))
+        if lang in available:
+            # Save to user preference
+            request.user.language = lang
+            request.user.save()
+            # Also set session so change takes effect immediately
+            request.session[translation.LANGUAGE_SESSION_KEY] = lang
+            translation.activate(lang)
+    return redirect(next_url)
 
 
 @login_required
