@@ -115,7 +115,8 @@ jobs:
           -d '{}') || true
         echo "Render HTTP code: $HTTP_CODE"
         cat "$RESPONSE_FILE" || true
-        if [ "$HTTP_CODE" -ne 201 ]; then
+        # Treat any 2xx response as success (Render may return 202 Accepted)
+        if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
           echo "Render deploy failed (HTTP $HTTP_CODE)" >&2
           exit 1
         fi
