@@ -6,6 +6,7 @@ from products.models import Product, Category, Unit
 from suppliers.models import Supplier
 from superadmin.models import Business
 from superadmin.middleware import set_current_business
+from rest_framework.authtoken.models import Token
 
 User = get_user_model()
 
@@ -87,7 +88,8 @@ class APITestCase(TestCase):
         self.client.login(username="testuser", password="testpass123")
         response = self.client.get("/api/v1/products/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data["results"]), 1)
+        # For list views, response.data is a list, not a dict with "results"
+        self.assertEqual(len(response.data), 1)
 
     def test_product_detail_authenticated(self):
         """Test that authenticated users can retrieve product details"""

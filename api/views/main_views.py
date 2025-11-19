@@ -92,9 +92,13 @@ def dashboard_stats(request):
     """
     Return dashboard statistics
     """
+    # Filter low stock products using the is_low_stock property
+    all_products = Product.objects.all()
+    low_stock_count = sum(1 for product in all_products if product.is_low_stock)
+    
     stats = {
         "total_products": Product.objects.count(),
-        "low_stock_products": Product.objects.filter(is_low_stock=True).count(),
+        "low_stock_products": low_stock_count,
         "total_sales": Sale.objects.count(),
         "today_sales": Sale.objects.filter(
             sale_date__date=timezone.now().date()

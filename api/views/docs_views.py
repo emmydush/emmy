@@ -1,10 +1,10 @@
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from django.utils.decorators import method_decorator
-from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 
 
-class APIDocumentationView(View):
+class APIDocumentationView(APIView):
     """
     Simple API Documentation View
     """
@@ -35,7 +35,7 @@ class APIDocumentationView(View):
             },
         }
 
-        return JsonResponse(
+        return Response(
             {
                 "message": "Inventory Management System API",
                 "version": "v1",
