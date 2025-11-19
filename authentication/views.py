@@ -21,6 +21,15 @@ def login_view(request):
 
             if user is not None:
                 login(request, user)
+                # If the user has a saved preferred language, apply it to the session
+                try:
+                    user_lang = getattr(user, "language", None)
+                    if user_lang:
+                        request.session[translation.LANGUAGE_SESSION_KEY] = user_lang
+                        translation.activate(user_lang)
+                except Exception:
+                    # Be defensive: don't break login flow if language application fails
+                    pass
                 # Handle remember me functionality if needed
                 if not form.cleaned_data.get("remember_me"):
                     request.session.set_expiry(0)
