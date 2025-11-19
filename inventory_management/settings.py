@@ -152,6 +152,9 @@ from django.utils.translation import gettext_lazy as _
 LANGUAGES = [
     ("en", _("English")),
     ("rw", _("Kinyarwanda")),
+    ("es", _("Espa\u00f1ol")),
+    ("fr", _("Fran\u00e7ais")),
+    ("de", _("Deutsch")),
 ]
 
 # Path where locale files (PO/MO) will be stored

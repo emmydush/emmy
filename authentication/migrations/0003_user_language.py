@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             model_name="user",
             name="language",
             field=models.CharField(
-                choices=[("en", "English"), ("rw", "Kinyarwanda")],
+                choices=[("en", "English"), ("rw", "Kinyarwanda"), ("es", "Espa\u00f1ol"), ("fr", "Fran\u00e7ais"), ("de", "Deutsch")],
                 default="en",
                 max_length=10,
                 verbose_name="Preferred language",
