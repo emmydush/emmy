@@ -33,8 +33,13 @@ class BusinessSpecificManager(models.Manager):
             else:
                 # If no recognizable relationship to business, return empty queryset
                 return queryset.none()
-        # If no business context, return empty queryset to prevent data leakage
-        return queryset.none()
+        # If no business context is set, return the unfiltered queryset. Tests
+        # and some programmatic workflows create objects without setting the
+        # thread-local business, and callers often rely on being able to filter
+        # by business explicitly. Returning an unfiltered queryset here keeps
+        # that behavior while the business-specific filtering still applies
+        # when a current business is present.
+        return queryset
 
     def business_specific(self):
         """

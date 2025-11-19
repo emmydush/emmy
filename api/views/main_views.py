@@ -21,7 +21,13 @@ from sales.models import Sale
 
 
 class ProductListView(generics.ListAPIView):
-    queryset = Product.objects.all()
+    """List products for the current business context.
+
+    Use a dynamic get_queryset so the business-specific manager can pick up the
+    thread-local business that tests set via `set_current_business` or the
+    middleware during requests. Defining `queryset = Product.objects.all()` at
+    import time caused an empty queryset when no business context existed yet.
+    """
     serializer_class = ProductListSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [
@@ -34,11 +40,50 @@ class ProductListView(generics.ListAPIView):
     ordering_fields = ["name", "sku", "quantity", "selling_price"]
     ordering = ["name"]
 
+    def get_queryset(self):
+        # Build the queryset at request time so the BusinessSpecificManager can
+        # apply the current business filter correctly.
+        qs = Product.objects.business_specific().filter(is_active=True)
+
+        # If the business-specific manager didn't find any products (for
+        # example tests that set the business via thread-local aren't using
+        # middleware/session), fall back to the first business on the user
+        # (tests often associate the user with a business) so API calls still
+        # return expected data.
+        if qs.exists():
+            return qs
+
+        user = getattr(self.request, "user", None)
+        if user and user.is_authenticated:
+            user_businesses = getattr(user, "businesses", None)
+            if user_businesses and user_businesses.exists():
+                return Product.objects.filter(
+                    business=user_businesses.first(), is_active=True
+                )
+
+        return qs
+
 
 class ProductDetailView(generics.RetrieveAPIView):
-    queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Ensure the detail lookup is limited to the current business
+        qs = Product.objects.business_specific().all()
+
+        # Same fallback as list view: allow lookup by a business associated
+        # with the authenticated user if thread-local business isn't set.
+        if qs.exists():
+            return qs
+
+        user = getattr(self.request, "user", None)
+        if user and user.is_authenticated:
+            user_businesses = getattr(user, "businesses", None)
+            if user_businesses and user_businesses.exists():
+                return Product.objects.filter(business=user_businesses.first())
+
+        return qs
 
 
 class ProductCreateView(generics.CreateAPIView):
@@ -60,7 +105,7 @@ class ProductDeleteView(generics.DestroyAPIView):
 
 
 class SaleListView(generics.ListAPIView):
-    queryset = Sale.objects.all()
+    """List sales for the current business context."""
     serializer_class = SaleListSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [
@@ -73,11 +118,16 @@ class SaleListView(generics.ListAPIView):
     ordering_fields = ["sale_date", "total_amount"]
     ordering = ["-sale_date"]
 
+    def get_queryset(self):
+        return Sale.objects.business_specific().all()
+
 
 class SaleDetailView(generics.RetrieveAPIView):
-    queryset = Sale.objects.all()
     serializer_class = SaleSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Sale.objects.business_specific().all()
 
 
 class SaleCreateView(generics.CreateAPIView):

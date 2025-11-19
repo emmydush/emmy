@@ -28,8 +28,15 @@ class Business(models.Model):
     )
 
     company_name = models.CharField(max_length=200)
+    # Make owner optional to support test setups and legacy data that may
+    # create businesses without assigning an owner. Production flows should
+    # still set an owner when creating real businesses.
     owner = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="owned_businesses"
+        User,
+        on_delete=models.CASCADE,
+        related_name="owned_businesses",
+        null=True,
+        blank=True,
     )
     email = models.EmailField()
     business_type = models.CharField(

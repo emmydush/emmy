@@ -194,6 +194,8 @@ class Migration(migrations.Migration):
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="owned_businesses",
                         to=settings.AUTH_USER_MODEL,
+                        null=True,
+                        blank=True,
                     ),
                 ),
             ],

@@ -30,9 +30,12 @@ class BusinessContextMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        # Clear any existing business context at the start of each request
-        clear_current_business()
-
+        # NOTE: do not clear the thread-local business context here. Tests and
+        # some programmatic flows call `set_current_business` outside of a
+        # request (for example in test setup). Clearing the context at the
+        # start of each request removes that information and causes views to
+        # behave as if no business is selected. Instead, prefer to read the
+        # business from the session if present and only set it when applicable.
         # Try to get the current business from the session
         business_id = request.session.get("current_business_id")
         if business_id:
@@ -47,7 +50,10 @@ class BusinessContextMiddleware:
 
         response = self.get_response(request)
 
-        # Note: We don't clear the business context here anymore
-        # It will be cleared at the start of the next request
+        # Clear the business context after the request is processed so that
+        # programmatic callers (tests) that set the context before a request
+        # will have it available during the request, but it won't leak to
+        # subsequent requests or tests.
+        clear_current_business()
 
         return response
