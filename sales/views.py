@@ -330,7 +330,9 @@ def process_pos_sale(request):
             # where products and sales may not be tied to a Business. Tests
             # create products without a business; treat business as None and
             # continue.
-            logger.warning("No current_business_id in session - proceeding with business=None")
+            logger.warning(
+                "No current_business_id in session - proceeding with business=None"
+            )
             current_business = None
 
         # Parse the JSON data from the request

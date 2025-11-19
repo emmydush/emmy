@@ -28,6 +28,7 @@ class ProductListView(generics.ListAPIView):
     middleware during requests. Defining `queryset = Product.objects.all()` at
     import time caused an empty queryset when no business context existed yet.
     """
+
     serializer_class = ProductListSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [
@@ -106,6 +107,7 @@ class ProductDeleteView(generics.DestroyAPIView):
 
 class SaleListView(generics.ListAPIView):
     """List sales for the current business context."""
+
     serializer_class = SaleListSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [

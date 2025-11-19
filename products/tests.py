@@ -13,7 +13,7 @@ class StockAlertTestCase(TestCase):
         self.business = Business.objects.create(
             company_name="Test Business",  # Fixed: use company_name instead of name
             email="test@example.com",
-            business_type="retail"  # Add business_type which is required
+            business_type="retail",  # Add business_type which is required
         )
 
         # Create a user

@@ -88,9 +88,9 @@ def check_low_stock_alerts():
         # get alerts created.
         if not business:
             # Use the base manager to avoid BusinessSpecificManager filtering
-            product_business_ids = (
-                Product._base_manager.values_list("business", flat=True).distinct()
-            )
+            product_business_ids = Product._base_manager.values_list(
+                "business", flat=True
+            ).distinct()
             for biz_id in product_business_ids:
                 if not biz_id:
                     continue
@@ -103,7 +103,9 @@ def check_low_stock_alerts():
                     # Run the low stock check for this specific business
                     _check_low_stock_for_business(biz)
                 except Exception:
-                    logger.exception("Error processing low stock for business %s", biz_id)
+                    logger.exception(
+                        "Error processing low stock for business %s", biz_id
+                    )
                 finally:
                     clear_current_business()
 
@@ -121,7 +123,11 @@ def _check_low_stock_for_business(business):
     low_stock_products = Product.objects.filter(
         business=business, is_active=True, quantity__lte=F("reorder_level")
     )
-    logger.info("Low stock check for business %s: found %s products", getattr(business, 'id', None), low_stock_products.count())
+    logger.info(
+        "Low stock check for business %s: found %s products",
+        getattr(business, "id", None),
+        low_stock_products.count(),
+    )
 
     for product in low_stock_products:
         # Check if an alert already exists for this product
@@ -151,7 +157,9 @@ def _check_low_stock_for_business(business):
                     threshold=product.reorder_level,
                 )
             except Exception:
-                logger.exception("Failed to create low stock alert for product %s", product)
+                logger.exception(
+                    "Failed to create low stock alert for product %s", product
+                )
 
 
 def check_abnormal_reduction():
@@ -161,9 +169,9 @@ def check_abnormal_reduction():
         if not business:
             # Similar fallback as low stock: iterate over businesses with recent movements
             # Use base manager to avoid business-specific filtering
-            movement_business_ids = (
-                StockMovement._base_manager.values_list("business", flat=True).distinct()
-            )
+            movement_business_ids = StockMovement._base_manager.values_list(
+                "business", flat=True
+            ).distinct()
             for biz_id in movement_business_ids:
                 if not biz_id:
                     continue
@@ -174,7 +182,9 @@ def check_abnormal_reduction():
                     set_current_business(biz)
                     _check_abnormal_for_business(biz)
                 except Exception:
-                    logger.exception("Error processing abnormal reduction for business %s", biz_id)
+                    logger.exception(
+                        "Error processing abnormal reduction for business %s", biz_id
+                    )
                 finally:
                     clear_current_business()
 
@@ -188,17 +198,18 @@ def check_abnormal_reduction():
 def _check_abnormal_for_business(business):
     """Internal helper to detect abnormal reductions for a single business."""
     twenty_four_hours_ago = timezone.now() - timedelta(hours=24)
-    recent_movements = (
-        StockMovement.objects.filter(
-            business=business, created_at__gte=twenty_four_hours_ago, movement_type="sale"
-        ).select_related("product")
-    )
+    recent_movements = StockMovement.objects.filter(
+        business=business, created_at__gte=twenty_four_hours_ago, movement_type="sale"
+    ).select_related("product")
 
     # Group movements by product
     product_movements = {}
     for movement in recent_movements:
         if movement.product.id not in product_movements:
-            product_movements[movement.product.id] = {"product": movement.product, "movements": []}
+            product_movements[movement.product.id] = {
+                "product": movement.product,
+                "movements": [],
+            }
         product_movements[movement.product.id]["movements"].append(movement)
 
     # Check each product for abnormal patterns
@@ -209,20 +220,30 @@ def _check_abnormal_for_business(business):
         # Calculate average daily sales for this product over the last week
         one_week_ago = timezone.now() - timedelta(days=7)
         weekly_movements = StockMovement.objects.filter(
-            business=business, product=product, movement_type="sale", created_at__gte=one_week_ago
+            business=business,
+            product=product,
+            movement_type="sale",
+            created_at__gte=one_week_ago,
         )
 
         if weekly_movements.count() > 0:
-            avg_daily_sales = weekly_movements.aggregate(avg_quantity=Avg("quantity"))["avg_quantity"]
+            avg_daily_sales = weekly_movements.aggregate(avg_quantity=Avg("quantity"))[
+                "avg_quantity"
+            ]
 
             # Calculate today's sales
             today_sales = sum([movement.quantity for movement in movements])
 
             # Check if today's sales are significantly higher than average
-            if avg_daily_sales and today_sales > avg_daily_sales * 3:  # 3x average is abnormal
+            if (
+                avg_daily_sales and today_sales > avg_daily_sales * 3
+            ):  # 3x average is abnormal
                 # Check if an alert already exists for this product
                 existing_alert = StockAlert.objects.filter(
-                    business=business, product=product, alert_type="abnormal_reduction", is_resolved=False
+                    business=business,
+                    product=product,
+                    alert_type="abnormal_reduction",
+                    is_resolved=False,
                 ).first()
 
                 if not existing_alert:
@@ -239,7 +260,10 @@ def _check_abnormal_for_business(business):
                             previous_stock=product.quantity + today_sales,
                         )
                     except Exception:
-                        logger.exception("Failed to create abnormal reduction alert for product %s", product)
+                        logger.exception(
+                            "Failed to create abnormal reduction alert for product %s",
+                            product,
+                        )
 
 
 def check_expired_products():
