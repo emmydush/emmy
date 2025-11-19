@@ -10,28 +10,71 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('products', '0001_initial'),
-        ('superadmin', '0001_initial'),
+        ("products", "0001_initial"),
+        ("superadmin", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Notification',
+            name="Notification",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200)),
-                ('message', models.TextField()),
-                ('notification_type', models.CharField(choices=[('low_stock', 'Low Stock'), ('expired_product', 'Expired Product'), ('near_expiry', 'Near Expiry'), ('pending_order', 'Pending Order'), ('overdue_payment', 'Overdue Payment'), ('system', 'System')], max_length=20)),
-                ('is_read', models.BooleanField(default=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('read_at', models.DateTimeField(blank=True, null=True)),
-                ('business', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='superadmin.business')),
-                ('recipient', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('related_product', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='products.product')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=200)),
+                ("message", models.TextField()),
+                (
+                    "notification_type",
+                    models.CharField(
+                        choices=[
+                            ("low_stock", "Low Stock"),
+                            ("expired_product", "Expired Product"),
+                            ("near_expiry", "Near Expiry"),
+                            ("pending_order", "Pending Order"),
+                            ("overdue_payment", "Overdue Payment"),
+                            ("system", "System"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                ("is_read", models.BooleanField(default=False)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("read_at", models.DateTimeField(blank=True, null=True)),
+                (
+                    "business",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="superadmin.business",
+                    ),
+                ),
+                (
+                    "recipient",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "related_product",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="products.product",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
+                "ordering": ["-created_at"],
             },
         ),
     ]

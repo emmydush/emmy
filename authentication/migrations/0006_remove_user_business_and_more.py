@@ -6,69 +6,74 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('authentication', '0005_user_business_user_is_employee_user_is_owner_and_more'),
-        ('superadmin', '0001_initial'),
+        (
+            "authentication",
+            "0005_user_business_user_is_employee_user_is_owner_and_more",
+        ),
+        ("superadmin", "0001_initial"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='user',
-            name='business',
+            model_name="user",
+            name="business",
         ),
         migrations.RemoveField(
-            model_name='user',
-            name='can_access_categories',
+            model_name="user",
+            name="can_access_categories",
         ),
         migrations.RemoveField(
-            model_name='user',
-            name='can_access_customers',
+            model_name="user",
+            name="can_access_customers",
         ),
         migrations.RemoveField(
-            model_name='user',
-            name='can_access_expenses',
+            model_name="user",
+            name="can_access_expenses",
         ),
         migrations.RemoveField(
-            model_name='user',
-            name='can_access_pos',
+            model_name="user",
+            name="can_access_pos",
         ),
         migrations.RemoveField(
-            model_name='user',
-            name='can_access_products',
+            model_name="user",
+            name="can_access_products",
         ),
         migrations.RemoveField(
-            model_name='user',
-            name='can_access_purchases',
+            model_name="user",
+            name="can_access_purchases",
         ),
         migrations.RemoveField(
-            model_name='user',
-            name='can_access_reports',
+            model_name="user",
+            name="can_access_reports",
         ),
         migrations.RemoveField(
-            model_name='user',
-            name='can_access_sales',
+            model_name="user",
+            name="can_access_sales",
         ),
         migrations.RemoveField(
-            model_name='user',
-            name='can_access_settings',
+            model_name="user",
+            name="can_access_settings",
         ),
         migrations.RemoveField(
-            model_name='user',
-            name='can_access_suppliers',
+            model_name="user",
+            name="can_access_suppliers",
         ),
         migrations.RemoveField(
-            model_name='user',
-            name='is_employee',
+            model_name="user",
+            name="is_employee",
         ),
         migrations.RemoveField(
-            model_name='user',
-            name='is_owner',
+            model_name="user",
+            name="is_owner",
         ),
         migrations.AlterField(
-            model_name='user',
-            name='businesses',
-            field=models.ManyToManyField(blank=True, related_name='users', to='superadmin.business'),
+            model_name="user",
+            name="businesses",
+            field=models.ManyToManyField(
+                blank=True, related_name="users", to="superadmin.business"
+            ),
         ),
         migrations.DeleteModel(
-            name='PasswordResetToken',
+            name="PasswordResetToken",
         ),
     ]

@@ -9,65 +9,144 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('superadmin', '0001_initial'),
+        ("superadmin", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Category',
+            name="Category",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('description', models.TextField(blank=True, null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('business', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='categories', to='superadmin.business')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("description", models.TextField(blank=True, null=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "business",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="categories",
+                        to="superadmin.business",
+                    ),
+                ),
             ],
             options={
-                'verbose_name_plural': 'Categories',
-                'ordering': ['name'],
-                'unique_together': {('business', 'name')},
+                "verbose_name_plural": "Categories",
+                "ordering": ["name"],
+                "unique_together": {("business", "name")},
             },
         ),
         migrations.CreateModel(
-            name='Unit',
+            name="Unit",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50)),
-                ('symbol', models.CharField(max_length=10)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('business', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='units', to='superadmin.business')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=50)),
+                ("symbol", models.CharField(max_length=10)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "business",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="units",
+                        to="superadmin.business",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('business', 'name'), ('business', 'symbol')},
+                "unique_together": {("business", "name"), ("business", "symbol")},
             },
         ),
         migrations.CreateModel(
-            name='Product',
+            name="Product",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200)),
-                ('sku', models.CharField(max_length=100)),
-                ('barcode', models.CharField(blank=True, max_length=100, null=True)),
-                ('barcode_format', models.CharField(choices=[('code128', 'Code 128 (High Density)'), ('ean13', 'EAN-13 (Retail Standard)'), ('upca', 'UPC-A (Retail Standard)')], default='code128', max_length=20)),
-                ('description', models.TextField(blank=True, null=True)),
-                ('image', models.ImageField(blank=True, null=True, upload_to='products/')),
-                ('cost_price', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('selling_price', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('quantity', models.DecimalField(decimal_places=2, default=0, max_digits=10)),
-                ('reorder_level', models.DecimalField(decimal_places=2, default=0, max_digits=10)),
-                ('expiry_date', models.DateField(blank=True, null=True)),
-                ('is_active', models.BooleanField(default=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('business', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='products', to='superadmin.business')),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='products.category')),
-                ('unit', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='products.unit')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=200)),
+                ("sku", models.CharField(max_length=100)),
+                ("barcode", models.CharField(blank=True, max_length=100, null=True)),
+                (
+                    "barcode_format",
+                    models.CharField(
+                        choices=[
+                            ("code128", "Code 128 (High Density)"),
+                            ("ean13", "EAN-13 (Retail Standard)"),
+                            ("upca", "UPC-A (Retail Standard)"),
+                        ],
+                        default="code128",
+                        max_length=20,
+                    ),
+                ),
+                ("description", models.TextField(blank=True, null=True)),
+                (
+                    "image",
+                    models.ImageField(blank=True, null=True, upload_to="products/"),
+                ),
+                ("cost_price", models.DecimalField(decimal_places=2, max_digits=10)),
+                ("selling_price", models.DecimalField(decimal_places=2, max_digits=10)),
+                (
+                    "quantity",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=10),
+                ),
+                (
+                    "reorder_level",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=10),
+                ),
+                ("expiry_date", models.DateField(blank=True, null=True)),
+                ("is_active", models.BooleanField(default=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "business",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="products",
+                        to="superadmin.business",
+                    ),
+                ),
+                (
+                    "category",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="products.category",
+                    ),
+                ),
+                (
+                    "unit",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="products.unit"
+                    ),
+                ),
             ],
             options={
-                'ordering': ['name'],
-                'unique_together': {('business', 'sku')},
+                "ordering": ["name"],
+                "unique_together": {("business", "sku")},
             },
         ),
     ]

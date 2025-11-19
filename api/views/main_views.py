@@ -7,10 +7,14 @@ from rest_framework import filters
 from django.utils import timezone
 
 from api.serializers.product_serializers import (
-    ProductSerializer, ProductCreateUpdateSerializer, ProductListSerializer
+    ProductSerializer,
+    ProductCreateUpdateSerializer,
+    ProductListSerializer,
 )
 from api.serializers.sales_serializers import (
-    SaleSerializer, SaleCreateUpdateSerializer, SaleListSerializer
+    SaleSerializer,
+    SaleCreateUpdateSerializer,
+    SaleListSerializer,
 )
 from products.models import Product
 from sales.models import Sale
@@ -20,11 +24,15 @@ class ProductListView(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductListSerializer
     permission_classes = [IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['category', 'unit', 'is_active']
-    search_fields = ['name', 'sku', 'barcode']
-    ordering_fields = ['name', 'sku', 'quantity', 'selling_price']
-    ordering = ['name']
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
+    filterset_fields = ["category", "unit", "is_active"]
+    search_fields = ["name", "sku", "barcode"]
+    ordering_fields = ["name", "sku", "quantity", "selling_price"]
+    ordering = ["name"]
 
 
 class ProductDetailView(generics.RetrieveAPIView):
@@ -55,11 +63,15 @@ class SaleListView(generics.ListAPIView):
     queryset = Sale.objects.all()
     serializer_class = SaleListSerializer
     permission_classes = [IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['customer', 'payment_method', 'is_refunded']
-    search_fields = ['id', 'customer__full_name']
-    ordering_fields = ['sale_date', 'total_amount']
-    ordering = ['-sale_date']
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
+    filterset_fields = ["customer", "payment_method", "is_refunded"]
+    search_fields = ["id", "customer__full_name"]
+    ordering_fields = ["sale_date", "total_amount"]
+    ordering = ["-sale_date"]
 
 
 class SaleDetailView(generics.RetrieveAPIView):
@@ -74,16 +86,18 @@ class SaleCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 @permission_classes([AllowAny])
 def dashboard_stats(request):
     """
     Return dashboard statistics
     """
     stats = {
-        'total_products': Product.objects.count(),
-        'low_stock_products': Product.objects.filter(is_low_stock=True).count(),
-        'total_sales': Sale.objects.count(),
-        'today_sales': Sale.objects.filter(sale_date__date=timezone.now().date()).count(),
+        "total_products": Product.objects.count(),
+        "low_stock_products": Product.objects.filter(is_low_stock=True).count(),
+        "total_sales": Sale.objects.count(),
+        "today_sales": Sale.objects.filter(
+            sale_date__date=timezone.now().date()
+        ).count(),
     }
     return Response(stats)

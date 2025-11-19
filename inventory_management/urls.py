@@ -21,27 +21,28 @@ from django.conf.urls.static import static
 from django.shortcuts import redirect
 from superadmin.views import business_selection_view
 
+
 # Redirect root URL to login page
 def root_redirect(request):
-    return redirect('authentication:login')
+    return redirect("authentication:login")
+
 
 urlpatterns = [
-    path('', root_redirect, name='home'),
-
-    path('api/v1/', include('api.urls')),
-    path('dashboard/', include('dashboard.urls')),
-    path('accounts/', include('authentication.urls')),
-    path('products/', include('products.urls')),
-    path('suppliers/', include('suppliers.urls')),
-    path('purchases/', include('purchases.urls')),
-    path('sales/', include('sales.urls')),
-    path('customers/', include('customers.urls')),
-    path('expenses/', include('expenses.urls')),
-    path('reports/', include('reports.urls')),
-    path('notifications/', include('notifications.urls')),
-    path('settings/', include('settings.urls')),
-    path('superadmin/', include('superadmin.urls')),
-    path('business-selection/', business_selection_view, name='business_selection'),
+    path("", root_redirect, name="home"),
+    path("api/v1/", include("api.urls")),
+    path("dashboard/", include("dashboard.urls")),
+    path("accounts/", include("authentication.urls")),
+    path("products/", include("products.urls")),
+    path("suppliers/", include("suppliers.urls")),
+    path("purchases/", include("purchases.urls")),
+    path("sales/", include("sales.urls")),
+    path("customers/", include("customers.urls")),
+    path("expenses/", include("expenses.urls")),
+    path("reports/", include("reports.urls")),
+    path("notifications/", include("notifications.urls")),
+    path("settings/", include("settings.urls")),
+    path("superadmin/", include("superadmin.urls")),
+    path("business-selection/", business_selection_view, name="business_selection"),
 ]
 
 if settings.DEBUG:

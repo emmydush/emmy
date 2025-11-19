@@ -7,29 +7,37 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('authentication', '0004_passwordresettoken'),
-        ('superadmin', '0001_initial'),
+        ("authentication", "0004_passwordresettoken"),
+        ("superadmin", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='business',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='owned_users', to='superadmin.business'),
+            model_name="user",
+            name="business",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="owned_users",
+                to="superadmin.business",
+            ),
         ),
         migrations.AddField(
-            model_name='user',
-            name='is_employee',
+            model_name="user",
+            name="is_employee",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='user',
-            name='is_owner',
+            model_name="user",
+            name="is_owner",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='businesses',
-            field=models.ManyToManyField(blank=True, related_name='associated_users', to='superadmin.business'),
+            model_name="user",
+            name="businesses",
+            field=models.ManyToManyField(
+                blank=True, related_name="associated_users", to="superadmin.business"
+            ),
         ),
     ]

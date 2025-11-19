@@ -6,58 +6,58 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('authentication', '0002_initial'),
+        ("authentication", "0002_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='can_access_categories',
+            model_name="user",
+            name="can_access_categories",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='user',
-            name='can_access_customers',
+            model_name="user",
+            name="can_access_customers",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='user',
-            name='can_access_expenses',
+            model_name="user",
+            name="can_access_expenses",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='user',
-            name='can_access_pos',
+            model_name="user",
+            name="can_access_pos",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='user',
-            name='can_access_products',
+            model_name="user",
+            name="can_access_products",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='user',
-            name='can_access_purchases',
+            model_name="user",
+            name="can_access_purchases",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='user',
-            name='can_access_reports',
+            model_name="user",
+            name="can_access_reports",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='user',
-            name='can_access_sales',
+            model_name="user",
+            name="can_access_sales",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='user',
-            name='can_access_settings',
+            model_name="user",
+            name="can_access_settings",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='user',
-            name='can_access_suppliers',
+            model_name="user",
+            name="can_access_suppliers",
             field=models.BooleanField(default=False),
         ),
     ]

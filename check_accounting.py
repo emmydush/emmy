@@ -2,19 +2,22 @@ import os
 import django
 
 # Set up Django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'inventory_management.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "inventory_management.settings")
 django.setup()
 
 from django.db import connection
 
 # Check what accounting tables exist
 cursor = connection.cursor()
-cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_name LIKE 'accounting_%'")
+cursor.execute(
+    "SELECT table_name FROM information_schema.tables WHERE table_name LIKE 'accounting_%'"
+)
 tables = cursor.fetchall()
 print("Accounting tables:", [table[0] for table in tables])
 
 # Check foreign key constraints on superadmin_business
-cursor.execute("""
+cursor.execute(
+    """
     SELECT 
         tc.table_name, 
         kcu.column_name, 
@@ -29,6 +32,7 @@ cursor.execute("""
           ON ccu.constraint_name = tc.constraint_name
           AND ccu.table_schema = tc.table_schema
     WHERE tc.constraint_type = 'FOREIGN KEY' AND ccu.table_name='superadmin_business'
-""")
+"""
+)
 foreign_keys = cursor.fetchall()
 print("Foreign keys referencing superadmin_business:", foreign_keys)

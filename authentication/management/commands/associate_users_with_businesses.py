@@ -2,8 +2,9 @@ from django.core.management.base import BaseCommand
 from authentication.models import User
 from superadmin.models import Business
 
+
 class Command(BaseCommand):
-    help = 'Associate existing users with businesses based on ownership'
+    help = "Associate existing users with businesses based on ownership"
 
     def handle(self, *args, **options):
         # Associate business owners with their businesses
@@ -13,10 +14,10 @@ class Command(BaseCommand):
             business.owner.businesses.add(business)
             self.stdout.write(
                 self.style.SUCCESS(
-                    f'Associated owner {business.owner.username} with business {business.company_name}'
+                    f"Associated owner {business.owner.username} with business {business.company_name}"
                 )
             )
-        
+
         # For other users, we'll need to determine which business they should be associated with
         # This is a simplified approach - in a real application, you might have a more complex logic
         users = User.objects.filter(businesses__isnull=True)
@@ -29,7 +30,7 @@ class Command(BaseCommand):
                 user.businesses.add(business)
                 self.stdout.write(
                     self.style.SUCCESS(
-                        f'Associated user {user.username} with business {business.company_name}'
+                        f"Associated user {user.username} with business {business.company_name}"
                     )
                 )
             else:
@@ -40,12 +41,10 @@ class Command(BaseCommand):
                     user.businesses.add(first_business)
                     self.stdout.write(
                         self.style.SUCCESS(
-                            f'Associated user {user.username} with business {first_business.company_name} (fallback)'
+                            f"Associated user {user.username} with business {first_business.company_name} (fallback)"
                         )
                     )
-        
+
         self.stdout.write(
-            self.style.SUCCESS(
-                'Successfully associated all users with businesses'
-            )
+            self.style.SUCCESS("Successfully associated all users with businesses")
         )

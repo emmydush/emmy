@@ -4,7 +4,8 @@ import time
 import sys
 import os
 
-def wait_for_port(port, host='localhost', timeout=30.0):
+
+def wait_for_port(port, host="localhost", timeout=30.0):
     """Wait until a port starts accepting TCP connections.
     Args:
         port (int): Port number.
@@ -21,14 +22,17 @@ def wait_for_port(port, host='localhost', timeout=30.0):
         except OSError as ex:
             time.sleep(0.01)
             if time.perf_counter() - start_time >= timeout:
-                raise TimeoutError('Waited too long for the port {} on host {} to start accepting '
-                                   'connections.'.format(port, host)) from ex
+                raise TimeoutError(
+                    "Waited too long for the port {} on host {} to start accepting "
+                    "connections.".format(port, host)
+                ) from ex
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # Get database host and port from environment variables or use defaults
-    db_host = os.environ.get('DB_HOST', 'db')
-    db_port = int(os.environ.get('DB_PORT', 5432))
-    
+    db_host = os.environ.get("DB_HOST", "db")
+    db_port = int(os.environ.get("DB_PORT", 5432))
+
     print(f"Waiting for database at {db_host}:{db_port}...")
     wait_for_port(db_port, db_host)
     print("Database is ready!")

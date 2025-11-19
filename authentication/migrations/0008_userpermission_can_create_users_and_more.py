@@ -6,28 +6,28 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('authentication', '0007_userpermission'),
+        ("authentication", "0007_userpermission"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userpermission',
-            name='can_create_users',
+            model_name="userpermission",
+            name="can_create_users",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='userpermission',
-            name='can_delete_users',
+            model_name="userpermission",
+            name="can_delete_users",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='userpermission',
-            name='can_edit_users',
+            model_name="userpermission",
+            name="can_edit_users",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='userpermission',
-            name='can_manage_users',
+            model_name="userpermission",
+            name="can_manage_users",
             field=models.BooleanField(default=False),
         ),
     ]

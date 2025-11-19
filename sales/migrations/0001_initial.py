@@ -10,83 +10,232 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('customers', '0001_initial'),
-        ('products', '0001_initial'),
-        ('superadmin', '0001_initial'),
+        ("customers", "0001_initial"),
+        ("products", "0001_initial"),
+        ("superadmin", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Cart',
+            name="Cart",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('session_key', models.CharField(blank=True, max_length=40, null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('business', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='carts', to='superadmin.business')),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("session_key", models.CharField(blank=True, max_length=40, null=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "business",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="carts",
+                        to="superadmin.business",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='CartItem',
+            name="CartItem",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('quantity', models.PositiveIntegerField(default=1)),
-                ('unit_price', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('business', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='cart_items', to='superadmin.business')),
-                ('cart', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='sales.cart')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='products.product')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("quantity", models.PositiveIntegerField(default=1)),
+                ("unit_price", models.DecimalField(decimal_places=2, max_digits=10)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "business",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="cart_items",
+                        to="superadmin.business",
+                    ),
+                ),
+                (
+                    "cart",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="sales.cart"
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="products.product",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Sale',
+            name="Sale",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('sale_date', models.DateTimeField(auto_now_add=True)),
-                ('subtotal', models.DecimalField(decimal_places=2, default=0, max_digits=10)),
-                ('tax', models.DecimalField(decimal_places=2, default=0, max_digits=10)),
-                ('discount', models.DecimalField(decimal_places=2, default=0, max_digits=10)),
-                ('total_amount', models.DecimalField(decimal_places=2, default=0, max_digits=10)),
-                ('payment_method', models.CharField(choices=[('cash', 'Cash'), ('credit_card', 'Credit Card'), ('mobile_money', 'Mobile Money'), ('bank_transfer', 'Bank Transfer')], default='cash', max_length=20)),
-                ('notes', models.TextField(blank=True, null=True)),
-                ('is_refunded', models.BooleanField(default=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('business', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='sales', to='superadmin.business')),
-                ('customer', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='customers.customer')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("sale_date", models.DateTimeField(auto_now_add=True)),
+                (
+                    "subtotal",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=10),
+                ),
+                (
+                    "tax",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=10),
+                ),
+                (
+                    "discount",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=10),
+                ),
+                (
+                    "total_amount",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=10),
+                ),
+                (
+                    "payment_method",
+                    models.CharField(
+                        choices=[
+                            ("cash", "Cash"),
+                            ("credit_card", "Credit Card"),
+                            ("mobile_money", "Mobile Money"),
+                            ("bank_transfer", "Bank Transfer"),
+                        ],
+                        default="cash",
+                        max_length=20,
+                    ),
+                ),
+                ("notes", models.TextField(blank=True, null=True)),
+                ("is_refunded", models.BooleanField(default=False)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "business",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sales",
+                        to="superadmin.business",
+                    ),
+                ),
+                (
+                    "customer",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="customers.customer",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-sale_date'],
+                "ordering": ["-sale_date"],
             },
         ),
         migrations.CreateModel(
-            name='Refund',
+            name="Refund",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('reason', models.TextField()),
-                ('refund_amount', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('refund_date', models.DateTimeField(auto_now_add=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('business', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='refunds', to='superadmin.business')),
-                ('sale', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='sales.sale')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("reason", models.TextField()),
+                ("refund_amount", models.DecimalField(decimal_places=2, max_digits=10)),
+                ("refund_date", models.DateTimeField(auto_now_add=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "business",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="refunds",
+                        to="superadmin.business",
+                    ),
+                ),
+                (
+                    "sale",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="sales.sale"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='SaleItem',
+            name="SaleItem",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('quantity', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('unit_price', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('total_price', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('business', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='sale_items', to='superadmin.business')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='products.product')),
-                ('sale', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='items', to='sales.sale')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("quantity", models.DecimalField(decimal_places=2, max_digits=10)),
+                ("unit_price", models.DecimalField(decimal_places=2, max_digits=10)),
+                ("total_price", models.DecimalField(decimal_places=2, max_digits=10)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "business",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sale_items",
+                        to="superadmin.business",
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="products.product",
+                    ),
+                ),
+                (
+                    "sale",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="items",
+                        to="sales.sale",
+                    ),
+                ),
             ],
         ),
     ]

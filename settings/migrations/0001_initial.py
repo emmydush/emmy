@@ -7,80 +7,262 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='BackupSettings',
+            name="BackupSettings",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('frequency', models.CharField(choices=[('daily', 'Daily'), ('weekly', 'Weekly'), ('monthly', 'Monthly')], default='daily', max_length=10)),
-                ('backup_time', models.CharField(choices=[('00:00', '12:00 AM'), ('01:00', '1:00 AM'), ('02:00', '2:00 AM'), ('03:00', '3:00 AM'), ('04:00', '4:00 AM'), ('05:00', '5:00 AM'), ('06:00', '6:00 AM'), ('07:00', '7:00 AM'), ('08:00', '8:00 AM'), ('09:00', '9:00 AM'), ('10:00', '10:00 AM'), ('11:00', '11:00 AM'), ('12:00', '12:00 PM'), ('13:00', '1:00 PM'), ('14:00', '2:00 PM'), ('15:00', '3:00 PM'), ('16:00', '4:00 PM'), ('17:00', '5:00 PM'), ('18:00', '6:00 PM'), ('19:00', '7:00 PM'), ('20:00', '8:00 PM'), ('21:00', '9:00 PM'), ('22:00', '10:00 PM'), ('23:00', '11:00 PM')], default='02:00', max_length=5)),
-                ('retention_days', models.IntegerField(default=30, help_text='Number of days to keep backups')),
-                ('is_active', models.BooleanField(default=True)),
-                ('last_run', models.DateTimeField(blank=True, null=True)),
-                ('next_run', models.DateTimeField(blank=True, null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "frequency",
+                    models.CharField(
+                        choices=[
+                            ("daily", "Daily"),
+                            ("weekly", "Weekly"),
+                            ("monthly", "Monthly"),
+                        ],
+                        default="daily",
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "backup_time",
+                    models.CharField(
+                        choices=[
+                            ("00:00", "12:00 AM"),
+                            ("01:00", "1:00 AM"),
+                            ("02:00", "2:00 AM"),
+                            ("03:00", "3:00 AM"),
+                            ("04:00", "4:00 AM"),
+                            ("05:00", "5:00 AM"),
+                            ("06:00", "6:00 AM"),
+                            ("07:00", "7:00 AM"),
+                            ("08:00", "8:00 AM"),
+                            ("09:00", "9:00 AM"),
+                            ("10:00", "10:00 AM"),
+                            ("11:00", "11:00 AM"),
+                            ("12:00", "12:00 PM"),
+                            ("13:00", "1:00 PM"),
+                            ("14:00", "2:00 PM"),
+                            ("15:00", "3:00 PM"),
+                            ("16:00", "4:00 PM"),
+                            ("17:00", "5:00 PM"),
+                            ("18:00", "6:00 PM"),
+                            ("19:00", "7:00 PM"),
+                            ("20:00", "8:00 PM"),
+                            ("21:00", "9:00 PM"),
+                            ("22:00", "10:00 PM"),
+                            ("23:00", "11:00 PM"),
+                        ],
+                        default="02:00",
+                        max_length=5,
+                    ),
+                ),
+                (
+                    "retention_days",
+                    models.IntegerField(
+                        default=30, help_text="Number of days to keep backups"
+                    ),
+                ),
+                ("is_active", models.BooleanField(default=True)),
+                ("last_run", models.DateTimeField(blank=True, null=True)),
+                ("next_run", models.DateTimeField(blank=True, null=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
             ],
             options={
-                'verbose_name_plural': 'Backup Settings',
+                "verbose_name_plural": "Backup Settings",
             },
         ),
         migrations.CreateModel(
-            name='BarcodeSettings',
+            name="BarcodeSettings",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('barcode_type', models.CharField(choices=[('CODE128', 'Code 128'), ('CODE39', 'Code 39'), ('EAN13', 'EAN-13'), ('UPC-A', 'UPC-A')], default='CODE128', max_length=10)),
-                ('barcode_width', models.IntegerField(default=200)),
-                ('barcode_height', models.IntegerField(default=100)),
-                ('display_text', models.BooleanField(default=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "barcode_type",
+                    models.CharField(
+                        choices=[
+                            ("CODE128", "Code 128"),
+                            ("CODE39", "Code 39"),
+                            ("EAN13", "EAN-13"),
+                            ("UPC-A", "UPC-A"),
+                        ],
+                        default="CODE128",
+                        max_length=10,
+                    ),
+                ),
+                ("barcode_width", models.IntegerField(default=200)),
+                ("barcode_height", models.IntegerField(default=100)),
+                ("display_text", models.BooleanField(default=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
             ],
             options={
-                'verbose_name_plural': 'Barcode Settings',
+                "verbose_name_plural": "Barcode Settings",
             },
         ),
         migrations.CreateModel(
-            name='BusinessSettings',
+            name="BusinessSettings",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('business_name', models.CharField(default='Smart Solution', max_length=200)),
-                ('business_address', models.TextField(default='123 Business Street, City, Country')),
-                ('business_email', models.EmailField(default='info@smartsolution.com', max_length=254)),
-                ('business_phone', models.CharField(default='+1 (555) 123-4567', max_length=20)),
-                ('business_logo', models.ImageField(blank=True, null=True, upload_to='business/logo/')),
-                ('currency', models.CharField(default='FRW', max_length=3)),
-                ('currency_symbol', models.CharField(default='FRW', max_length=10)),
-                ('tax_rate', models.DecimalField(decimal_places=2, default=0, max_digits=5)),
-                ('expiry_alert_days', models.IntegerField(default=7, help_text='Number of days before expiry to send alerts')),
-                ('near_expiry_alert_days', models.IntegerField(default=30, help_text='Number of days before expiry to send near expiry alerts')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "business_name",
+                    models.CharField(default="Smart Solution", max_length=200),
+                ),
+                (
+                    "business_address",
+                    models.TextField(default="123 Business Street, City, Country"),
+                ),
+                (
+                    "business_email",
+                    models.EmailField(default="info@smartsolution.com", max_length=254),
+                ),
+                (
+                    "business_phone",
+                    models.CharField(default="+1 (555) 123-4567", max_length=20),
+                ),
+                (
+                    "business_logo",
+                    models.ImageField(
+                        blank=True, null=True, upload_to="business/logo/"
+                    ),
+                ),
+                ("currency", models.CharField(default="FRW", max_length=3)),
+                ("currency_symbol", models.CharField(default="FRW", max_length=10)),
+                (
+                    "tax_rate",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=5),
+                ),
+                (
+                    "expiry_alert_days",
+                    models.IntegerField(
+                        default=7,
+                        help_text="Number of days before expiry to send alerts",
+                    ),
+                ),
+                (
+                    "near_expiry_alert_days",
+                    models.IntegerField(
+                        default=30,
+                        help_text="Number of days before expiry to send near expiry alerts",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
             ],
             options={
-                'verbose_name_plural': 'Business Settings',
+                "verbose_name_plural": "Business Settings",
             },
         ),
         migrations.CreateModel(
-            name='EmailSettings',
+            name="EmailSettings",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('email_backend', models.CharField(choices=[('django.core.mail.backends.smtp.EmailBackend', 'SMTP (Gmail, SendGrid, etc.)'), ('django.core.mail.backends.console.EmailBackend', 'Console (Development - Print to Terminal)'), ('django_ses.SESBackend', 'Amazon SES')], default='django.core.mail.backends.smtp.EmailBackend', max_length=100)),
-                ('email_host', models.CharField(blank=True, help_text='SMTP server address (e.g., smtp.gmail.com)', max_length=100, null=True)),
-                ('email_port', models.IntegerField(default=587, help_text='SMTP port (587 for TLS, 465 for SSL)')),
-                ('email_host_user', models.CharField(blank=True, help_text='Email address or username', max_length=100, null=True)),
-                ('email_host_password', models.CharField(blank=True, help_text='Password or app password', max_length=100, null=True)),
-                ('email_use_tls', models.BooleanField(default=True, help_text='Use TLS encryption')),
-                ('email_use_ssl', models.BooleanField(default=False, help_text='Use SSL encryption')),
-                ('default_from_email', models.CharField(default='Inventory Management System <webmaster@localhost>', help_text='Default sender email address', max_length=100)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "email_backend",
+                    models.CharField(
+                        choices=[
+                            (
+                                "django.core.mail.backends.smtp.EmailBackend",
+                                "SMTP (Gmail, SendGrid, etc.)",
+                            ),
+                            (
+                                "django.core.mail.backends.console.EmailBackend",
+                                "Console (Development - Print to Terminal)",
+                            ),
+                            ("django_ses.SESBackend", "Amazon SES"),
+                        ],
+                        default="django.core.mail.backends.smtp.EmailBackend",
+                        max_length=100,
+                    ),
+                ),
+                (
+                    "email_host",
+                    models.CharField(
+                        blank=True,
+                        help_text="SMTP server address (e.g., smtp.gmail.com)",
+                        max_length=100,
+                        null=True,
+                    ),
+                ),
+                (
+                    "email_port",
+                    models.IntegerField(
+                        default=587, help_text="SMTP port (587 for TLS, 465 for SSL)"
+                    ),
+                ),
+                (
+                    "email_host_user",
+                    models.CharField(
+                        blank=True,
+                        help_text="Email address or username",
+                        max_length=100,
+                        null=True,
+                    ),
+                ),
+                (
+                    "email_host_password",
+                    models.CharField(
+                        blank=True,
+                        help_text="Password or app password",
+                        max_length=100,
+                        null=True,
+                    ),
+                ),
+                (
+                    "email_use_tls",
+                    models.BooleanField(default=True, help_text="Use TLS encryption"),
+                ),
+                (
+                    "email_use_ssl",
+                    models.BooleanField(default=False, help_text="Use SSL encryption"),
+                ),
+                (
+                    "default_from_email",
+                    models.CharField(
+                        default="Inventory Management System <webmaster@localhost>",
+                        help_text="Default sender email address",
+                        max_length=100,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
             ],
             options={
-                'verbose_name_plural': 'Email Settings',
+                "verbose_name_plural": "Email Settings",
             },
         ),
     ]

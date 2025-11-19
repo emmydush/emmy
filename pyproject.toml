@@ -1,0 +1,37 @@
+[tool.black]
+line-length = 88
+target-version = ['py38']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | venv
+  | venv_new
+  | new_venv
+  | staticfiles
+)/
+'''
+
+[tool.pyright]
+include = ["**/*.py"]
+exclude = [
+    "**/node_modules",
+    "**/__pycache__",
+    "venv",
+    "venv_new",
+    "new_venv",
+    "staticfiles",
+    ".git"
+]
+pythonVersion = "3.8"
+typeCheckingMode = "basic"

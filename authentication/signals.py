@@ -5,6 +5,7 @@ from superadmin.models import Business
 
 User = get_user_model()
 
+
 @receiver(post_save, sender=Business)
 def associate_owner_with_business(sender, instance, created, **kwargs):
     """

@@ -6,41 +6,41 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('products', '0003_stockalert_stockmovement'),
+        ("products", "0003_stockalert_stockmovement"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='stockalert',
-            name='business',
+            model_name="stockalert",
+            name="business",
         ),
         migrations.RemoveField(
-            model_name='stockalert',
-            name='product',
+            model_name="stockalert",
+            name="product",
         ),
         migrations.RemoveField(
-            model_name='stockalert',
-            name='resolved_by',
+            model_name="stockalert",
+            name="resolved_by",
         ),
         migrations.RemoveField(
-            model_name='stockmovement',
-            name='business',
+            model_name="stockmovement",
+            name="business",
         ),
         migrations.RemoveField(
-            model_name='stockmovement',
-            name='created_by',
+            model_name="stockmovement",
+            name="created_by",
         ),
         migrations.RemoveField(
-            model_name='stockmovement',
-            name='product',
+            model_name="stockmovement",
+            name="product",
         ),
         migrations.DeleteModel(
-            name='StockAdjustment',
+            name="StockAdjustment",
         ),
         migrations.DeleteModel(
-            name='StockAlert',
+            name="StockAlert",
         ),
         migrations.DeleteModel(
-            name='StockMovement',
+            name="StockMovement",
         ),
     ]

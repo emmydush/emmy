@@ -6,15 +6,18 @@ from superadmin.managers import BusinessSpecificManager
 if TYPE_CHECKING:
     from django.db.models.manager import Manager
 
+
 class Supplier(models.Model):
     if TYPE_CHECKING:
-        objects: 'Manager'
-        
+        objects: "Manager"
+
     # Use business-specific manager
     objects = BusinessSpecificManager()
-        
+
     # Add business relationship for multi-tenancy
-    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='suppliers', null=True)
+    business = models.ForeignKey(
+        Business, on_delete=models.CASCADE, related_name="suppliers", null=True
+    )
     name = models.CharField(max_length=200)
     email = models.EmailField(blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
@@ -29,9 +32,9 @@ class Supplier(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['name']
+        ordering = ["name"]
         # Ensure supplier name is unique per business
-        unique_together = ('business', 'name')
+        unique_together = ("business", "name")
 
     def __str__(self) -> str:  # type: ignore
         return str(self.name)  # type: ignore

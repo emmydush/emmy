@@ -9,42 +9,97 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('products', '0001_initial'),
-        ('superadmin', '0001_initial'),
-        ('suppliers', '0001_initial'),
+        ("products", "0001_initial"),
+        ("superadmin", "0001_initial"),
+        ("suppliers", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PurchaseOrder',
+            name="PurchaseOrder",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('order_date', models.DateField()),
-                ('expected_delivery_date', models.DateField(blank=True, null=True)),
-                ('status', models.CharField(choices=[('pending', 'Pending'), ('ordered', 'Ordered'), ('received', 'Received'), ('cancelled', 'Cancelled')], default='pending', max_length=20)),
-                ('notes', models.TextField(blank=True, null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('business', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='purchase_orders', to='superadmin.business')),
-                ('supplier', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='suppliers.supplier')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("order_date", models.DateField()),
+                ("expected_delivery_date", models.DateField(blank=True, null=True)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("pending", "Pending"),
+                            ("ordered", "Ordered"),
+                            ("received", "Received"),
+                            ("cancelled", "Cancelled"),
+                        ],
+                        default="pending",
+                        max_length=20,
+                    ),
+                ),
+                ("notes", models.TextField(blank=True, null=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "business",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="purchase_orders",
+                        to="superadmin.business",
+                    ),
+                ),
+                (
+                    "supplier",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="suppliers.supplier",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-order_date'],
+                "ordering": ["-order_date"],
             },
         ),
         migrations.CreateModel(
-            name='PurchaseItem',
+            name="PurchaseItem",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('quantity', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('unit_price', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='products.product')),
-                ('purchase_order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='items', to='purchases.purchaseorder')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("quantity", models.DecimalField(decimal_places=2, max_digits=10)),
+                ("unit_price", models.DecimalField(decimal_places=2, max_digits=10)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="products.product",
+                    ),
+                ),
+                (
+                    "purchase_order",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="items",
+                        to="purchases.purchaseorder",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['product__name'],
+                "ordering": ["product__name"],
             },
         ),
     ]

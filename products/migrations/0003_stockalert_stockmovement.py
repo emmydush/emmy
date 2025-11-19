@@ -8,55 +8,171 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('products', '0002_stockadjustment'),
-        ('superadmin', '0001_initial'),
+        ("products", "0002_stockadjustment"),
+        ("superadmin", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='StockAlert',
+            name="StockAlert",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('alert_type', models.CharField(choices=[('low_stock', 'Low Stock'), ('abnormal_reduction', 'Abnormal Reduction'), ('fast_moving', 'Fast Moving'), ('expired', 'Expired Items')], max_length=20)),
-                ('severity', models.CharField(choices=[('low', 'Low'), ('medium', 'Medium'), ('high', 'High'), ('critical', 'Critical')], default='medium', max_length=10)),
-                ('message', models.TextField()),
-                ('current_stock', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('previous_stock', models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True)),
-                ('threshold', models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True)),
-                ('is_resolved', models.BooleanField(default=False)),
-                ('resolved_at', models.DateTimeField(blank=True, null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('business', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='stock_alerts', to='superadmin.business')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='stock_alerts', to='products.product')),
-                ('resolved_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='resolved_alerts', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "alert_type",
+                    models.CharField(
+                        choices=[
+                            ("low_stock", "Low Stock"),
+                            ("abnormal_reduction", "Abnormal Reduction"),
+                            ("fast_moving", "Fast Moving"),
+                            ("expired", "Expired Items"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "severity",
+                    models.CharField(
+                        choices=[
+                            ("low", "Low"),
+                            ("medium", "Medium"),
+                            ("high", "High"),
+                            ("critical", "Critical"),
+                        ],
+                        default="medium",
+                        max_length=10,
+                    ),
+                ),
+                ("message", models.TextField()),
+                ("current_stock", models.DecimalField(decimal_places=2, max_digits=10)),
+                (
+                    "previous_stock",
+                    models.DecimalField(
+                        blank=True, decimal_places=2, max_digits=10, null=True
+                    ),
+                ),
+                (
+                    "threshold",
+                    models.DecimalField(
+                        blank=True, decimal_places=2, max_digits=10, null=True
+                    ),
+                ),
+                ("is_resolved", models.BooleanField(default=False)),
+                ("resolved_at", models.DateTimeField(blank=True, null=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "business",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="stock_alerts",
+                        to="superadmin.business",
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="stock_alerts",
+                        to="products.product",
+                    ),
+                ),
+                (
+                    "resolved_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="resolved_alerts",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Stock Alert',
-                'verbose_name_plural': 'Stock Alerts',
-                'ordering': ['-created_at'],
+                "verbose_name": "Stock Alert",
+                "verbose_name_plural": "Stock Alerts",
+                "ordering": ["-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='StockMovement',
+            name="StockMovement",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('movement_type', models.CharField(choices=[('sale', 'Sale'), ('purchase', 'Purchase'), ('adjustment', 'Adjustment'), ('transfer', 'Transfer')], max_length=15)),
-                ('quantity', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('previous_quantity', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('new_quantity', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('reference_id', models.CharField(blank=True, max_length=100, null=True)),
-                ('reference_model', models.CharField(blank=True, max_length=50, null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('business', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='stock_movements', to='superadmin.business')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='movements', to='products.product')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "movement_type",
+                    models.CharField(
+                        choices=[
+                            ("sale", "Sale"),
+                            ("purchase", "Purchase"),
+                            ("adjustment", "Adjustment"),
+                            ("transfer", "Transfer"),
+                        ],
+                        max_length=15,
+                    ),
+                ),
+                ("quantity", models.DecimalField(decimal_places=2, max_digits=10)),
+                (
+                    "previous_quantity",
+                    models.DecimalField(decimal_places=2, max_digits=10),
+                ),
+                ("new_quantity", models.DecimalField(decimal_places=2, max_digits=10)),
+                (
+                    "reference_id",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
+                (
+                    "reference_model",
+                    models.CharField(blank=True, max_length=50, null=True),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "business",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="stock_movements",
+                        to="superadmin.business",
+                    ),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="movements",
+                        to="products.product",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Stock Movement',
-                'verbose_name_plural': 'Stock Movements',
-                'ordering': ['-created_at'],
+                "verbose_name": "Stock Movement",
+                "verbose_name_plural": "Stock Movements",
+                "ordering": ["-created_at"],
             },
         ),
     ]

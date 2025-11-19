@@ -9,30 +9,52 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('superadmin', '0001_initial'),
+        ("superadmin", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Customer',
+            name="Customer",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('first_name', models.CharField(max_length=50)),
-                ('last_name', models.CharField(max_length=50)),
-                ('email', models.EmailField(blank=True, max_length=254, null=True)),
-                ('phone', models.CharField(blank=True, max_length=20, null=True)),
-                ('address', models.TextField(blank=True, null=True)),
-                ('company', models.CharField(blank=True, max_length=100, null=True)),
-                ('loyalty_points', models.DecimalField(decimal_places=2, default=0, max_digits=10)),
-                ('credit_limit', models.DecimalField(decimal_places=2, default=0, max_digits=10)),
-                ('is_active', models.BooleanField(default=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('business', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='customers', to='superadmin.business')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("first_name", models.CharField(max_length=50)),
+                ("last_name", models.CharField(max_length=50)),
+                ("email", models.EmailField(blank=True, max_length=254, null=True)),
+                ("phone", models.CharField(blank=True, max_length=20, null=True)),
+                ("address", models.TextField(blank=True, null=True)),
+                ("company", models.CharField(blank=True, max_length=100, null=True)),
+                (
+                    "loyalty_points",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=10),
+                ),
+                (
+                    "credit_limit",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=10),
+                ),
+                ("is_active", models.BooleanField(default=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "business",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="customers",
+                        to="superadmin.business",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['first_name', 'last_name'],
-                'unique_together': {('business', 'email')},
+                "ordering": ["first_name", "last_name"],
+                "unique_together": {("business", "email")},
             },
         ),
     ]

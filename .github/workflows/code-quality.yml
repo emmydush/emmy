@@ -35,7 +35,7 @@ jobs:
 
     - name: Check code formatting with Black
       run: |
-        black --check .
+        black --check --exclude 'venv_new|new_venv' .
 
   security:
     runs-on: ubuntu-latest

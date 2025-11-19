@@ -13,7 +13,7 @@ from django.db.utils import OperationalError
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Set the Django settings module
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'inventory_management.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "inventory_management.settings")
 
 # Setup Django
 try:
@@ -22,18 +22,19 @@ except Exception as e:
     print(f"Failed to setup Django: {e}")
     sys.exit(1)
 
+
 def test_database_connection():
     """Test connection to the database"""
     try:
-        db_settings = settings.DATABASES['default']
+        db_settings = settings.DATABASES["default"]
         print(f"📊 Database Engine: {db_settings['ENGINE']}")
         print(f"🗃️  Database Name: {db_settings['NAME']}")
         print(f"👤 Database User: {db_settings['USER']}")
         print(f"📍 Database Host: {db_settings['HOST']}")
         print(f"🔌 Database Port: {db_settings['PORT']}")
-        
+
         # Test the actual connection
-        db_conn = connections['default']
+        db_conn = connections["default"]
         c = db_conn.cursor()
         print("✅ Successfully connected to the database!")
     except OperationalError as e:
@@ -46,6 +47,7 @@ def test_database_connection():
         print("4. Confirm the user 'inventory_user' has proper permissions")
     except Exception as e:
         print(f"❌ Unexpected error: {e}")
+
 
 if __name__ == "__main__":
     test_database_connection()
