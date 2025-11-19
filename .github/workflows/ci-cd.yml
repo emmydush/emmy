@@ -88,8 +88,10 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        # Use the same Docker account as the login step so metadata tags match push permissions
-        images: ${{ env.DOCKER_USER }}/inventory-management-system
+        # Use the same Docker account as the login step so metadata tags match push permissions.
+        # If DOCKER_USER is not provided, fall back to the repository owner to avoid
+        # creating an image name that starts with a leading slash (invalid tag).
+        images: ${{ env.DOCKER_USER || github.repository_owner }}/inventory-management-system
         tags: |
           type=ref,event=branch
           type=sha,prefix={{branch}}-
