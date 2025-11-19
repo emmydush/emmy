@@ -84,14 +84,20 @@ jobs:
         username: ${{ env.DOCKER_USER }}
         password: ${{ env.DOCKER_TOKEN }}
 
+    - name: Resolve Docker user
+      id: resolve
+      run: |
+        if [ -n "${{ env.DOCKER_USER }}" ]; then
+          echo "docker_user=${{ env.DOCKER_USER }}" >> $GITHUB_OUTPUT
+        else
+          echo "docker_user=${{ github.repository_owner }}" >> $GITHUB_OUTPUT
+        fi
+
     - name: Extract metadata (tags, labels) for Docker
       id: meta
       uses: docker/metadata-action@v5
       with:
-        # Use the same Docker account as the login step so metadata tags match push permissions.
-        # If DOCKER_USER is not provided, fall back to the repository owner to avoid
-        # creating an image name that starts with a leading slash (invalid tag).
-        images: ${{ env.DOCKER_USER || github.repository_owner }}/inventory-management-system
+        images: ${{ steps.resolve.outputs.docker_user }}/inventory-management-system
         tags: |
           type=ref,event=branch
           type=sha,prefix={{branch}}-
