@@ -4,49 +4,68 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from products.models import Product, Category, Unit
 from suppliers.models import Supplier
-
+from superadmin.models import Business
+from superadmin.middleware import set_current_business
 
 User = get_user_model()
 
-
 class APITestCase(TestCase):
     def setUp(self):
+        # Create test business
+        self.business = Business.objects.create(
+            company_name='Test Business',
+            owner=User.objects.create_user(
+                username='testowner',
+                password='testpass123',
+                email='owner@test.com'
+            ),
+            email='business@test.com',
+            business_type='retail'
+        )
+        
+        # Set current business context
+        set_current_business(self.business)
+        
         # Create test user
         self.user = User.objects.create_user(
             username='testuser',
-            email='test@example.com',
             password='testpass123',
-            first_name='Test',
-            last_name='User'
+            email='user@test.com'
         )
+        
+        # Associate user with business
+        self.user.businesses.add(self.business)
         
         # Create test category
         self.category = Category.objects.create(
+            business=self.business,
             name='Test Category',
             description='Test category description'
         )
         
         # Create test unit
         self.unit = Unit.objects.create(
+            business=self.business,
             name='Pieces',
             symbol='pcs'
         )
         
         # Create test supplier
         self.supplier = Supplier.objects.create(
+            business=self.business,
             name='Test Supplier',
             email='supplier@test.com',
-            phone='1234567890',
+            phone='123-456-7890',
             address='123 Test Street'
         )
         
         # Create test product
         self.product = Product.objects.create(
+            business=self.business,
             name='Test Product',
             sku='TP001',
             category=self.category,
             unit=self.unit,
-            supplier=self.supplier,
             quantity=100,
             cost_price=10.00,
             selling_price=15.00,
