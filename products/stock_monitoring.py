@@ -247,7 +247,3 @@ def resolve_alert(alert_id, resolved_by=None):
         return None
     except Exception as e:
         logger.error(f"Error resolving stock alert: {e}")
-
-
-# Import F at the top of the file
-from django.db.models import F

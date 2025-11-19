@@ -11,7 +11,9 @@ class StockAlertTestCase(TestCase):
     def setUp(self):
         # Create a business
         self.business = Business.objects.create(
-            name="Test Business", email="test@example.com"
+            company_name="Test Business",  # Fixed: use company_name instead of name
+            email="test@example.com",
+            business_type="retail"  # Add business_type which is required
         )
 
         # Create a user

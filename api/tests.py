@@ -81,6 +81,7 @@ class APITestCase(TestCase):
     def test_product_list_unauthenticated(self):
         """Test that product list requires authentication"""
         response = self.client.get("/api/v1/products/")
+        # This should return 403 Forbidden, not 401 Unauthorized
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_product_list_authenticated(self):
