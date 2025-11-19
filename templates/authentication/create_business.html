@@ -35,6 +35,13 @@
                             <li><a class="dropdown-item" href="#" data-lang="fr">Français</a></li>
                             <li><a class="dropdown-item" href="#" data-lang="de">Deutsch</a></li>
                         </ul>
+                        {# Hidden language form that posts to user preference endpoint when logged in,
+                           otherwise to Django's set_language view #}
+                        <form id="language-form" action="{% if user.is_authenticated %}{% url 'authentication:set_user_language' %}{% else %}{% url 'set_language' %}{% endif %}" method="post" style="display:none;">
+                          {% csrf_token %}
+                          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                          <input type="hidden" name="language" id="language-input" value="">
+                        </form>
                     </div>
                     
                     <!-- Theme Toggle Button -->
@@ -121,20 +128,20 @@
 <!-- JavaScript for language switching -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Language switching functionality
-        const languageItems = document.querySelectorAll('[data-lang]');
-        languageItems.forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                const selectedLang = this.getAttribute('data-lang');
-                // In a real implementation, this would send a request to change the language
-                // For now, we'll just show an alert
-                alert(`Language would be changed to: ${this.textContent}`);
-                // Update the dropdown button text to show current language
-                const dropdownToggle = document.querySelector('#languageDropdown');
-                dropdownToggle.innerHTML = `<i class="fas fa-globe me-1"></i><span class="d-none d-sm-inline">${this.textContent}</span>`;
+        // Language switcher: submit hidden form to Django's set_language view
+        var langLinks = document.querySelectorAll('.dropdown-menu a[data-lang]');
+        var langInput = document.getElementById('language-input');
+        var langForm = document.getElementById('language-form');
+        if (langLinks && langForm && langInput) {
+            langLinks.forEach(function(link) {
+                link.addEventListener('click', function(ev) {
+                    ev.preventDefault();
+                    var lang = this.getAttribute('data-lang');
+                    langInput.value = lang;
+                    langForm.submit();
+                });
             });
-        });
+        };
     });
 </script>
 {% endblock %}

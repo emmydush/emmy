@@ -126,20 +126,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Language selector functionality (placeholder for future implementation)
+    // Language selector functionality
     const languageSelector = document.getElementById('languageSelector');
     if (languageSelector) {
         languageSelector.addEventListener('change', function() {
             const selectedLanguage = this.value;
-            // In a real implementation, this would trigger a language change
-            // For now, we'll just show an alert
-            alert(`Language changed to: ${selectedLanguage}`);
-            // Save preference to localStorage
-            localStorage.setItem('language', selectedLanguage);
+            // Submit hidden form to Django's set_language view
+            const langForm = document.getElementById('language-form');
+            const langInput = document.getElementById('language-input');
+            if (langForm && langInput) {
+                langInput.value = selectedLanguage;
+                langForm.submit();
+            }
         });
         
-        // Set initial language from localStorage
-        const savedLanguage = localStorage.getItem('language') || 'en';
+        // Set initial language from session
+        const savedLanguage = document.querySelector('html').getAttribute('lang') || 'en';
         languageSelector.value = savedLanguage;
     }
 });
