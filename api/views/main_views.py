@@ -95,7 +95,7 @@ def dashboard_stats(request):
     # Filter low stock products using the is_low_stock property
     all_products = Product.objects.all()
     low_stock_count = sum(1 for product in all_products if product.is_low_stock)
-    
+
     stats = {
         "total_products": Product.objects.count(),
         "low_stock_products": low_stock_count,
