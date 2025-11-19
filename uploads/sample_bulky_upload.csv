@@ -1,0 +1,4 @@
+Name,SKU,Barcode,Category,Unit,Description,Cost Price,Selling Price,Quantity,Reorder Level,Expiry Date
+Test Product 1,TP001,123456789012,Electronics,Piece,Test product description,10.50,15.99,100,10,2025-12-31
+Test Product 2,TP002,234567890123,Clothing,Piece,Another test product,20.00,29.99,50,5,2026-06-30
+Test Product 3,TP003,,Books,Piece,Book product,5.00,9.99,200,20,

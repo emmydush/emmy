@@ -15,4 +15,7 @@ urlpatterns = [
     path('email/', views.email_settings, name='email'),
     path('voice/', views.voice_assistant, name='voice'),
     path('audit-logs/', views.audit_logs, name='audit_logs'),
+    path('bulky-upload/', views.bulky_upload, name='bulky_upload'),
+    path('bulky-upload/process/<str:filename>/', views.process_bulky_file, name='process_bulky_file'),
+    path('bulky-upload/delete/<str:filename>/', views.delete_bulky_file, name='delete_bulky_file'),
 ]

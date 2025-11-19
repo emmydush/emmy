@@ -413,3 +413,108 @@ def audit_logs(request):
     }
     
     return render(request, 'settings/audit_logs.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def bulky_upload(request):
+    """
+    View to handle bulky CSV uploads for products.
+    """
+    import os
+    from django.conf import settings
+    
+    # Get uploads directory
+    uploads_dir = os.path.join(settings.BASE_DIR, 'uploads')
+    
+    # Create uploads directory if it doesn't exist
+    os.makedirs(uploads_dir, exist_ok=True)
+    
+    # Handle file upload
+    if request.method == 'POST':
+        uploaded_file = request.FILES.get('bulky_file')
+        if uploaded_file:
+            # Save file to uploads directory
+            file_path = os.path.join(uploads_dir, uploaded_file.name)
+            with open(file_path, 'wb+') as destination:
+                for chunk in uploaded_file.chunks():
+                    destination.write(chunk)
+            messages.success(request, f'File {uploaded_file.name} uploaded successfully!')
+        else:
+            messages.error(request, 'Please select a file to upload.')
+    
+    # List existing bulky upload files
+    bulky_files = []
+    if os.path.exists(uploads_dir):
+        for filename in os.listdir(uploads_dir):
+            if filename.endswith('.csv'):
+                file_path = os.path.join(uploads_dir, filename)
+                stat = os.stat(file_path)
+                bulky_files.append({
+                    'name': filename,
+                    'size': stat.st_size,
+                    'date': datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S')
+                })
+    
+    # Sort by date, newest first
+    bulky_files.sort(key=lambda x: x['date'], reverse=True)
+    
+    # Get businesses and users for the modal
+    from superadmin.models import Business
+    businesses = Business.objects.all()
+    users = User.objects.all()
+    
+    context = {
+        'bulky_files': bulky_files,
+        'businesses': businesses,
+        'users': users
+    }
+    
+    return render(request, 'settings/backup.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def process_bulky_file(request, filename):
+    """
+    Process a bulky upload file.
+    """
+    if request.method == 'POST':
+        business_id = request.POST.get('business_id')
+        user_id = request.POST.get('user_id')
+        
+        try:
+            # Run the management command to process the file
+            from django.core import management
+            cmd_args = [filename]
+            if business_id:
+                cmd_args.extend(['--business-id', business_id])
+            if user_id:
+                cmd_args.extend(['--user-id', user_id])
+                
+            management.call_command('process_bulky_upload', *cmd_args)
+            messages.success(request, f'Successfully processed file: {filename}')
+        except Exception as e:
+            messages.error(request, f'Error processing file {filename}: {str(e)}')
+    
+    return redirect('settings:bulky_upload')
+
+
+@login_required
+@user_passes_test(is_admin)
+def delete_bulky_file(request, filename):
+    """
+    Delete a bulky upload file.
+    """
+    if request.method == 'POST':
+        import os
+        from django.conf import settings
+        
+        file_path = os.path.join(settings.BASE_DIR, 'uploads', filename)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            messages.success(request, f'File {filename} deleted successfully!')
+        else:
+            messages.error(request, f'File {filename} not found.')
+    
+    return redirect('settings:bulky_upload')
