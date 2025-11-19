@@ -1,0 +1,58 @@
+name: Dependency Check
+
+on:
+  schedule:
+    # Run weekly on Monday at 00:00 UTC
+    - cron: '0 0 * * 1'
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  dependency-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+
+    - name: Install pip-audit
+      run: |
+        python -m pip install --upgrade pip
+        pip install pip-audit
+
+    - name: Check for vulnerable dependencies
+      run: |
+        # Audit the requirements.txt file for known vulnerabilities
+        pip-audit -r requirements.txt --format json > dependency-audit-report.json || true
+        
+        # Display the results
+        echo "Dependency audit results:"
+        cat dependency-audit-report.json
+        
+        # For a more strict approach, you could fail the build if vulnerabilities are found:
+        # pip-audit -r requirements.txt
+
+    - name: Upload dependency audit report
+      uses: actions/upload-artifact@v3
+      with:
+        name: dependency-audit-report
+        path: dependency-audit-report.json
+
+    - name: Check for outdated dependencies
+      run: |
+        # Install pip-tools to check for outdated packages
+        pip install pip-tools
+        
+        # Generate a requirements.txt with current versions
+        pip freeze > current-requirements.txt
+        
+        # Check for outdated packages (this is informational only)
+        pip list --outdated || true
