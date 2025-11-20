@@ -1,174 +1,151 @@
-# Inventory Management System
+# Smart Solution Inventory Management System
 
-A comprehensive inventory management system built with Django, Python, and PostgreSQL for small shops, retail stores, alimentation, and boutiques.
+![Django](https://img.shields.io/badge/Django-5.2-green)
+![Python](https://img.shields.io/badge/Python-3.12-blue)
+![License](https://img.shields.io/badge/License-Proprietary-red)
+
+Smart Solution is a comprehensive inventory management system designed for businesses of all sizes. Built with Django, it provides powerful tools to manage products, track stock levels, process sales, handle purchases, and generate detailed reports.
 
 ## Features
 
-### Authentication & User Management
-- User signup/login with roles (Admin, Manager, Cashier, Stock Manager)
-- Role-based access control
+### 📦 Product Management
+- Create and organize products with categories and units
+- Track stock levels with real-time monitoring
+- Set reorder points for automatic alerts
+- Monitor expiry dates
+- Bulk upload via CSV files
+
+### 🛒 Sales Processing
+- Point of Sale (POS) system with cart functionality
+- Barcode scanning support
+- Multiple payment methods
+- Sales receipts and history
+
+### 📊 Reporting & Analytics
+- Sales reports (daily, weekly, monthly)
+- Inventory status reports
+- Profit and loss statements
+- Expense summaries
+- Product performance analysis
+
+### 👥 User Management
+- Role-based access control (Admin, Staff)
+- Multi-language support (English, Kinyarwanda, Spanish, French, German)
 - Profile management
-- Password reset functionality
+- Activity audit logs
 
-### Dashboard
-- Overview cards (Total Sales, Total Products, Total Customers, Low Stock Alerts)
-- Graphs & charts (Sales trends, Top-selling products)
-- Daily/Monthly revenue summary
-- Recent transactions list
+### 🚨 Stock Monitoring
+- Automatic low stock alerts
+- Fast-moving item notifications
+- Theft detection alerts
+- Email notifications for critical alerts
 
-### Product & Inventory Management
-- Add/Edit/Delete products
-- Product categories & subcategories
-- Units of measure (kg, pcs, box)
-- Product barcode or SKU system
-- Product images
-- Stock tracking (available, incoming, outgoing)
-- Low stock alerts & reorder levels
-- Expiry date tracking (for alimentation)
-
-### Supplier Management
-- Add/Edit suppliers
-- Track supplier transactions (purchases)
-- Supplier contact info & balances
-- Purchase order history
-
-### Purchase Management
-- Create purchase orders
-- Record supplier invoices
-- Update stock automatically when items received
-- Handle partial deliveries
-- Generate purchase receipts
-
-### Sales Management / POS (Point of Sale)
-- Add sales manually or through POS interface
-- Barcode scanning
-- Real-time stock deduction after sale
-- Discounts, tax, and promotions
-- Invoice & receipt generation (PDF)
-- Return/refund management
-
-### Customer Management
-- Add/Edit customers
-- Track customer purchase history
-- Loyalty points or membership system
-- Customer balances (credit sales)
-
-### Expense Management
-- Record daily/weekly/monthly expenses (rent, electricity, etc.)
-- Category-wise expense tracking
-- Add notes and attachments
-
-### Financial / Accounting Module
-- Cash flow tracking
-- Profit & loss report
-- Sales vs Purchase comparison
-- Payment tracking (cash, credit, mobile money, etc.)
-- Supplier and customer balances
-
-### Reports & Analytics
-- Sales report (daily, monthly, yearly)
-- Stock report (in/out, current level)
-- Profit report
-- Expense report
-- Supplier & customer statements
-- Export data to CSV, PDF, or Excel
-
-### Notifications & Alerts
-- Low stock or expiry alerts
-- Unpaid invoice reminders
-- Email or in-app notifications
-
-### Settings
-- Business details (name, address, logo with removal option)
-- Currency & tax settings
-- Barcode format options
-- Backup & restore database
-- User permissions management
+### 📱 Modern Interface
+- Responsive design for all devices
+- Light and dark theme support
+- Voice assistant integration
+- Intuitive navigation
 
 ## Technology Stack
 
-- **Backend**: Django 5.1+
-- **Database**: PostgreSQL
-- **Frontend**: HTML, CSS, JavaScript, Bootstrap 5
-- **Authentication**: Django Authentication System
-- **File Storage**: Django Media Files
-- **Charts**: Chart.js
+- **Backend**: Django 5.2, Python 3.12
+- **Database**: PostgreSQL (SQLite for development)
+- **Frontend**: Bootstrap 5, jQuery, Chart.js
+- **API**: Django REST Framework
+- **Deployment**: Docker, Gunicorn, Nginx
 
-## Installation
+## Quick Start
 
-### Option 1: Traditional Installation
+### Prerequisites
+- Python 3.12+
+- Git
+- PostgreSQL (optional)
 
-1. Clone the repository:
-   ```
-   git clone <repository-url>
-   ```
+### Installation
 
-2. Create a virtual environment:
-   ```
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+1. **Clone the repository**:
+```bash
+git clone https://github.com/emmydush/PROJECT_1.git
+cd PROJECT_1
+```
 
-3. Install dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
+2. **Create virtual environment**:
+```bash
+python -m venv venv_new
+source venv_new/bin/activate  # On Windows: venv_new\Scripts\activate
+```
 
-4. Configure PostgreSQL database settings in `inventory_management/settings.py`
+3. **Install dependencies**:
+```bash
+pip install -r requirements.txt
+```
 
-5. Run migrations:
-   ```
-   python manage.py migrate
-   ```
+4. **Database setup**:
+```bash
+python manage.py migrate
+```
 
-6. Create a superuser:
-   ```
-   python manage.py createsuperuser
-   ```
+5. **Create superuser**:
+```bash
+python manage.py createsuperuser
+```
 
-7. Run the development server:
-   ```
-   python manage.py runserver
-   ```
+6. **Run development server**:
+```bash
+python manage.py runserver
+```
 
-### Option 2: Docker Installation (Recommended)
+### Docker Setup (Alternative)
+```bash
+docker-compose up --build
+```
 
-For easier setup and deployment, you can use Docker and Docker Compose:
+## Documentation
 
-1. Make sure Docker Desktop is running
-2. Open a terminal in the project root directory
-3. Build and start the containers:
-   ```bash
-   docker-compose up -d
-   ```
-4. The application will be available at http://localhost:8000
+Detailed documentation is available in [PROJECT_DOCUMENTATION.md](PROJECT_DOCUMENTATION.md), covering:
 
-See [DOCKER_README.md](DOCKER_README.md) for detailed Docker setup instructions.
+- System architecture
+- API endpoints
+- Database schema
+- Deployment instructions
+- Troubleshooting guide
 
-## Usage
+## Key Modules
 
-1. Access the admin panel at `http://localhost:8000/admin/`
-2. Access the main application at `http://localhost:8000/`
-3. Register a new user or login with the superuser account
-4. Configure business settings in the admin panel
-5. Start adding products, suppliers, and customers
-6. Use the POS system for sales transactions
-7. Generate reports to analyze business performance
+- **Authentication**: User management and access control
+- **Dashboard**: Business overview and metrics
+- **Products**: Complete product management system
+- **Sales**: POS and transaction processing
+- **Purchases**: Supplier order management
+- **Customers**: Customer relationship management
+- **Suppliers**: Vendor management
+- **Expenses**: Business expense tracking
+- **Reports**: Comprehensive reporting engine
+- **Settings**: System configuration and administration
 
-## Modules
+## Multi-language Support
 
-- `authentication`: User authentication and management
-- `dashboard`: Main dashboard with overview statistics
-- `products`: Product and inventory management
-- `suppliers`: Supplier management
-- `purchases`: Purchase order management
-- `sales`: Sales and POS system
-- `customers`: Customer management
-- `expenses`: Expense tracking
-- `reports`: Business reporting and analytics
-- `notifications`: System notifications and alerts
-- `settings`: System configuration and settings
+The system supports multiple languages:
+- English
+- Kinyarwanda
+- Spanish
+- French
+- German
+
+Language preferences can be set per user and switched dynamically.
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a pull request
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is proprietary software. All rights reserved.
+
+## Support
+
+For support, please open an issue on GitHub or contact the development team.
