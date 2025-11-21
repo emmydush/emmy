@@ -66,12 +66,14 @@ def login_view(request):
                 else:
                     # Log authentication failure for debugging
                     import logging
+
                     logger = logging.getLogger(__name__)
                     logger.warning(f"Authentication failed for username: {username}")
                     messages.error(request, "Invalid username or password.")
             else:
                 # Log form errors for debugging
                 import logging
+
                 logger = logging.getLogger(__name__)
                 logger.error(f"Login form errors: {form.errors}")
                 messages.error(request, "Invalid username or password.")

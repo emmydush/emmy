@@ -193,7 +193,7 @@ if not os.path.exists(MEDIA_ROOT):
     os.makedirs(MEDIA_ROOT, exist_ok=True)
 
 # Configure media file serving for production
-if not os.environ.get('RENDER'):
+if not os.environ.get("RENDER"):
     # Local development - serve media files through Django
     pass
 else:
