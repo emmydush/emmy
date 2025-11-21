@@ -9,6 +9,7 @@ class CustomUserCreationForm(UserCreationForm):
     last_name = forms.CharField(max_length=30, required=True)
     phone = forms.CharField(max_length=15, required=False)
     role = forms.ChoiceField(choices=User.ROLE_CHOICES, required=False)
+    profile_picture = forms.ImageField(required=False)
 
     class Meta:
         model = User
@@ -19,6 +20,7 @@ class CustomUserCreationForm(UserCreationForm):
             "email",
             "phone",
             "role",
+            "profile_picture",
             "password1",
             "password2",
         )
@@ -29,6 +31,7 @@ class CustomUserCreationForm(UserCreationForm):
         user.first_name = self.cleaned_data["first_name"]
         user.last_name = self.cleaned_data["last_name"]
         user.phone = self.cleaned_data["phone"]
+        user.profile_picture = self.cleaned_data.get("profile_picture")
         # Set role, default to 'cashier' if not provided
         user.role = self.cleaned_data.get("role", "cashier")
         if commit:

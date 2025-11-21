@@ -86,7 +86,7 @@ def logout_view(request):
 def register_view(request):
     """Simplified single-step registration"""
     if request.method == "POST":
-        form = CustomUserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
             # Create the user
             user = form.save()
