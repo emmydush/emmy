@@ -70,6 +70,7 @@ def login_view(request):
         except Exception as e:
             # Log the error for debugging
             import logging
+
             logger = logging.getLogger(__name__)
             logger.error(f"Login error: {str(e)}", exc_info=True)
             messages.error(request, "An error occurred during login. Please try again.")
