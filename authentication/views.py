@@ -13,38 +13,49 @@ from django.utils import translation
 
 def login_view(request):
     if request.method == "POST":
-        form = CustomAuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get("username")
-            password = form.cleaned_data.get("password")
-            user = authenticate(request, username=username, password=password)
+        try:
+            form = CustomAuthenticationForm(request, data=request.POST)
+            if form.is_valid():
+                username = form.cleaned_data.get("username")
+                password = form.cleaned_data.get("password")
+                user = authenticate(request, username=username, password=password)
 
-            if user is not None:
-                login(request, user)
-                # If the user has a saved preferred language, apply it to the session
-                try:
-                    user_lang = getattr(user, "language", None)
-                    if user_lang:
-                        request.session["_language"] = user_lang
-                        translation.activate(user_lang)
-                except Exception:
-                    # Be defensive: don't break login flow if language application fails
-                    pass
-                # Handle remember me functionality if needed
-                if not form.cleaned_data.get("remember_me"):
-                    request.session.set_expiry(0)
+                if user is not None:
+                    login(request, user)
+                    # If the user has a saved preferred language, apply it to the session
+                    try:
+                        user_lang = getattr(user, "language", None)
+                        if user_lang:
+                            request.session["_language"] = user_lang
+                            translation.activate(user_lang)
+                    except Exception:
+                        # Be defensive: don't break login flow if language application fails
+                        pass
+                    # Handle remember me functionality if needed
+                    if not form.cleaned_data.get("remember_me"):
+                        request.session.set_expiry(0)
 
-                # Check if user has a business associated with them
-                user_businesses = user.businesses.all()
-                if not user_businesses.exists():
-                    # Check if user owns a business (for business owners)
-                    owned_businesses = Business.objects.filter(owner=user)
-                    if not owned_businesses.exists():
-                        # Redirect to business details page for business owners
-                        return redirect("authentication:business_details")
+                    # Check if user has a business associated with them
+                    user_businesses = user.businesses.all()
+                    if not user_businesses.exists():
+                        # Check if user owns a business (for business owners)
+                        owned_businesses = Business.objects.filter(owner=user)
+                        if not owned_businesses.exists():
+                            # Redirect to business details page for business owners
+                            return redirect("authentication:business_details")
+                        else:
+                            # Set the first owned business as the current business in session
+                            first_business = owned_businesses.first()
+                            request.session["current_business_id"] = first_business.id
+                            # Also set in middleware thread-local storage
+                            from superadmin.middleware import set_current_business
+
+                            set_current_business(first_business)
+                            # Redirect to success page instead of dashboard directly
+                            return redirect("authentication:login_success")
                     else:
-                        # Set the first owned business as the current business in session
-                        first_business = owned_businesses.first()
+                        # Set the first associated business as the current business in session
+                        first_business = user_businesses.first()
                         request.session["current_business_id"] = first_business.id
                         # Also set in middleware thread-local storage
                         from superadmin.middleware import set_current_business
@@ -53,19 +64,15 @@ def login_view(request):
                         # Redirect to success page instead of dashboard directly
                         return redirect("authentication:login_success")
                 else:
-                    # Set the first associated business as the current business in session
-                    first_business = user_businesses.first()
-                    request.session["current_business_id"] = first_business.id
-                    # Also set in middleware thread-local storage
-                    from superadmin.middleware import set_current_business
-
-                    set_current_business(first_business)
-                    # Redirect to success page instead of dashboard directly
-                    return redirect("authentication:login_success")
+                    messages.error(request, "Invalid username or password.")
             else:
                 messages.error(request, "Invalid username or password.")
-        else:
-            messages.error(request, "Invalid username or password.")
+        except Exception as e:
+            # Log the error for debugging
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Login error: {str(e)}", exc_info=True)
+            messages.error(request, "An error occurred during login. Please try again.")
     else:
         form = CustomAuthenticationForm()
 
