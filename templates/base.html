@@ -69,6 +69,13 @@
         }
         
         /* Profile section styles */
+        .profile-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
         .profile-container {
             width: 80px;
             height: 80px;
@@ -87,6 +94,11 @@
             height: 100%;
             background: rgba(255, 255, 255, 0.2);
             border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .profile-actions .btn {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
         }
         
         /* Navigation link styles */
@@ -484,8 +496,8 @@
             <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar collapse glassmorphism-sidebar">
                 <div class="position-sticky pt-3" style="height: calc(100vh - 56px); overflow-y: auto;">
                     <!-- Profile Section -->
-                    <div class="text-center mb-4 p-3">
-                        <div class="profile-container mb-3">
+                    <div class="profile-section text-center mb-4 p-3">
+                        <div class="profile-container mb-3 mx-auto">
                             {% if user.profile_picture %}
                                 <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="profile-img rounded-circle">
                             {% else %}
@@ -496,6 +508,11 @@
                         </div>
                         <h6 class="text-white mb-1">{{ user.get_full_name|default:user.username }}</h6>
                         <small class="text-white-50">{{ user.get_role_display }}</small>
+                        <div class="profile-actions mt-3">
+                            <a href="{% url 'authentication:profile' %}" class="btn btn-sm btn-outline-light w-100 mb-2">
+                                <i class="fas fa-user me-1"></i> Profile
+                            </a>
+                        </div>
                     </div>
                     
                     <!-- Navigation Menu -->
