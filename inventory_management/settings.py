@@ -111,12 +111,10 @@ except ImportError:
     # Try to parse DATABASE_URL environment variable for Render deployment
     import os
     import dj_database_url
-    
-    DATABASE_URL = os.environ.get('DATABASE_URL')
+
+    DATABASE_URL = os.environ.get("DATABASE_URL")
     if DATABASE_URL:
-        DATABASES = {
-            'default': dj_database_url.parse(DATABASE_URL)
-        }
+        DATABASES = {"default": dj_database_url.parse(DATABASE_URL)}
     else:
         # Fallback to SQLite if local_settings.py is not available and no DATABASE_URL
         DATABASES = {
