@@ -736,6 +736,14 @@ def stock_adjustment_list(request):
 def approve_stock_adjustment(request, pk):
     """View for approving/rejecting stock adjustments"""
     from superadmin.middleware import get_current_business
+    from authentication.utils import check_user_permission
+
+    # Check if user has permission to approve stock adjustments
+    # Only admin, manager, and stock_manager roles can approve/reject
+    allowed_roles = ['admin', 'manager', 'stock_manager']
+    if request.user.role.lower() not in allowed_roles and not check_user_permission(request.user, 'can_edit'):
+        messages.error(request, "You do not have permission to approve or reject stock adjustment requests.")
+        return redirect("products:stock_adjustment_list")
 
     current_business = get_current_business()
 
