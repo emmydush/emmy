@@ -697,16 +697,19 @@
             
             if (sidebarToggle && sidebar) {
                 sidebarToggle.addEventListener('click', function() {
-                    sidebar.classList.toggle('show');
-                    
-                    // Change icon based on state
-                    const icon = this.querySelector('i');
-                    if (sidebar.classList.contains('show')) {
-                        icon.classList.remove('fa-bars');
-                        icon.classList.add('fa-times');
-                    } else {
-                        icon.classList.remove('fa-times');
-                        icon.classList.add('fa-bars');
+                    // Toggle sidebar visibility on mobile
+                    if (window.innerWidth < 768) {
+                        sidebar.classList.toggle('show');
+                        
+                        // Change icon based on state
+                        const icon = this.querySelector('i');
+                        if (sidebar.classList.contains('show')) {
+                            icon.classList.remove('fa-bars');
+                            icon.classList.add('fa-times');
+                        } else {
+                            icon.classList.remove('fa-times');
+                            icon.classList.add('fa-bars');
+                        }
                     }
                 });
                 
