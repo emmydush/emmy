@@ -18,6 +18,9 @@ RUN apt-get update \
         netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
+# Create directories for media and static files
+RUN mkdir -p /app/media /app/staticfiles
+
 # Create a non-root user
 RUN adduser --disabled-password --gecos '' appuser
 
