@@ -67,82 +67,70 @@
 
 <!-- Dashboard Stats -->
 <div class="dashboard-stats">
-    <div class="row">
+    <div class="stats-grid">
         <!-- Total Products -->
-        <div class="col-md-2 mb-3">
-            <div class="stat-card card-gradient-1">
-                <div class="card-body text-center p-2">
-                    <div class="stat-icon text-white">
-                        <i class="fas fa-box"></i>
-                    </div>
-                    <div class="stat-number text-white">{{ total_products }}</div>
-                    <div class="stat-title text-white">Total Products</div>
+        <div class="stat-card card-gradient-1">
+            <div class="card-body text-center p-2">
+                <div class="stat-icon text-white">
+                    <i class="fas fa-box"></i>
                 </div>
+                <div class="stat-number text-white">{{ total_products }}</div>
+                <div class="stat-title text-white">Total Products</div>
             </div>
         </div>
 
         <!-- Low Stock Items -->
-        <div class="col-md-2 mb-3">
-            <div class="stat-card card-gradient-2">
-                <div class="card-body text-center p-2">
-                    <div class="stat-icon text-white">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <div class="stat-number text-white">{{ low_stock_count }}</div>
-                    <div class="stat-title text-white">Low Stock Items</div>
+        <div class="stat-card card-gradient-2">
+            <div class="card-body text-center p-2">
+                <div class="stat-icon text-white">
+                    <i class="fas fa-exclamation-triangle"></i>
                 </div>
+                <div class="stat-number text-white">{{ low_stock_count }}</div>
+                <div class="stat-title text-white">Low Stock Items</div>
             </div>
         </div>
 
         <!-- Out of Stock Items -->
-        <div class="col-md-2 mb-3">
-            <div class="stat-card card-gradient-3">
-                <div class="card-body text-center p-2">
-                    <div class="stat-icon text-white">
-                        <i class="fas fa-times-circle"></i>
-                    </div>
-                    <div class="stat-number text-white">{{ out_of_stock_count }}</div>
-                    <div class="stat-title text-white">Out of Stock Items</div>
+        <div class="stat-card card-gradient-3">
+            <div class="card-body text-center p-2">
+                <div class="stat-icon text-white">
+                    <i class="fas fa-times-circle"></i>
                 </div>
+                <div class="stat-number text-white">{{ out_of_stock_count }}</div>
+                <div class="stat-title text-white">Out of Stock Items</div>
             </div>
         </div>
 
         <!-- Total Categories -->
-        <div class="col-md-2 mb-3">
-            <div class="stat-card card-gradient-4">
-                <div class="card-body text-center p-2">
-                    <div class="stat-icon text-white">
-                        <i class="fas fa-tags"></i>
-                    </div>
-                    <div class="stat-number text-white">{{ total_categories }}</div>
-                    <div class="stat-title text-white">Total Categories</div>
+        <div class="stat-card card-gradient-4">
+            <div class="card-body text-center p-2">
+                <div class="stat-icon text-white">
+                    <i class="fas fa-tags"></i>
                 </div>
+                <div class="stat-number text-white">{{ total_categories }}</div>
+                <div class="stat-title text-white">Total Categories</div>
             </div>
         </div>
 
         <!-- Today's Sales -->
-        <div class="col-md-2 mb-3">
-            <div class="stat-card card-gradient-5">
-                <div class="card-body text-center p-2">
-                    <div class="stat-icon text-white">
-                        <i class="fas fa-shopping-cart"></i>
-                    </div>
-                    <div class="stat-number text-white">{{ todays_sales_count }}</div>
-                    <div class="stat-title text-white">Today's Sales</div>
+        <div class="stat-card card-gradient-5">
+            <div class="card-body text-center p-2">
+                <div class="stat-icon text-white">
+                    <i class="fas fa-shopping-cart"></i>
                 </div>
+                <div class="stat-number text-white">{{ todays_sales_count }}</div>
+                <div class="stat-title text-white">Today's Sales</div>
             </div>
         </div>
 
         <!-- Product Value in Stock -->
-        <div class="col-md-2 mb-3">
-            <div class="stat-card card-gradient-6">
-                <div class="card-body text-center p-2">
-                    <div class="stat-icon text-white">
-                        <i class="fas fa-dollar-sign"></i>
-                    </div>
-                    <div class="stat-number text-white">{{ product_value_in_stock|floatformat:2 }}</div>
-                    <div class="stat-title text-white">Stock Value ({{ business_settings.currency_symbol }})</div>
+        <div class="stat-card card-gradient-6">
+            <div class="card-body text-center p-2">
+                <div class="stat-icon text-white">
+                    <i class="fas fa-dollar-sign"></i>
                 </div>
+                <div class="stat-number text-white">{{ product_value_in_stock|floatformat:2 }}</div>
+                <div class="stat-title text-white">Stock Value ({{ business_settings.currency_symbol }})</div>
             </div>
         </div>
     </div>
@@ -346,6 +334,14 @@
         font-size: 0.8rem !important;
     }
     
+    /* Responsive grid for dashboard stats */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
     @media (max-width: 768px) {
         .stat-card {
             height: 100px;
@@ -357,6 +353,34 @@
         
         .stat-icon {
             font-size: 1rem;
+        }
+        
+        .stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.75rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 0.5rem;
+        }
+        
+        .stat-card {
+            height: 80px;
+        }
+        
+        .stat-number {
+            font-size: 0.9rem;
+        }
+        
+        .stat-icon {
+            font-size: 0.8rem;
+        }
+        
+        .stat-title {
+            font-size: 0.6rem;
         }
     }
     
