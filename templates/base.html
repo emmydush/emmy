@@ -170,6 +170,7 @@
                 height: calc(100% - 56px);
                 transition: all 0.3s ease;
                 z-index: 999;
+                display: block !important;
             }
             
             .sidebar.active {
@@ -491,14 +492,14 @@
     {% endif %}
 
     <!-- Sidebar Toggle Button -->
-    <div class="sidebar-toggle" id="sidebarToggle">
+    <div class="sidebar-toggle d-md-none" id="sidebarToggle">
         <i class="fas fa-bars"></i>
     </div>
     
     <div class="container-fluid" style="padding-top: 56px;">
         <div class="row">
             <!-- Sidebar -->
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar collapse glassmorphism-sidebar">
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar collapse glassmorphism-sidebar d-none d-md-block">
                 <div class="position-sticky pt-3" style="height: calc(100vh - 56px); overflow-y: auto;">
                     <!-- Profile Section -->
                     <div class="profile-section text-center mb-4 p-3">
@@ -680,6 +681,19 @@
                         icon.classList.remove('fa-times');
                         icon.classList.add('fa-bars');
                     }
+                });
+                
+                // Also close sidebar when a nav link is clicked on mobile
+                const navLinks = sidebar.querySelectorAll('.nav-link');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth < 768) {
+                            sidebar.classList.remove('active');
+                            const icon = sidebarToggle.querySelector('i');
+                            icon.classList.remove('fa-times');
+                            icon.classList.add('fa-bars');
+                        }
+                    });
                 });
             }
         });
