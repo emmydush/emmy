@@ -108,13 +108,23 @@ WSGI_APPLICATION = "inventory_management.wsgi.application"
 try:
     from .local_settings import DATABASES
 except ImportError:
-    # Fallback to SQLite if local_settings.py is not available
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
+    # Try to parse DATABASE_URL environment variable for Render deployment
+    import os
+    import dj_database_url
+    
+    DATABASE_URL = os.environ.get('DATABASE_URL')
+    if DATABASE_URL:
+        DATABASES = {
+            'default': dj_database_url.parse(DATABASE_URL)
         }
-    }
+    else:
+        # Fallback to SQLite if local_settings.py is not available and no DATABASE_URL
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.sqlite3",
+                "NAME": BASE_DIR / "db.sqlite3",
+            }
+        }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
