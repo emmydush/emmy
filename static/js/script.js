@@ -126,24 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Language selector functionality
-    const languageSelector = document.getElementById('languageSelector');
-    if (languageSelector) {
-        languageSelector.addEventListener('change', function() {
-            const selectedLanguage = this.value;
-            // Submit hidden form to Django's set_language view
-            const langForm = document.getElementById('language-form');
-            const langInput = document.getElementById('language-input');
-            if (langForm && langInput) {
-                langInput.value = selectedLanguage;
-                langForm.submit();
-            }
-        });
-        
-        // Set initial language from session
-        const savedLanguage = document.querySelector('html').getAttribute('lang') || 'en';
-        languageSelector.value = savedLanguage;
-    }
+    // Language selector functionality removed as per user request
 });
 
 // Function to format currency
