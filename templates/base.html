@@ -202,16 +202,18 @@
             .sidebar {
                 position: fixed;
                 top: 56px;
-                left: -100%;
+                left: -250px;
                 width: 250px;
                 height: calc(100% - 56px);
                 transition: all 0.3s ease;
                 z-index: 999;
                 display: block !important;
+                background: linear-gradient(135deg, rgba(128, 0, 128, 0.9), rgba(0, 0, 255, 0.9));
             }
             
             .sidebar.show {
                 left: 0;
+                box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
             }
             
             .sidebar-toggle {
@@ -541,7 +543,7 @@
     <div class="container-fluid" style="padding-top: 56px;">
         <div class="row">
             <!-- Sidebar -->
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar glassmorphism-sidebar d-none d-md-block">
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar glassmorphism-sidebar">
                 <div class="position-sticky pt-3" style="height: calc(100vh - 56px); overflow-y: auto;">
                     <!-- Profile Section -->
                     <div class="profile-section text-center mb-4 p-3">
@@ -696,7 +698,8 @@
             const sidebar = document.getElementById('sidebar');
             
             if (sidebarToggle && sidebar) {
-                sidebarToggle.addEventListener('click', function() {
+                sidebarToggle.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent event bubbling
                     // Toggle sidebar visibility on mobile
                     if (window.innerWidth < 768) {
                         sidebar.classList.toggle('show');
@@ -715,16 +718,16 @@
                 
                 // Close sidebar when clicking outside on mobile
                 document.addEventListener('click', function(event) {
-                    const isClickInsideSidebar = sidebar.contains(event.target);
-                    const isClickOnToggle = sidebarToggle.contains(event.target);
-                    
-                    if (!isClickInsideSidebar && !isClickOnToggle && 
-                        sidebar.classList.contains('show') && 
+                    if (sidebar.classList.contains('show') && 
                         window.innerWidth < 768) {
-                        sidebar.classList.remove('show');
-                        const icon = sidebarToggle.querySelector('i');
-                        icon.classList.remove('fa-times');
-                        icon.classList.add('fa-bars');
+                        // Check if click is outside sidebar and toggle button
+                        if (!sidebar.contains(event.target) && 
+                            !sidebarToggle.contains(event.target)) {
+                            sidebar.classList.remove('show');
+                            const icon = sidebarToggle.querySelector('i');
+                            icon.classList.remove('fa-times');
+                            icon.classList.add('fa-bars');
+                        }
                     }
                 });
                 
