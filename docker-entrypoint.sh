@@ -21,6 +21,12 @@ mkdir -p /app/media
 chmod -R 755 /app/media
 chown -R appuser:appuser /app/media
 
+# Ensure staticfiles directory exists and has proper permissions
+echo "Setting up staticfiles directory..."
+mkdir -p /app/staticfiles
+chmod -R 755 /app/staticfiles
+chown -R appuser:appuser /app/staticfiles
+
 # Start the server with Gunicorn for production
 echo "Starting server with Gunicorn..."
 # Use the PORT environment variable if set, otherwise default to 8000

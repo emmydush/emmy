@@ -192,6 +192,18 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 if not os.path.exists(MEDIA_ROOT):
     os.makedirs(MEDIA_ROOT, exist_ok=True)
 
+# Configure media file serving for production
+import os
+if not os.environ.get('RENDER'):
+    # Local development - serve media files through Django
+    pass
+else:
+    # Production - ensure media files are properly served
+    # Media files will be served by the web server (Nginx/Apache) in production
+    # but we need to ensure the directory exists
+    if not os.path.exists(MEDIA_ROOT):
+        os.makedirs(MEDIA_ROOT, exist_ok=True)
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 

@@ -20,6 +20,7 @@ RUN apt-get update \
 
 # Create directories for media and static files
 RUN mkdir -p /app/media /app/staticfiles
+RUN chmod -R 755 /app/media /app/staticfiles
 
 # Create a non-root user
 RUN adduser --disabled-password --gecos '' appuser
