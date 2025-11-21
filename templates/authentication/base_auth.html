@@ -41,6 +41,39 @@
             color: white;
         }
         
+        /* Error message styles */
+        .error-message-bar {
+            display: flex;
+            align-items: center;
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #f5c6cb;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            animation: slideIn 0.3s ease-out;
+            max-width: 800px;
+            margin: 20px auto;
+        }
+        
+        .error-circle {
+            background-color: #dc3545;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .error-icon {
+            color: white;
+            font-size: 16px;
+        }
+        
         .alert .btn-close {
             filter: brightness(0) invert(1);
         }
@@ -187,6 +220,41 @@
     </style>
 </head>
 <body class="bg-light">
+    <!-- Messages -->
+    {% if messages %}
+        <div class="container">
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    <div class="success-message-bar">
+                        <div class="check-circle">
+                            <i class="fas fa-check check-icon"></i>
+                        </div>
+                        <p class="message-text">{{ message }}</p>
+                    </div>
+                {% elif message.tags == 'error' %}
+                    <div class="error-message-bar">
+                        <div class="error-circle">
+                            <i class="fas fa-exclamation-triangle error-icon"></i>
+                        </div>
+                        <p class="message-text">{{ message }}</p>
+                    </div>
+                {% elif message.tags == 'warning' %}
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-circle me-1"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% elif message.tags == 'info' %}
+                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                        <i class="fas fa-info-circle me-1"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    
     {% block content %}
     {% endblock %}
 
