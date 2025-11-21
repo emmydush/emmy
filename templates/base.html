@@ -173,7 +173,7 @@
                 display: block !important;
             }
             
-            .sidebar.active {
+            .sidebar.show {
                 left: 0;
             }
             
@@ -499,7 +499,7 @@
     <div class="container-fluid" style="padding-top: 56px;">
         <div class="row">
             <!-- Sidebar -->
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar collapse glassmorphism-sidebar d-none d-md-block">
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar glassmorphism-sidebar d-none d-md-block">
                 <div class="position-sticky pt-3" style="height: calc(100vh - 56px); overflow-y: auto;">
                     <!-- Profile Section -->
                     <div class="profile-section text-center mb-4 p-3">
@@ -655,11 +655,11 @@
             
             if (sidebarToggle && sidebar) {
                 sidebarToggle.addEventListener('click', function() {
-                    sidebar.classList.toggle('active');
+                    sidebar.classList.toggle('show');
                     
                     // Change icon based on state
                     const icon = this.querySelector('i');
-                    if (sidebar.classList.contains('active')) {
+                    if (sidebar.classList.contains('show')) {
                         icon.classList.remove('fa-bars');
                         icon.classList.add('fa-times');
                     } else {
@@ -674,9 +674,9 @@
                     const isClickOnToggle = sidebarToggle.contains(event.target);
                     
                     if (!isClickInsideSidebar && !isClickOnToggle && 
-                        sidebar.classList.contains('active') && 
+                        sidebar.classList.contains('show') && 
                         window.innerWidth < 768) {
-                        sidebar.classList.remove('active');
+                        sidebar.classList.remove('show');
                         const icon = sidebarToggle.querySelector('i');
                         icon.classList.remove('fa-times');
                         icon.classList.add('fa-bars');
@@ -688,7 +688,7 @@
                 navLinks.forEach(link => {
                     link.addEventListener('click', function() {
                         if (window.innerWidth < 768) {
-                            sidebar.classList.remove('active');
+                            sidebar.classList.remove('show');
                             const icon = sidebarToggle.querySelector('i');
                             icon.classList.remove('fa-times');
                             icon.classList.add('fa-bars');
