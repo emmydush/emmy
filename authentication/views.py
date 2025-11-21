@@ -25,7 +25,7 @@ def login_view(request):
                 try:
                     user_lang = getattr(user, "language", None)
                     if user_lang:
-                        request.session[translation.LANGUAGE_SESSION_KEY] = user_lang
+                        request.session['_language'] = user_lang
                         translation.activate(user_lang)
                 except Exception:
                     # Be defensive: don't break login flow if language application fails
@@ -179,7 +179,7 @@ def set_user_language(request):
             request.user.language = lang
             request.user.save()
             # Also set session so change takes effect immediately
-            request.session[translation.LANGUAGE_SESSION_KEY] = lang
+            request.session['_language'] = lang
             translation.activate(lang)
     return redirect(next_url)
 
