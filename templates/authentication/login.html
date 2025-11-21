@@ -21,41 +21,7 @@
                 </div>
             </div>
             <div class="col-md-6 text-md-end">
-                <div class="d-flex justify-content-md-end align-items-center gap-2">
-                    <!-- Super Admin Link -->
-                    <a href="{% url 'superadmin:dashboard' %}" class="btn btn-sm btn-outline-light" role="button">
-                        <i class="fas fa-crown me-1"></i>
-                        <span class="d-none d-sm-inline">Super Admin</span>
-                    </a>
-                    
-                    <!-- Language Selector -->
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-globe me-1"></i>
-                            <span class="d-none d-sm-inline">Language</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
-                            <li><a class="dropdown-item" href="#" data-lang="en">English</a></li>
-                            <li><a class="dropdown-item" href="#" data-lang="rw">Kinyarwanda</a></li>
-                            <li><a class="dropdown-item" href="#" data-lang="es">Español</a></li>
-                            <li><a class="dropdown-item" href="#" data-lang="fr">Français</a></li>
-                            <li><a class="dropdown-item" href="#" data-lang="de">Deutsch</a></li>
-                        </ul>
-                        {# Hidden language form that posts to user preference endpoint when logged in, otherwise to Django's set_language view #}
-                        <form id="language-form" action="{% if user.is_authenticated %}{% url 'authentication:set_user_language' %}{% else %}{% url 'set_language' %}{% endif %}" method="post" style="display:none;">
-                          {% csrf_token %}
-                          <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                          <input type="hidden" name="language" id="language-input" value="">
-                        </form>
-                    </div>
-                    
-                    <!-- Theme Toggle Button -->
-                    <div class="theme-toggle-container">
-                        <button id="themeToggle" class="theme-toggle btn btn-sm btn-outline-light" aria-label="Toggle theme">
-                            <i class="fas fa-moon"></i>
-                        </button>
-                    </div>
-                </div>
+                <!-- Header elements removed for login page -->
             </div>
         </div>
     </div>
@@ -197,20 +163,6 @@
 
 <!-- Custom styles for the header -->
 <style>
-    .theme-toggle, .dropdown-toggle {
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        transition: all 0.3s ease;
-    }
-    
-    .theme-toggle:hover, .dropdown-toggle:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.5);
-    }
-    
-    .theme-toggle i {
-        font-size: 0.9rem;
-    }
-    
     /* Style for input group icons */
     .input-group-text {
         background-color: #f8f9fa;
@@ -232,21 +184,6 @@
 <!-- JavaScript for language switching -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Language switcher: submit hidden form to Django's set_language view
-        var langLinks = document.querySelectorAll('.dropdown-menu a[data-lang]');
-        var langInput = document.getElementById('language-input');
-        var langForm = document.getElementById('language-form');
-        if (langLinks && langForm && langInput) {
-            langLinks.forEach(function(link) {
-                link.addEventListener('click', function(ev) {
-                    ev.preventDefault();
-                    var lang = this.getAttribute('data-lang');
-                    langInput.value = lang;
-                    langForm.submit();
-                });
-            });
-        };
-        
         // Password toggle functionality
         const togglePassword = document.querySelector('#togglePassword');
         const password = document.querySelector('#{{ form.password.id_for_label }}');
