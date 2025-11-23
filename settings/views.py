@@ -380,48 +380,6 @@ def backup_settings(request):
 
 @login_required
 @user_passes_test(can_access_settings)
-def voice_assistant(request):
-    return render(request, "voice_assistant_test.html")
-
-
-@login_required
-@user_passes_test(can_access_settings)
-def voice_test(request):
-    return render(request, "voice_test.html")
-
-
-@login_required
-@user_passes_test(can_access_settings)
-def voice_debug(request):
-    return render(request, "voice_debug.html")
-
-
-@login_required
-@user_passes_test(can_access_settings)
-def voice_permissions(request):
-    return render(request, "voice_permissions.html")
-
-
-@login_required
-@user_passes_test(can_access_settings)
-def voice_troubleshooting(request):
-    return render(request, "voice_troubleshooting.html")
-
-
-@login_required
-@user_passes_test(can_access_settings)
-def voice_response_test(request):
-    return render(request, "voice_response_test.html")
-
-
-@login_required
-@user_passes_test(can_access_settings)
-def voice_error_fix(request):
-    return render(request, "voice_error_fix.html")
-
-
-@login_required
-@user_passes_test(can_access_settings)
 def theme_settings(request):
     # Get or create user theme preference
     theme_preference, created = UserThemePreference.objects.get_or_create(
