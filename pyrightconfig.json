@@ -17,5 +17,8 @@
     "reportUnknownVariableType": false,
     "reportUnknownArgumentType": false,
     "reportAttributeAccessIssue": false,
-    "reportOperatorIssue": false
+    "reportOperatorIssue": false,
+    // Disable specific checks that conflict with Django migrations
+    "reportGeneralTypeIssues": false,
+    "reportArgumentType": false
 }

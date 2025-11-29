@@ -26,8 +26,8 @@ SECRET_KEY = "django-insecure-j@z%a^!@+m07654321zyxwvutsrqponmlkjihgfedcba"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# Allow hosts for Render deployment
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "tecksolution.onrender.com"]
+# Allow hosts for Render deployment and testing
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "tecksolution.onrender.com", "testserver"]
 
 # Application definition
 
@@ -108,21 +108,12 @@ WSGI_APPLICATION = "inventory_management.wsgi.application"
 try:
     from .local_settings import DATABASES
 except ImportError:
-    # Try to parse DATABASE_URL environment variable for Render deployment
-    import os
-    import dj_database_url
-
-    DATABASE_URL = os.environ.get("DATABASE_URL")
-    if DATABASE_URL:
-        DATABASES = {"default": dj_database_url.parse(DATABASE_URL)}
-    else:
-        # Fallback to SQLite if local_settings.py is not available and no DATABASE_URL
-        DATABASES = {
-            "default": {
-                "ENGINE": "django.db.backends.sqlite3",
-                "NAME": BASE_DIR / "db.sqlite3",
-            }
-        }
+    # If local_settings.py is not available, raise an error
+    # PostgreSQL configuration is required
+    raise ImportError(
+        "local_settings.py is missing. Please create a local_settings.py file "
+        "in the inventory_management directory with your PostgreSQL configuration."
+    )
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

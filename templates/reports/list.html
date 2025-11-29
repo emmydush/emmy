@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
-{% block title %}Reports - Inventory Management System{% endblock %}
+{% block title %}{% trans "Reports - Inventory Management System" %}{% endblock %}
 
 {% block content %}
 <!-- Permission Warnings -->
@@ -10,15 +11,15 @@
 {% if not can_access_reports %}
     <div class="alert alert-warning alert-dismissible fade show" role="alert">
         <i class="fas fa-exclamation-triangle me-2"></i>
-        <strong>Access Restricted:</strong> You do not have permission to access reports.
+        <strong>{% trans "Access Restricted:" %}</strong> {% trans "You do not have permission to access reports." %}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 {% endif %}
 
 <div class="row">
     <div class="col-md-12">
-        <h2>Reports</h2>
-        <p class="lead">Generate various reports to analyze your business performance.</p>
+        <h2>{% trans "Reports" %}</h2>
+        <p class="lead">{% trans "Generate various reports to analyze your business performance." %}</p>
     </div>
 </div>
 
@@ -27,22 +28,22 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <h5><i class="fas fa-bolt"></i> Quick Reports</h5>
+                <h5><i class="fas fa-bolt"></i> {% trans "Quick Reports" %}</h5>
             </div>
             <div class="card-body">
-                <p>Quickly generate reports for common time periods:</p>
+                <p>{% trans "Quickly generate reports for common time periods:" %}</p>
                 <div class="btn-group" role="group">
                     <a href="{% url 'reports:quick_report' 'daily' %}" class="btn btn-outline-primary">
-                        <i class="fas fa-calendar-day"></i> Daily Report
+                        <i class="fas fa-calendar-day"></i> {% trans "Daily Report" %}
                     </a>
                     <a href="{% url 'reports:quick_report' 'weekly' %}" class="btn btn-outline-success">
-                        <i class="fas fa-calendar-week"></i> Weekly Report
+                        <i class="fas fa-calendar-week"></i> {% trans "Weekly Report" %}
                     </a>
                     <a href="{% url 'reports:quick_report' 'monthly' %}" class="btn btn-outline-info">
-                        <i class="fas fa-calendar-alt"></i> Monthly Report
+                        <i class="fas fa-calendar-alt"></i> {% trans "Monthly Report" %}
                     </a>
                     <a href="{% url 'reports:quick_report' 'yearly' %}" class="btn btn-outline-warning">
-                        <i class="fas fa-calendar-year"></i> Yearly Report
+                        <i class="fas fa-calendar-year"></i> {% trans "Yearly Report" %}
                     </a>
                 </div>
             </div>
@@ -55,9 +56,9 @@
         <div class="card h-100">
             <div class="card-body text-center">
                 <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
-                <h5 class="card-title">Sales Report</h5>
-                <p class="card-text">Analyze sales performance, top selling products, and revenue trends.</p>
-                <a href="{% url 'reports:sales' %}" class="btn btn-primary">View Report</a>
+                <h5 class="card-title">{% trans "Sales Report" %}</h5>
+                <p class="card-text">{% trans "Analyze sales performance, top selling products, and revenue trends." %}</p>
+                <a href="{% url 'reports:sales' %}" class="btn btn-primary">{% trans "View Report" %}</a>
             </div>
         </div>
     </div>
@@ -66,9 +67,9 @@
         <div class="card h-100">
             <div class="card-body text-center">
                 <i class="fas fa-boxes fa-3x text-success mb-3"></i>
-                <h5 class="card-title">Inventory Report</h5>
-                <p class="card-text">Track stock levels, low stock alerts, and expiry information.</p>
-                <a href="{% url 'reports:inventory' %}" class="btn btn-success">View Report</a>
+                <h5 class="card-title">{% trans "Inventory Report" %}</h5>
+                <p class="card-text">{% trans "Track stock levels, low stock alerts, and expiry information." %}</p>
+                <a href="{% url 'reports:inventory' %}" class="btn btn-success">{% trans "View Report" %}</a>
             </div>
         </div>
     </div>
@@ -77,9 +78,9 @@
         <div class="card h-100">
             <div class="card-body text-center">
                 <i class="fas fa-file-invoice-dollar fa-3x text-info mb-3"></i>
-                <h5 class="card-title">Profit & Loss Report</h5>
-                <p class="card-text">Review financial performance including revenue, costs, and profits.</p>
-                <a href="{% url 'reports:profit_loss' %}" class="btn btn-info">View Report</a>
+                <h5 class="card-title">{% trans "Profit & Loss Report" %}</h5>
+                <p class="card-text">{% trans "Review financial performance including revenue, costs, and profits." %}</p>
+                <a href="{% url 'reports:profit_loss' %}" class="btn btn-info">{% trans "View Report" %}</a>
             </div>
         </div>
     </div>
@@ -88,9 +89,9 @@
         <div class="card h-100">
             <div class="card-body text-center">
                 <i class="fas fa-money-bill-wave fa-3x text-warning mb-3"></i>
-                <h5 class="card-title">Expense Report</h5>
-                <p class="card-text">Track and analyze business expenses by category.</p>
-                <a href="{% url 'reports:expenses' %}" class="btn btn-warning">View Report</a>
+                <h5 class="card-title">{% trans "Expense Report" %}</h5>
+                <p class="card-text">{% trans "Track and analyze business expenses by category." %}</p>
+                <a href="{% url 'reports:expenses' %}" class="btn btn-warning">{% trans "View Report" %}</a>
             </div>
         </div>
     </div>
@@ -99,9 +100,9 @@
         <div class="card h-100">
             <div class="card-body text-center">
                 <i class="fas fa-truck fa-3x text-secondary mb-3"></i>
-                <h5 class="card-title">Purchase Report</h5>
-                <p class="card-text">Analyze supplier purchases and procurement trends.</p>
-                <a href="#" class="btn btn-secondary disabled">View Report</a>
+                <h5 class="card-title">{% trans "Purchase Report" %}</h5>
+                <p class="card-text">{% trans "Analyze supplier purchases and procurement trends." %}</p>
+                <a href="#" class="btn btn-secondary disabled">{% trans "View Report" %}</a>
             </div>
         </div>
     </div>
@@ -110,9 +111,9 @@
         <div class="card h-100">
             <div class="card-body text-center">
                 <i class="fas fa-users fa-3x text-danger mb-3"></i>
-                <h5 class="card-title">Customer Report</h5>
-                <p class="card-text">Review customer purchasing patterns and loyalty metrics.</p>
-                <a href="#" class="btn btn-danger disabled">View Report</a>
+                <h5 class="card-title">{% trans "Customer Report" %}</h5>
+                <p class="card-text">{% trans "Review customer purchasing patterns and loyalty metrics." %}</p>
+                <a href="#" class="btn btn-danger disabled">{% trans "View Report" %}</a>
             </div>
         </div>
     </div>

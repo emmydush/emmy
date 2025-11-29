@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
-{% block title %}Profile - {{ business_settings.business_name }}{% endblock %}
+{% block title %}{% trans "Profile" %} - {{ business_settings.business_name }}{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-md-8 mx-auto">
         <div class="card">
             <div class="card-header">
-                <h3><i class="fas fa-user-circle"></i> User Profile</h3>
+                <h3><i class="fas fa-user-circle"></i> {% trans "User Profile" %}</h3>
             </div>
             <div class="card-body">
                 <form method="post" enctype="multipart/form-data">
@@ -15,35 +16,35 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="first_name" class="form-label">First Name</label>
+                                <label for="first_name" class="form-label">{% trans "First Name" %}</label>
                                 <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="last_name" class="form-label">Last Name</label>
+                                <label for="last_name" class="form-label">{% trans "Last Name" %}</label>
                                 <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}">
                             </div>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
+                        <label for="username" class="form-label">{% trans "Username" %}</label>
                         <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" readonly>
                     </div>
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
+                        <label for="email" class="form-label">{% trans "Email" %}</label>
                         <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
                     </div>
                     <div class="mb-3">
-                        <label for="phone" class="form-label">Phone</label>
+                        <label for="phone" class="form-label">{% trans "Phone" %}</label>
                         <input type="text" class="form-control" id="phone" name="phone" value="{{ user.phone }}">
                     </div>
                     <div class="mb-3">
-                        <label for="address" class="form-label">Address</label>
+                        <label for="address" class="form-label">{% trans "Address" %}</label>
                         <textarea class="form-control" id="address" name="address" rows="3">{{ user.address }}</textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="profile_picture" class="form-label">Profile Picture</label>
+                        <label for="profile_picture" class="form-label">{% trans "Profile Picture" %}</label>
                         <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*">
                         {% if user.profile_picture %}
                             <div class="mt-2">
@@ -52,10 +53,11 @@
                         {% endif %}
                     </div>
                     <div class="mb-3">
-                        <label for="role" class="form-label">Role</label>
+                        <label for="role" class="form-label">{% trans "Role" %}</label>
                         <input type="text" class="form-control" id="role" name="role" value="{{ user.get_role_display }}" readonly>
                     </div>
-                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Update Profile" %}</button>
+                    <a href="{% url 'authentication:change_password' %}" class="btn btn-secondary">{% trans "Change Password" %}</a>
                 </form>
             </div>
         </div>

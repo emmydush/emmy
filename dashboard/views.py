@@ -287,14 +287,17 @@ def search_view(request):
         | Q(category__name__icontains=query)
     )
 
-    # Search sales
+    # Search sales - Fixed the customer name search by using first_name and last_name fields
     sales = Sale.objects.business_specific().filter(
-        Q(customer__full_name__icontains=query) | Q(id__icontains=query)
+        Q(customer__first_name__icontains=query) 
+        | Q(customer__last_name__icontains=query) 
+        | Q(id__icontains=query)
     )
 
     # Search customers
     customers = Customer.objects.business_specific().filter(
-        Q(full_name__icontains=query)
+        Q(first_name__icontains=query)
+        | Q(last_name__icontains=query)
         | Q(email__icontains=query)
         | Q(phone__icontains=query)
     )

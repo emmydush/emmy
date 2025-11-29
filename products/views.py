@@ -15,13 +15,17 @@ from decimal import Decimal
 import qrcode
 import csv
 import io
-from .models import Product, Category, Unit, StockAdjustment, StockAlert, StockMovement
+from .models import Product, Category, Unit, StockAdjustment, StockAlert, StockMovement, ProductVariant, VariantAttribute, VariantAttributeValue, ProductVariantAttribute
 from .forms import (
     ProductForm,
     CategoryForm,
     UnitForm,
     StockAdjustmentForm,
     StockAdjustmentApprovalForm,
+    ProductVariantForm,
+    VariantAttributeForm,
+    VariantAttributeValueForm,
+    ProductVariantAttributeForm,
 )
 from .utils import generate_product_qr_code
 from authentication.utils import check_user_permission, require_permission
@@ -876,3 +880,477 @@ def resolve_stock_alert(request, pk):
             "alert": alert,
         },
     )
+
+
+# This was mistakenly included - removing it
+
+
+# Variant Management Views
+
+@login_required
+def product_variant_list(request, product_pk):
+    """Display list of variants for a specific product"""
+    # Account owners have access to everything
+    if request.user.role != "admin" and not check_user_permission(
+        request.user, "can_view"
+    ):
+        messages.error(request, "You do not have permission to view product variants.")
+        return redirect("products:list")
+    
+    product = get_object_or_404(Product.objects.business_specific(), pk=product_pk)
+    variants = product.variants.all()
+    
+    context = {
+        "product": product,
+        "variants": variants,
+    }
+    
+    return render(request, "products/variants/list.html", context)
+
+
+@login_required
+def product_variant_create(request, product_pk):
+    """Create a new variant for a specific product"""
+    # Account owners have access to everything
+    if request.user.role != "admin" and not check_user_permission(
+        request.user, "can_create"
+    ):
+        messages.error(request, "You do not have permission to create product variants.")
+        return redirect("products:list")
+    
+    product = get_object_or_404(Product.objects.business_specific(), pk=product_pk)
+    
+    # Get the current business from the request
+    from superadmin.middleware import get_current_business
+    current_business = get_current_business()
+    
+    if request.method == "POST":
+        form = ProductVariantForm(request.POST, request.FILES, business=current_business, product=product)
+        if form.is_valid():
+            if current_business:
+                try:
+                    # Save the variant with business context
+                    variant = form.save(commit=False)
+                    variant.business = current_business
+                    variant.product = product
+                    variant.save()
+                    messages.success(request, "Product variant created successfully!")
+                    return redirect("products:variant_list", product_pk=product.pk)
+                except IntegrityError as e:
+                    if "products_productvariant_business_id_sku_key" in str(e):
+                        messages.error(
+                            request,
+                            "A product variant with this SKU already exists for your business. Please use a different SKU.",
+                        )
+                    else:
+                        messages.error(
+                            request,
+                            f"An error occurred while creating the product variant: {str(e)}",
+                        )
+            else:
+                messages.error(
+                    request,
+                    "No business context found. Please select a business before creating product variants.",
+                )
+        else:
+            # Form is not valid, display errors
+            if form.errors:
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f"{field}: {error}")
+    else:
+        form = ProductVariantForm(business=current_business, product=product)
+    
+    context = {
+        "form": form,
+        "product": product,
+        "title": "Create Product Variant",
+    }
+    
+    return render(request, "products/variants/form.html", context)
+
+
+@login_required
+def product_variant_detail(request, pk):
+    """Display details of a specific product variant"""
+    variant = get_object_or_404(ProductVariant.objects.business_specific(), pk=pk)
+    
+    # Generate QR code for the variant
+    qr_buffer = generate_product_qr_code(variant)
+    
+    context = {
+        "variant": variant,
+        "qr_code_data": qr_buffer.getvalue() if qr_buffer else None,
+        "MEDIA_URL": settings.MEDIA_URL,
+    }
+    
+    return render(request, "products/variants/detail.html", context)
+
+
+@login_required
+def product_variant_update(request, pk):
+    """Update a specific product variant"""
+    # Account owners have access to everything
+    if request.user.role != "admin" and not check_user_permission(
+        request.user, "can_edit"
+    ):
+        messages.error(request, "You do not have permission to edit product variants.")
+        return redirect("products:list")
+    
+    variant = get_object_or_404(ProductVariant.objects.business_specific(), pk=pk)
+    
+    # Get the current business from the request
+    from superadmin.middleware import get_current_business
+    current_business = get_current_business()
+    
+    if request.method == "POST":
+        form = ProductVariantForm(request.POST, request.FILES, instance=variant, business=current_business, product=variant.product)
+        if form.is_valid():
+            if current_business:
+                # Save the variant with business context
+                variant = form.save(commit=False)
+                variant.business = current_business
+                variant.save()
+                messages.success(request, "Product variant updated successfully!")
+                return redirect("products:variant_detail", pk=variant.pk)
+            else:
+                messages.error(
+                    request,
+                    "No business context found. Please select a business before updating product variants.",
+                )
+        else:
+            # Form is not valid, display errors
+            if form.errors:
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f"{field}: {error}")
+    else:
+        form = ProductVariantForm(instance=variant, business=current_business, product=variant.product)
+    
+    context = {
+        "form": form,
+        "variant": variant,
+        "title": "Update Product Variant",
+    }
+    
+    return render(request, "products/variants/form.html", context)
+
+
+@login_required
+def product_variant_delete(request, pk):
+    """Delete a specific product variant"""
+    # Account owners have access to everything
+    if request.user.role != "admin" and not check_user_permission(
+        request.user, "can_delete"
+    ):
+        messages.error(request, "You do not have permission to delete product variants.")
+        return redirect("products:list")
+    
+    variant = get_object_or_404(ProductVariant.objects.business_specific(), pk=pk)
+    product_pk = variant.product.pk
+    
+    if request.method == "POST":
+        variant.is_active = False
+        variant.save()
+        messages.success(request, "Product variant deleted successfully!")
+        return redirect("products:variant_list", product_pk=product_pk)
+    
+    context = {
+        "variant": variant,
+    }
+    
+    return render(request, "products/variants/confirm_delete.html", context)
+
+
+# Variant Attribute Management Views
+
+@login_required
+def variant_attribute_list(request):
+    """Display list of variant attributes"""
+    # Account owners have access to everything
+    if request.user.role != "admin" and not check_user_permission(
+        request.user, "can_view"
+    ):
+        messages.error(request, "You do not have permission to view variant attributes.")
+        return redirect("products:list")
+    
+    attributes = VariantAttribute.objects.business_specific().all()
+    
+    context = {
+        "attributes": attributes,
+    }
+    
+    return render(request, "products/variant_attributes/list.html", context)
+
+
+@login_required
+def variant_attribute_create(request):
+    """Create a new variant attribute"""
+    # Account owners have access to everything
+    if request.user.role != "admin" and not check_user_permission(
+        request.user, "can_create"
+    ):
+        messages.error(request, "You do not have permission to create variant attributes.")
+        return redirect("products:list")
+    
+    # Get the current business from the request
+    from superadmin.middleware import get_current_business
+    current_business = get_current_business()
+    
+    if request.method == "POST":
+        form = VariantAttributeForm(request.POST, business=current_business)
+        if form.is_valid():
+            if current_business:
+                try:
+                    # Save the attribute with business context
+                    attribute = form.save(commit=False)
+                    attribute.business = current_business
+                    attribute.save()
+                    messages.success(request, "Variant attribute created successfully!")
+                    return redirect("products:variant_attribute_list")
+                except IntegrityError as e:
+                    messages.error(
+                        request,
+                        f"An error occurred while creating the variant attribute: {str(e)}",
+                    )
+            else:
+                messages.error(
+                    request,
+                    "No business context found. Please select a business before creating variant attributes.",
+                )
+        else:
+            # Form is not valid, display errors
+            if form.errors:
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f"{field}: {error}")
+    else:
+        form = VariantAttributeForm(business=current_business)
+    
+    context = {
+        "form": form,
+        "title": "Create Variant Attribute",
+    }
+    
+    return render(request, "products/variant_attributes/form.html", context)
+
+
+@login_required
+def variant_attribute_update(request, pk):
+    """Update a specific variant attribute"""
+    # Account owners have access to everything
+    if request.user.role != "admin" and not check_user_permission(
+        request.user, "can_edit"
+    ):
+        messages.error(request, "You do not have permission to edit variant attributes.")
+        return redirect("products:list")
+    
+    attribute = get_object_or_404(VariantAttribute.objects.business_specific(), pk=pk)
+    
+    # Get the current business from the request
+    from superadmin.middleware import get_current_business
+    current_business = get_current_business()
+    
+    if request.method == "POST":
+        form = VariantAttributeForm(request.POST, instance=attribute, business=current_business)
+        if form.is_valid():
+            if current_business:
+                # Save the attribute with business context
+                attribute = form.save(commit=False)
+                attribute.business = current_business
+                attribute.save()
+                messages.success(request, "Variant attribute updated successfully!")
+                return redirect("products:variant_attribute_list")
+            else:
+                messages.error(
+                    request,
+                    "No business context found. Please select a business before updating variant attributes.",
+                )
+        else:
+            # Form is not valid, display errors
+            if form.errors:
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f"{field}: {error}")
+    else:
+        form = VariantAttributeForm(instance=attribute, business=current_business)
+    
+    context = {
+        "form": form,
+        "attribute": attribute,
+        "title": "Update Variant Attribute",
+    }
+    
+    return render(request, "products/variant_attributes/form.html", context)
+
+
+@login_required
+def variant_attribute_delete(request, pk):
+    """Delete a specific variant attribute"""
+    # Account owners have access to everything
+    if request.user.role != "admin" and not check_user_permission(
+        request.user, "can_delete"
+    ):
+        messages.error(request, "You do not have permission to delete variant attributes.")
+        return redirect("products:list")
+    
+    attribute = get_object_or_404(VariantAttribute.objects.business_specific(), pk=pk)
+    
+    if request.method == "POST":
+        attribute.is_active = False
+        attribute.save()
+        messages.success(request, "Variant attribute deleted successfully!")
+        return redirect("products:variant_attribute_list")
+    
+    context = {
+        "attribute": attribute,
+    }
+    
+    return render(request, "products/variant_attributes/confirm_delete.html", context)
+
+
+# Variant Attribute Value Management Views
+
+@login_required
+def variant_attribute_value_list(request):
+    """Display list of variant attribute values"""
+    # Account owners have access to everything
+    if request.user.role != "admin" and not check_user_permission(
+        request.user, "can_view"
+    ):
+        messages.error(request, "You do not have permission to view variant attribute values.")
+        return redirect("products:list")
+    
+    values = VariantAttributeValue.objects.business_specific().select_related('attribute')
+    
+    context = {
+        "values": values,
+    }
+    
+    return render(request, "products/variant_attribute_values/list.html", context)
+
+
+@login_required
+def variant_attribute_value_create(request):
+    """Create a new variant attribute value"""
+    # Account owners have access to everything
+    if request.user.role != "admin" and not check_user_permission(
+        request.user, "can_create"
+    ):
+        messages.error(request, "You do not have permission to create variant attribute values.")
+        return redirect("products:list")
+    
+    # Get the current business from the request
+    from superadmin.middleware import get_current_business
+    current_business = get_current_business()
+    
+    if request.method == "POST":
+        form = VariantAttributeValueForm(request.POST, business=current_business)
+        if form.is_valid():
+            if current_business:
+                try:
+                    # Save the attribute value with business context
+                    attribute_value = form.save(commit=False)
+                    attribute_value.business = current_business
+                    attribute_value.save()
+                    messages.success(request, "Variant attribute value created successfully!")
+                    return redirect("products:variant_attribute_value_list")
+                except IntegrityError as e:
+                    messages.error(
+                        request,
+                        f"An error occurred while creating the variant attribute value: {str(e)}",
+                    )
+            else:
+                messages.error(
+                    request,
+                    "No business context found. Please select a business before creating variant attribute values.",
+                )
+        else:
+            # Form is not valid, display errors
+            if form.errors:
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f"{field}: {error}")
+    else:
+        form = VariantAttributeValueForm(business=current_business)
+    
+    context = {
+        "form": form,
+        "title": "Create Variant Attribute Value",
+    }
+    
+    return render(request, "products/variant_attribute_values/form.html", context)
+
+
+@login_required
+def variant_attribute_value_update(request, pk):
+    """Update a specific variant attribute value"""
+    # Account owners have access to everything
+    if request.user.role != "admin" and not check_user_permission(
+        request.user, "can_edit"
+    ):
+        messages.error(request, "You do not have permission to edit variant attribute values.")
+        return redirect("products:list")
+    
+    attribute_value = get_object_or_404(VariantAttributeValue.objects.business_specific(), pk=pk)
+    
+    # Get the current business from the request
+    from superadmin.middleware import get_current_business
+    current_business = get_current_business()
+    
+    if request.method == "POST":
+        form = VariantAttributeValueForm(request.POST, instance=attribute_value, business=current_business)
+        if form.is_valid():
+            if current_business:
+                # Save the attribute value with business context
+                attribute_value = form.save(commit=False)
+                attribute_value.business = current_business
+                attribute_value.save()
+                messages.success(request, "Variant attribute value updated successfully!")
+                return redirect("products:variant_attribute_value_list")
+            else:
+                messages.error(
+                    request,
+                    "No business context found. Please select a business before updating variant attribute values.",
+                )
+        else:
+            # Form is not valid, display errors
+            if form.errors:
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f"{field}: {error}")
+    else:
+        form = VariantAttributeValueForm(instance=attribute_value, business=current_business)
+    
+    context = {
+        "form": form,
+        "attribute_value": attribute_value,
+        "title": "Update Variant Attribute Value",
+    }
+    
+    return render(request, "products/variant_attribute_values/form.html", context)
+
+
+@login_required
+def variant_attribute_value_delete(request, pk):
+    """Delete a specific variant attribute value"""
+    # Account owners have access to everything
+    if request.user.role != "admin" and not check_user_permission(
+        request.user, "can_delete"
+    ):
+        messages.error(request, "You do not have permission to delete variant attribute values.")
+        return redirect("products:list")
+    
+    attribute_value = get_object_or_404(VariantAttributeValue.objects.business_specific(), pk=pk)
+    
+    if request.method == "POST":
+        attribute_value.is_active = False
+        attribute_value.save()
+        messages.success(request, "Variant attribute value deleted successfully!")
+        return redirect("products:variant_attribute_value_list")
+    
+    context = {
+        "attribute_value": attribute_value,
+    }
+    
+    return render(request, "products/variant_attribute_values/confirm_delete.html", context)

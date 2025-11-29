@@ -1,16 +1,17 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
-{% block title %}Profit & Loss Report - Smart Solution{% endblock %}
+{% block title %}{% trans "Profit & Loss Report - Smart Solution" %}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Profit & Loss Report</h2>
+    <h2>{% trans "Profit & Loss Report" %}</h2>
     <div>
         <a href="?export=csv&start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}" class="btn btn-secondary">
-            <i class="fas fa-download"></i> Export CSV
+            <i class="fas fa-download"></i> {% trans "Export CSV" %}
         </a>
         <button class="btn btn-primary" onclick="window.print()">
-            <i class="fas fa-print"></i> Print
+            <i class="fas fa-print"></i> {% trans "Print" %}
         </button>
     </div>
 </div>
@@ -21,16 +22,16 @@
             <div class="card-body">
                 <form method="get" class="row g-3">
                     <div class="col-md-4">
-                        <label for="start_date" class="form-label">Start Date</label>
+                        <label for="start_date" class="form-label">{% trans "Start Date" %}</label>
                         <input type="date" class="form-control" id="start_date" name="start_date" value="{{ start_date|date:'Y-m-d' }}">
                     </div>
                     <div class="col-md-4">
-                        <label for="end_date" class="form-label">End Date</label>
+                        <label for="end_date" class="form-label">{% trans "End Date" %}</label>
                         <input type="date" class="form-control" id="end_date" name="end_date" value="{{ end_date|date:'Y-m-d' }}">
                     </div>
                     <div class="col-md-4 d-flex align-items-end">
                         <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-filter"></i> Filter
+                            <i class="fas fa-filter"></i> {% trans "Filter" %}
                         </button>
                     </div>
                 </form>
@@ -43,7 +44,7 @@
     <div class="col-md-3 mb-4">
         <div class="card text-white bg-primary">
             <div class="card-body">
-                <h5 class="card-title">Sales Revenue</h5>
+                <h5 class="card-title">{% trans "Sales Revenue" %}</h5>
                 <h2>{{ business_settings.currency_symbol }} {{ sales_revenue|floatformat:2 }}</h2>
             </div>
         </div>
@@ -51,7 +52,7 @@
     <div class="col-md-3 mb-4">
         <div class="card text-white bg-success">
             <div class="card-body">
-                <h5 class="card-title">Cost of Goods Sold</h5>
+                <h5 class="card-title">{% trans "Cost of Goods Sold" %}</h5>
                 <h2>{{ business_settings.currency_symbol }} {{ cogs|floatformat:2 }}</h2>
             </div>
         </div>
@@ -59,7 +60,7 @@
     <div class="col-md-3 mb-4">
         <div class="card text-white bg-info">
             <div class="card-body">
-                <h5 class="card-title">Gross Profit</h5>
+                <h5 class="card-title">{% trans "Gross Profit" %}</h5>
                 <h2>{{ business_settings.currency_symbol }} {{ gross_profit|floatformat:2 }}</h2>
             </div>
         </div>
@@ -67,7 +68,7 @@
     <div class="col-md-3 mb-4">
         <div class="card text-white bg-warning">
             <div class="card-body">
-                <h5 class="card-title">Net Profit</h5>
+                <h5 class="card-title">{% trans "Net Profit" %}</h5>
                 <h2>{{ business_settings.currency_symbol }} {{ net_profit|floatformat:2 }}</h2>
             </div>
         </div>
@@ -79,7 +80,7 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <h5><i class="fas fa-chart-line"></i> Profit Trend (Last 30 Days)</h5>
+                <h5><i class="fas fa-chart-line"></i> {% trans "Profit Trend (Last 30 Days)" %}</h5>
             </div>
             <div class="card-body">
                 <canvas id="profitTrendChart" height="100" aria-label="Profit trend chart"></canvas>
@@ -92,30 +93,30 @@
     <div class="col-md-8">
         <div class="card">
             <div class="card-header">
-                <h5>Financial Summary</h5>
+                <h5>{% trans "Financial Summary" %}</h5>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-striped">
                         <tbody>
                             <tr>
-                                <th>Sales Revenue</th>
+                                <th>{% trans "Sales Revenue" %}</th>
                                 <td class="text-end">{{ business_settings.currency_symbol }} {{ sales_revenue|floatformat:2 }}</td>
                             </tr>
                             <tr>
-                                <th>Cost of Goods Sold (COGS)</th>
+                                <th>{% trans "Cost of Goods Sold (COGS)" %}</th>
                                 <td class="text-end">({{ business_settings.currency_symbol }} {{ cogs|floatformat:2 }})</td>
                             </tr>
                             <tr class="table-info">
-                                <th>Gross Profit</th>
+                                <th>{% trans "Gross Profit" %}</th>
                                 <td class="text-end">{{ business_settings.currency_symbol }} {{ gross_profit|floatformat:2 }}</td>
                             </tr>
                             <tr>
-                                <th>Operating Expenses</th>
+                                <th>{% trans "Operating Expenses" %}</th>
                                 <td class="text-end">({{ business_settings.currency_symbol }} {{ total_expenses|floatformat:2 }})</td>
                             </tr>
                             <tr class="table-warning">
-                                <th>Net Profit</th>
+                                <th>{% trans "Net Profit" %}</th>
                                 <td class="text-end">{{ business_settings.currency_symbol }} {{ net_profit|floatformat:2 }}</td>
                             </tr>
                         </tbody>
@@ -127,17 +128,17 @@
         <!-- Monthly Profit Summary -->
         <div class="card mt-4">
             <div class="card-header">
-                <h5>Monthly Profit Summary</h5>
+                <h5>{% trans "Monthly Profit Summary" %}</h5>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Month</th>
-                                <th>Revenue</th>
-                                <th>COGS</th>
-                                <th>Profit</th>
+                                <th>{% trans "Month" %}</th>
+                                <th>{% trans "Revenue" %}</th>
+                                <th>{% trans "COGS" %}</th>
+                                <th>{% trans "Profit" %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -161,11 +162,11 @@
     <div class="col-md-4">
         <div class="card">
             <div class="card-header">
-                <h5>Profitability Metrics</h5>
+                <h5>{% trans "Profitability Metrics" %}</h5>
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <h6>Gross Profit Margin</h6>
+                    <h6>{% trans "Gross Profit Margin" %}</h6>
                     <div class="progress">
                         <div class="progress-bar bg-info" role="progressbar" 
                              data-width="{% if sales_revenue > 0 %}{{ gross_profit_margin|floatformat:0 }}{% else %}0{% endif %}"
@@ -176,7 +177,7 @@
                     </div>
                 </div>
                 <div class="mb-3">
-                    <h6>Net Profit Margin</h6>
+                    <h6>{% trans "Net Profit Margin" %}</h6>
                     <div class="progress">
                         <div class="progress-bar bg-warning" role="progressbar" 
                              data-width="{% if sales_revenue > 0 %}{{ net_profit_margin|floatformat:0 }}{% else %}0{% endif %}"
@@ -218,7 +219,7 @@
             data: {
                 labels: profitDates,
                 datasets: [{
-                    label: 'Profit ({{ business_settings.currency_symbol }})',
+                    label: '{% trans "Profit" %} ({{ business_settings.currency_symbol }})',
                     data: profitAmounts,
                     borderColor: 'rgba(75, 192, 192, 1)',
                     backgroundColor: 'transparent', // Removed background

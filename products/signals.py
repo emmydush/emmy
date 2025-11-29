@@ -39,10 +39,20 @@ def update_product_stock_on_sale(sender, instance, created, **kwargs):
     if created:
         try:
             with transaction.atomic():  # type: ignore
-                product = instance.product
-                logger.info(
-                    f"Updating stock for product {product.name} (ID: {product.id})"
-                )
+                # Handle product variants
+                if instance.is_product_variant and instance.product_variant:
+                    product = instance.product_variant
+                    product_parent = instance.product_variant.product
+                    logger.info(
+                        f"Updating stock for product variant {product.name} (ID: {product.id})"
+                    )
+                else:
+                    product = instance.product
+                    product_parent = instance.product
+                    logger.info(
+                        f"Updating stock for product {product.name} (ID: {product.id})"
+                    )
+                
                 logger.info(
                     f"Current stock: {product.quantity}, Quantity sold: {instance.quantity}"
                 )
@@ -58,7 +68,7 @@ def update_product_stock_on_sale(sender, instance, created, **kwargs):
                 # Track stock movement for analysis
                 StockMovement.objects.create(
                     business=product.business,
-                    product=product,
+                    product=product_parent,  # Always reference the parent product
                     movement_type="sale",
                     quantity=quantity_sold,
                     previous_quantity=previous_quantity,
@@ -85,7 +95,7 @@ def update_product_stock_on_sale(sender, instance, created, **kwargs):
                         title=f"Low Stock Alert: {product.name}",
                         message=f'The product "{product.name}" is low on stock after a sale. Current quantity: {product.quantity}, Reorder level: {product.reorder_level}',
                         notification_type="low_stock",
-                        related_product=product,
+                        related_product=product_parent,  # Reference the parent product
                     )
         except Exception as e:
             # Log the error or handle it appropriately
@@ -118,7 +128,13 @@ def update_product_stock_on_purchase_receive(sender, instance, created, **kwargs
 
             if quantity_difference > 0:
                 with transaction.atomic():  # type: ignore
-                    product = instance.product
+                    # Handle product variants
+                    if hasattr(instance, 'is_product_variant') and instance.is_product_variant and hasattr(instance, 'product_variant') and instance.product_variant:
+                        product = instance.product_variant
+                        product_parent = instance.product_variant.product
+                    else:
+                        product = instance.product
+                        product_parent = instance.product
 
                     # Track the stock movement before updating
                     previous_quantity = product.quantity
@@ -131,7 +147,7 @@ def update_product_stock_on_purchase_receive(sender, instance, created, **kwargs
                     # Track stock movement for analysis
                     StockMovement.objects.create(
                         business=product.business,
-                        product=product,
+                        product=product_parent,  # Always reference the parent product
                         movement_type="purchase",
                         quantity=quantity_received,
                         previous_quantity=previous_quantity,
@@ -154,17 +170,6 @@ def update_product_stock_on_purchase_receive(sender, instance, created, **kwargs
             print(f"Error updating product stock on purchase receive: {e}")
 
 
-@receiver(post_save, sender=SaleItem)
-def handle_sale_item_update(sender, instance, **kwargs):
-    """
-    Handle updates to sale items (e.g., refunds).
-    When a sale is refunded, we need to increase the product stock.
-    """
-    # This would be used if we track refunded quantities in SaleItem
-    # For now, we'll handle this in the refund process
-    pass
-
-
 @receiver(post_delete, sender=SaleItem)
 def restore_product_stock_on_sale_delete(sender, instance, **kwargs):
     """
@@ -172,7 +177,19 @@ def restore_product_stock_on_sale_delete(sender, instance, **kwargs):
     """
     try:
         with transaction.atomic():  # type: ignore
-            product = instance.product
+            # Handle product variants
+            if instance.is_product_variant and instance.product_variant:
+                product = instance.product_variant
+                product_parent = instance.product_variant.product
+                logger.info(
+                    f"Restoring stock for product variant {product.name} (ID: {product.id})"
+                )
+            else:
+                product = instance.product
+                product_parent = instance.product
+                logger.info(
+                    f"Restoring stock for product {product.name} (ID: {product.id})"
+                )
 
             # Track the stock movement before updating
             previous_quantity = product.quantity
@@ -185,7 +202,7 @@ def restore_product_stock_on_sale_delete(sender, instance, **kwargs):
             # Track stock movement for analysis
             StockMovement.objects.create(
                 business=product.business,
-                product=product,
+                product=product_parent,  # Always reference the parent product
                 movement_type="sale",
                 quantity=quantity_restored,
                 previous_quantity=previous_quantity,

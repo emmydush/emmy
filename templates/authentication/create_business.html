@@ -1,6 +1,7 @@
 {% extends 'authentication/base_auth.html' %}
 
-{% block title %}Create Business - {{ business_settings.business_name }}{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Create Business" %} - {{ business_settings.business_name }}{% endblock %}
 
 {% block content %}
 <!-- Beautiful Header -->
@@ -16,7 +17,7 @@
                         <h1 class="h3 fw-bold mb-1">
                             {{ business_settings.business_name }}
                         </h1>
-                        <p class="mb-0 small">Intelligent. Efficient. Simplified.</p>
+                        <p class="mb-0 small">{% trans "Intelligent. Efficient. Simplified." %}</p>
                     </div>
                 </div>
             </div>
@@ -26,14 +27,14 @@
                     <div class="dropdown">
                         <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-globe me-1"></i>
-                            <span class="d-none d-sm-inline">Language</span>
+                            <span class="d-none d-sm-inline">{% trans "Language" %}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
-                            <li><a class="dropdown-item" href="#" data-lang="en">English</a></li>
-                            <li><a class="dropdown-item" href="#" data-lang="rw">Kinyarwanda</a></li>
-                            <li><a class="dropdown-item" href="#" data-lang="es">Español</a></li>
-                            <li><a class="dropdown-item" href="#" data-lang="fr">Français</a></li>
-                            <li><a class="dropdown-item" href="#" data-lang="de">Deutsch</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="en">{% trans "English" %}</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="rw">{% trans "Kinyarwanda" %}</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="es">{% trans "Español" %}</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="fr">{% trans "Français" %}</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="de">{% trans "Deutsch" %}</a></li>
                         </ul>
                         {# Hidden language form that posts to user preference endpoint when logged in, otherwise to Django's set_language view #}
                         <form id="language-form" action="{% if user.is_authenticated %}{% url 'authentication:set_user_language' %}{% else %}{% url 'set_language' %}{% endif %}" method="post" style="display:none;">
@@ -59,8 +60,8 @@
 <div class="container d-flex align-items-center justify-content-center" style="min-height: calc(100vh - 120px);">
     <div class="card shadow-lg rounded-4 border-0" style="width: 100%; max-width: 500px;">
         <div class="card-body p-4">
-            <h2 class="fw-bold mb-3 h4 text-center"><i class="fas fa-building me-2"></i>Create Your Business</h2>
-            <p class="text-center text-muted mb-4">Please provide details about your business to get started.</p>
+            <h2 class="fw-bold mb-3 h4 text-center"><i class="fas fa-building me-2"></i>{% trans "Create Your Business" %}</h2>
+            <p class="text-center text-muted mb-4">{% trans "Please provide details about your business to get started." %}</p>
             
             {% if messages %}
                 {% for message in messages %}
@@ -74,24 +75,24 @@
             <form method="post">
                 {% csrf_token %}
                 <div class="mb-3">
-                    <label for="company_name" class="form-label small">Company Name *</label>
+                    <label for="company_name" class="form-label small">{% trans "Company Name" %} *</label>
                     <input type="text" class="form-control" id="company_name" name="company_name" required>
                 </div>
                 
                 <div class="mb-3">
-                    <label for="email" class="form-label small">Business Email *</label>
+                    <label for="email" class="form-label small">{% trans "Business Email" %} *</label>
                     <input type="email" class="form-control" id="email" name="email" required>
                 </div>
                 
                 <button type="submit" class="btn btn-success w-100 py-2 fw-bold rounded-pill mb-3">
-                    Create Business
+                    {% trans "Create Business" %}
                 </button>
             </form>
             
             <div class="text-center mt-3">
                 <p class="mb-0 small text-muted">
                     <i class="fas fa-info-circle me-1"></i>
-                    You can update these details later in your business settings.
+                    {% trans "You can update these details later in your business settings." %}
                 </p>
             </div>
         </div>

@@ -298,11 +298,15 @@ class ModernCartSystem {
                 console.log('Cart items loaded:', this.cart);
                 this.updateCartDisplay();
             } else {
-                this.showNotification(data.error, 'error');
+                // Show a more user-friendly error message
+                const errorMessage = data.error || 'Error loading cart. Please try again.';
+                this.showNotification(errorMessage, 'error');
             }
         } catch (error) {
             console.error('Error loading cart:', error);
-            this.showNotification('Error loading cart. Please try again.', 'error');
+            // Show a more user-friendly error message
+            const errorMessage = 'Error loading cart. Please refresh the page and try again.';
+            this.showNotification(errorMessage, 'error');
         }
     }
 

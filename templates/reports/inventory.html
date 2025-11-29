@@ -1,16 +1,17 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
-{% block title %}Inventory Report - Smart Solution{% endblock %}
+{% block title %}{% trans "Inventory Report - Smart Solution" %}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Inventory Report</h2>
+    <h2>{% trans "Inventory Report" %}</h2>
     <div>
         <a href="?export=csv" class="btn btn-secondary">
-            <i class="fas fa-download"></i> Export CSV
+            <i class="fas fa-download"></i> {% trans "Export CSV" %}
         </a>
         <button class="btn btn-primary" onclick="window.print()">
-            <i class="fas fa-print"></i> Print
+            <i class="fas fa-print"></i> {% trans "Print" %}
         </button>
     </div>
 </div>
@@ -20,7 +21,7 @@
     <div class="col-md-6 mb-4">
         <div class="card">
             <div class="card-header">
-                <h5><i class="fas fa-boxes"></i> Top Products by Stock Level</h5>
+                <h5><i class="fas fa-boxes"></i> {% trans "Top Products by Stock Level" %}</h5>
             </div>
             <div class="card-body">
                 <canvas id="stockLevelChart" height="100" aria-label="Stock level chart"></canvas>
@@ -31,7 +32,7 @@
     <div class="col-md-6 mb-4">
         <div class="card">
             <div class="card-header">
-                <h5><i class="fas fa-chart-bar"></i> Top Selling Products</h5>
+                <h5><i class="fas fa-chart-bar"></i> {% trans "Top Selling Products" %}</h5>
             </div>
             <div class="card-body">
                 <canvas id="productPerformanceChart" height="100" aria-label="Product performance chart"></canvas>
@@ -43,22 +44,22 @@
 <ul class="nav nav-tabs mb-4" id="inventoryTab" role="tablist">
     <li class="nav-item" role="presentation">
         <button class="nav-link active" id="low-stock-tab" data-bs-toggle="tab" data-bs-target="#low-stock" type="button" role="tab">
-            Low Stock
+            {% trans "Low Stock" %}
         </button>
     </li>
     <li class="nav-item" role="presentation">
         <button class="nav-link" id="out-of-stock-tab" data-bs-toggle="tab" data-bs-target="#out-of-stock" type="button" role="tab">
-            Out of Stock
+            {% trans "Out of Stock" %}
         </button>
     </li>
     <li class="nav-item" role="presentation">
         <button class="nav-link" id="expired-tab" data-bs-toggle="tab" data-bs-target="#expired" type="button" role="tab">
-            Expired
+            {% trans "Expired" %}
         </button>
     </li>
     <li class="nav-item" role="presentation">
         <button class="nav-link" id="near-expiry-tab" data-bs-toggle="tab" data-bs-target="#near-expiry" type="button" role="tab">
-            Near Expiry
+            {% trans "Near Expiry" %}
         </button>
     </li>
 </ul>
@@ -67,18 +68,18 @@
     <div class="tab-pane fade show active" id="low-stock" role="tabpanel">
         <div class="card">
             <div class="card-header">
-                <h5>Low Stock Products</h5>
+                <h5>{% trans "Low Stock Products" %}</h5>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Product</th>
-                                <th>Category</th>
-                                <th>Current Stock</th>
-                                <th>Reorder Level</th>
-                                <th>Unit</th>
+                                <th>{% trans "Product" %}</th>
+                                <th>{% trans "Category" %}</th>
+                                <th>{% trans "Current Stock" %}</th>
+                                <th>{% trans "Reorder Level" %}</th>
+                                <th>{% trans "Unit" %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -92,7 +93,7 @@
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="5" class="text-center">No low stock products.</td>
+                                <td colspan="5" class="text-center">{% trans "No low stock products." %}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -105,16 +106,16 @@
     <div class="tab-pane fade" id="out-of-stock" role="tabpanel">
         <div class="card">
             <div class="card-header">
-                <h5>Out of Stock Products</h5>
+                <h5>{% trans "Out of Stock Products" %}</h5>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Product</th>
-                                <th>Category</th>
-                                <th>Last Updated</th>
+                                <th>{% trans "Product" %}</th>
+                                <th>{% trans "Category" %}</th>
+                                <th>{% trans "Last Updated" %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -126,7 +127,7 @@
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="3" class="text-center">No out of stock products.</td>
+                                <td colspan="3" class="text-center">{% trans "No out of stock products." %}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -139,17 +140,17 @@
     <div class="tab-pane fade" id="expired" role="tabpanel">
         <div class="card">
             <div class="card-header">
-                <h5>Expired Products</h5>
+                <h5>{% trans "Expired Products" %}</h5>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Product</th>
-                                <th>Category</th>
-                                <th>Expiry Date</th>
-                                <th>Quantity</th>
+                                <th>{% trans "Product" %}</th>
+                                <th>{% trans "Category" %}</th>
+                                <th>{% trans "Expiry Date" %}</th>
+                                <th>{% trans "Quantity" %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -162,7 +163,7 @@
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="4" class="text-center">No expired products.</td>
+                                <td colspan="4" class="text-center">{% trans "No expired products." %}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -175,18 +176,18 @@
     <div class="tab-pane fade" id="near-expiry" role="tabpanel">
         <div class="card">
             <div class="card-header">
-                <h5>Near Expiry Products (Within 30 Days)</h5>
+                <h5>{% trans "Near Expiry Products (Within 30 Days)" %}</h5>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Product</th>
-                                <th>Category</th>
-                                <th>Expiry Date</th>
-                                <th>Days Remaining</th>
-                                <th>Quantity</th>
+                                <th>{% trans "Product" %}</th>
+                                <th>{% trans "Category" %}</th>
+                                <th>{% trans "Expiry Date" %}</th>
+                                <th>{% trans "Days Remaining" %}</th>
+                                <th>{% trans "Quantity" %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -197,14 +198,14 @@
                                 <td>{{ product.expiry_date|date:"M d, Y" }}</td>
                                 <td>
                                     {% with days_remaining=product.expiry_date|timesince:today %}
-                                        {{ days_remaining.days }} days
+                                        {{ days_remaining.days }} {% trans "days" %}
                                     {% endwith %}
                                 </td>
                                 <td>{{ product.quantity }} {{ product.unit.symbol }}</td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="5" class="text-center">No products nearing expiry.</td>
+                                <td colspan="5" class="text-center">{% trans "No products nearing expiry." %}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -233,7 +234,7 @@
             data: {
                 labels: stockProductNames,
                 datasets: [{
-                    label: 'Quantity in Stock',
+                    label: '{% trans "Quantity in Stock" %}',
                     data: stockProductQuantities,
                     backgroundColor: 'rgba(255, 99, 132, 0.7)', // Red with opacity
                     borderColor: 'rgba(255, 99, 132, 1)',
@@ -285,7 +286,7 @@
             data: {
                 labels: performanceProductNames,
                 datasets: [{
-                    label: 'Units Sold (Last 30 Days)',
+                    label: '{% trans "Units Sold (Last 30 Days)" %}',
                     data: performanceProductQuantities,
                     backgroundColor: 'rgba(75, 192, 192, 0.7)', // Teal with opacity
                     borderColor: 'rgba(75, 192, 192, 1)',

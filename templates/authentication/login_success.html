@@ -1,6 +1,7 @@
 {% extends 'authentication/base_auth.html' %}
+{% load i18n %}
 
-{% block title %}Login Success - {{ business_settings.business_name }}{% endblock %}
+{% block title %}{% trans "Login Success" %} - {{ business_settings.business_name }}{% endblock %}
 
 {% block content %}
 <!-- Beautiful Header -->
@@ -16,7 +17,7 @@
                         <h1 class="h3 fw-bold mb-1">
                             {{ business_settings.business_name }}
                         </h1>
-                        <p class="mb-0 small">Intelligent. Efficient. Simplified.</p>
+                        <p class="mb-0 small">{% trans "Intelligent. Efficient. Simplified." %}</p>
                     </div>
                 </div>
             </div>
@@ -25,21 +26,21 @@
                     <!-- Super Admin Link -->
                     <a href="{% url 'superadmin:dashboard' %}" class="btn btn-sm btn-outline-light" role="button">
                         <i class="fas fa-crown me-1"></i>
-                        <span class="d-none d-sm-inline">Super Admin</span>
+                        <span class="d-none d-sm-inline">{% trans "Super Admin" %}</span>
                     </a>
                     
                     <!-- Language Selector -->
                     <div class="dropdown">
                         <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-globe me-1"></i>
-                            <span class="d-none d-sm-inline">Language</span>
+                            <span class="d-none d-sm-inline">{% trans "Language" %}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
-                            <li><a class="dropdown-item" href="#" data-lang="en">English</a></li>
-                            <li><a class="dropdown-item" href="#" data-lang="rw">Kinyarwanda</a></li>
-                            <li><a class="dropdown-item" href="#" data-lang="es">Español</a></li>
-                            <li><a class="dropdown-item" href="#" data-lang="fr">Français</a></li>
-                            <li><a class="dropdown-item" href="#" data-lang="de">Deutsch</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="en">{% trans "English" %}</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="rw">{% trans "Kinyarwanda" %}</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="es">{% trans "Español" %}</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="fr">{% trans "Français" %}</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="de">{% trans "Deutsch" %}</a></li>
                         </ul>
                         {# Hidden language form that posts to user preference endpoint when logged in,
                            otherwise to Django's set_language view #}
@@ -61,9 +62,9 @@
         <div class="success-circle">
             <i class="fas fa-check"></i>
         </div>
-        <h2 class="success-title">Welcome, {{ user.get_full_name|default:user.username }}!</h2>
-        <p class="success-message">You have been logged in successfully. We're glad to see you again!</p>
-        <button class="success-ok-btn" id="successOkBtn">OK</button>
+        <h2 class="success-title">{% blocktrans with name=user.get_full_name|default:user.username %}Welcome, {{ name }}!{% endblocktrans %}</h2>
+        <p class="success-message">{% trans "You have been logged in successfully. We're glad to see you again!" %}</p>
+        <button class="success-ok-btn" id="successOkBtn">{% trans "OK" %}</button>
     </div>
 </div>
 

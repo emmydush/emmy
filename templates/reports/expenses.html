@@ -1,16 +1,17 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
-{% block title %}Expense Report - Smart Solution{% endblock %}
+{% block title %}{% trans "Expense Report - Smart Solution" %}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Expense Report</h2>
+    <h2>{% trans "Expense Report" %}</h2>
     <div>
         <a href="?export=csv&start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}" class="btn btn-secondary">
-            <i class="fas fa-download"></i> Export CSV
+            <i class="fas fa-download"></i> {% trans "Export CSV" %}
         </a>
         <button class="btn btn-primary" onclick="window.print()">
-            <i class="fas fa-print"></i> Print
+            <i class="fas fa-print"></i> {% trans "Print" %}
         </button>
     </div>
 </div>
@@ -21,16 +22,16 @@
             <div class="card-body">
                 <form method="get" class="row g-3">
                     <div class="col-md-4">
-                        <label for="start_date" class="form-label">Start Date</label>
+                        <label for="start_date" class="form-label">{% trans "Start Date" %}</label>
                         <input type="date" class="form-control" id="start_date" name="start_date" value="{{ start_date|date:'Y-m-d' }}">
                     </div>
                     <div class="col-md-4">
-                        <label for="end_date" class="form-label">End Date</label>
+                        <label for="end_date" class="form-label">{% trans "End Date" %}</label>
                         <input type="date" class="form-control" id="end_date" name="end_date" value="{{ end_date|date:'Y-m-d' }}">
                     </div>
                     <div class="col-md-4 d-flex align-items-end">
                         <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-filter"></i> Filter
+                            <i class="fas fa-filter"></i> {% trans "Filter" %}
                         </button>
                     </div>
                 </form>
@@ -43,7 +44,7 @@
     <div class="col-md-4 mb-4">
         <div class="card text-white bg-primary">
             <div class="card-body">
-                <h5 class="card-title">Total Expenses</h5>
+                <h5 class="card-title">{% trans "Total Expenses" %}</h5>
                 <h2>{{ business_settings.currency_symbol }} {{ total_expenses|floatformat:2 }}</h2>
             </div>
         </div>
@@ -51,7 +52,7 @@
     <div class="col-md-4 mb-4">
         <div class="card text-white bg-success">
             <div class="card-body">
-                <h5 class="card-title">Categories</h5>
+                <h5 class="card-title">{% trans "Categories" %}</h5>
                 <h2>{{ expense_by_category|length }}</h2>
             </div>
         </div>
@@ -59,8 +60,8 @@
     <div class="col-md-4 mb-4">
         <div class="card text-white bg-info">
             <div class="card-body">
-                <h5 class="card-title">Top Category</h5>
-                <h2>{% if expense_by_category %}{{ expense_by_category.0.category__name }}{% else %}N/A{% endif %}</h2>
+                <h5 class="card-title">{% trans "Top Category" %}</h5>
+                <h2>{% if expense_by_category %}{{ expense_by_category.0.category__name }}{% else %}{% trans "N/A" %}{% endif %}</h2>
             </div>
         </div>
     </div>
@@ -71,7 +72,7 @@
     <div class="col-md-8 mb-4">
         <div class="card">
             <div class="card-header">
-                <h5><i class="fas fa-chart-line"></i> Expense Trend (Last 30 Days)</h5>
+                <h5><i class="fas fa-chart-line"></i> {% trans "Expense Trend (Last 30 Days)" %}</h5>
             </div>
             <div class="card-body">
                 <canvas id="expenseTrendChart" height="100" aria-label="Expense trend chart"></canvas>
@@ -83,7 +84,7 @@
     <div class="col-md-4 mb-4">
         <div class="card">
             <div class="card-header">
-                <h5><i class="fas fa-chart-pie"></i> Expenses by Category</h5>
+                <h5><i class="fas fa-chart-pie"></i> {% trans "Expenses by Category" %}</h5>
             </div>
             <div class="card-body">
                 <canvas id="expenseCategoryChart" height="100" aria-label="Expense category chart"></canvas>
@@ -96,17 +97,17 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <h5>Expenses by Category</h5>
+                <h5>{% trans "Expenses by Category" %}</h5>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Category</th>
-                                <th>Number of Expenses</th>
-                                <th>Total Amount</th>
-                                <th>Average Amount</th>
+                                <th>{% trans "Category" %}</th>
+                                <th>{% trans "Number of Expenses" %}</th>
+                                <th>{% trans "Total Amount" %}</th>
+                                <th>{% trans "Average Amount" %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -125,7 +126,7 @@
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="4" class="text-center">No expense data available.</td>
+                                <td colspan="4" class="text-center">{% trans "No expense data available." %}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -152,7 +153,7 @@
             data: {
                 labels: expenseDates,
                 datasets: [{
-                    label: 'Expense Amount ({{ business_settings.currency_symbol }})',
+                    label: '{% trans "Expense Amount" %} ({{ business_settings.currency_symbol }})',
                     data: expenseAmounts,
                     borderColor: 'rgba(75, 192, 192, 1)',
                     backgroundColor: 'transparent', // Removed background

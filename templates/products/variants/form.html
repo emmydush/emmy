@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">{{ title }}</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">
+                                {% trans "Name" %}
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="text-danger">
+                                    {{ form.name.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.sku.id_for_label }}" class="form-label">
+                                {% trans "SKU" %}
+                            </label>
+                            {{ form.sku }}
+                            {% if form.sku.errors %}
+                                <div class="text-danger">
+                                    {{ form.sku.errors }}
+                                </div>
+                            {% endif %}
+                            {% if form.sku.help_text %}
+                                <div class="form-text">{{ form.sku.help_text }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.barcode.id_for_label }}" class="form-label">
+                                {% trans "Barcode" %}
+                            </label>
+                            {{ form.barcode }}
+                            {% if form.barcode.errors %}
+                                <div class="text-danger">
+                                    {{ form.barcode.errors }}
+                                </div>
+                            {% endif %}
+                            {% if form.barcode.help_text %}
+                                <div class="form-text">{{ form.barcode.help_text }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.barcode_format.id_for_label }}" class="form-label">
+                                {% trans "Barcode Format" %}
+                            </label>
+                            {{ form.barcode_format }}
+                            {% if form.barcode_format.errors %}
+                                <div class="text-danger">
+                                    {{ form.barcode_format.errors }}
+                                </div>
+                            {% endif %}
+                            {% if form.barcode_format.help_text %}
+                                <div class="form-text">{{ form.barcode_format.help_text }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.cost_price.id_for_label }}" class="form-label">
+                                        {% trans "Cost Price" %}
+                                    </label>
+                                    {{ form.cost_price }}
+                                    {% if form.cost_price.errors %}
+                                        <div class="text-danger">
+                                            {{ form.cost_price.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.selling_price.id_for_label }}" class="form-label">
+                                        {% trans "Selling Price" %}
+                                    </label>
+                                    {{ form.selling_price }}
+                                    {% if form.selling_price.errors %}
+                                        <div class="text-danger">
+                                            {{ form.selling_price.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.quantity.id_for_label }}" class="form-label">
+                                        {% trans "Quantity" %}
+                                    </label>
+                                    {{ form.quantity }}
+                                    {% if form.quantity.errors %}
+                                        <div class="text-danger">
+                                            {{ form.quantity.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.reorder_level.id_for_label }}" class="form-label">
+                                        {% trans "Reorder Level" %}
+                                    </label>
+                                    {{ form.reorder_level }}
+                                    {% if form.reorder_level.errors %}
+                                        <div class="text-danger">
+                                            {{ form.reorder_level.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.image.id_for_label }}" class="form-label">
+                                {% trans "Image" %}
+                            </label>
+                            {{ form.image }}
+                            {% if form.image.errors %}
+                                <div class="text-danger">
+                                    {{ form.image.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            {{ form.is_active }}
+                            <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                {% trans "Active" %}
+                            </label>
+                            {% if form.is_active.errors %}
+                                <div class="text-danger">
+                                    {{ form.is_active.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'products:variant_list' product.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> {% trans "Back to List" %}
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> {% trans "Save Variant" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

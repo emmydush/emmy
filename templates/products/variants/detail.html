@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Product Variant Details" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">{% trans "Variant Details" %}</h3>
+                    <div>
+                        <a href="{% url 'products:variant_update' variant.pk %}" class="btn btn-light me-2">
+                            <i class="fas fa-edit"></i> {% trans "Edit" %}
+                        </a>
+                        <a href="{% url 'products:variant_list' variant.product.pk %}" class="btn btn-light">
+                            <i class="fas fa-arrow-left"></i> {% trans "Back to List" %}
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>{% trans "Basic Information" %}</h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>{% trans "Name" %}:</strong></td>
+                                    <td>{{ variant.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>{% trans "SKU" %}:</strong></td>
+                                    <td>{{ variant.sku }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>{% trans "Product" %}:</strong></td>
+                                    <td><a href="{% url 'products:detail' variant.product.pk %}">{{ variant.product.name }}</a></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>{% trans "Status" %}:</strong></td>
+                                    <td>
+                                        {% if variant.is_active %}
+                                            <span class="badge bg-success">{% trans "Active" %}</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{% trans "Inactive" %}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>{% trans "Pricing & Inventory" %}</h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>{% trans "Cost Price" %}:</strong></td>
+                                    <td>{{ variant.cost_price }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>{% trans "Selling Price" %}:</strong></td>
+                                    <td>{{ variant.selling_price }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>{% trans "Quantity" %}:</strong></td>
+                                    <td>{{ variant.quantity }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>{% trans "Reorder Level" %}:</strong></td>
+                                    <td>{{ variant.reorder_level }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>{% trans "Profit Margin" %}:</strong></td>
+                                    <td>{{ variant.profit_margin|floatformat:2 }}%</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    {% if variant.description %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5>{% trans "Description" %}</h5>
+                            <p>{{ variant.description }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h5>{% trans "Barcode Information" %}</h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>{% trans "Barcode" %}:</strong></td>
+                                    <td>{{ variant.barcode|default:"N/A" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>{% trans "Format" %}:</strong></td>
+                                    <td>{{ variant.get_barcode_format_display }}</td>
+                                </tr>
+                            </table>
+                            
+                            {% if variant.barcode %}
+                            <div class="mt-3">
+                                <h6>{% trans "Barcode Image" %}</h6>
+                                <img src="{{ MEDIA_URL }}barcodes/variant_barcode_{{ variant.pk }}.png" 
+                                     alt="Barcode for {{ variant.name }}" 
+                                     class="img-fluid" 
+                                     onerror="this.style.display='none'">
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <h5>{% trans "Image" %}</h5>
+                            {% if variant.image %}
+                                <img src="{{ variant.image.url }}" alt="{{ variant.name }}" class="img-fluid">
+                            {% else %}
+                                <p class="text-muted">{% trans "No image available" %}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

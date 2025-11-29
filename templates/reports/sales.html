@@ -1,16 +1,17 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
-{% block title %}Sales Report - Smart Solution{% endblock %}
+{% block title %}{% trans "Sales Report - Smart Solution" %}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Sales Report</h2>
+    <h2>{% trans "Sales Report" %}</h2>
     <div>
         <a href="?export=csv&start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}" class="btn btn-secondary">
-            <i class="fas fa-download"></i> Export CSV
+            <i class="fas fa-download"></i> {% trans "Export CSV" %}
         </a>
         <button class="btn btn-primary" onclick="window.print()">
-            <i class="fas fa-print"></i> Print
+            <i class="fas fa-print"></i> {% trans "Print" %}
         </button>
     </div>
 </div>
@@ -19,16 +20,16 @@
     <div class="card-body">
         <form method="get" class="row g-3">
             <div class="col-md-4">
-                <label for="start_date" class="form-label">Start Date</label>
+                <label for="start_date" class="form-label">{% trans "Start Date" %}</label>
                 <input type="date" class="form-control" id="start_date" name="start_date" value="{{ start_date|date:'Y-m-d' }}">
             </div>
             <div class="col-md-4">
-                <label for="end_date" class="form-label">End Date</label>
+                <label for="end_date" class="form-label">{% trans "End Date" %}</label>
                 <input type="date" class="form-control" id="end_date" name="end_date" value="{{ end_date|date:'Y-m-d' }}">
             </div>
             <div class="col-md-4 d-flex align-items-end">
                 <button type="submit" class="btn btn-primary w-100">
-                    <i class="fas fa-filter"></i> Filter
+                    <i class="fas fa-filter"></i> {% trans "Filter" %}
                 </button>
             </div>
         </form>
@@ -39,7 +40,7 @@
     <div class="col-md-3 mb-4">
         <div class="card text-white bg-primary">
             <div class="card-body">
-                <h5 class="card-title">Total Sales</h5>
+                <h5 class="card-title">{% trans "Total Sales" %}</h5>
                 <h2>{{ business_settings.currency_symbol }}{{ total_sales|floatformat:2 }}</h2>
             </div>
         </div>
@@ -47,7 +48,7 @@
     <div class="col-md-3 mb-4">
         <div class="card text-white bg-success">
             <div class="card-body">
-                <h5 class="card-title">Total Orders</h5>
+                <h5 class="card-title">{% trans "Total Orders" %}</h5>
                 <h2>{{ total_orders }}</h2>
             </div>
         </div>
@@ -55,7 +56,7 @@
     <div class="col-md-3 mb-4">
         <div class="card text-white bg-info">
             <div class="card-body">
-                <h5 class="card-title">Average Order Value</h5>
+                <h5 class="card-title">{% trans "Average Order Value" %}</h5>
                 <h2>{{ business_settings.currency_symbol }}{% if total_orders > 0 %}{{ total_sales|divisibleby:total_orders|floatformat:2 }}{% else %}0.00{% endif %}</h2>
             </div>
         </div>
@@ -63,8 +64,8 @@
     <div class="col-md-3 mb-4">
         <div class="card text-white bg-warning">
             <div class="card-body">
-                <h5 class="card-title">Top Product</h5>
-                <h2>{% if top_products %}{{ top_products.0.product__name }}{% else %}N/A{% endif %}</h2>
+                <h5 class="card-title">{% trans "Top Product" %}</h5>
+                <h2>{% if top_products %}{{ top_products.0.product__name }}{% else %}{% trans "N/A" %}{% endif %}</h2>
             </div>
         </div>
     </div>
@@ -75,7 +76,7 @@
     <div class="col-md-12 mb-4">
         <div class="card">
             <div class="card-header">
-                <h5><i class="fas fa-chart-line"></i> Sales Trend</h5>
+                <h5><i class="fas fa-chart-line"></i> {% trans "Sales Trend" %}</h5>
             </div>
             <div class="card-body">
                 <canvas id="salesTrendChart" height="100" aria-label="Sales trend chart"></canvas>
@@ -89,7 +90,7 @@
     <div class="col-md-8 mb-4">
         <div class="card">
             <div class="card-header">
-                <h5><i class="fas fa-chart-bar"></i> Top Selling Products</h5>
+                <h5><i class="fas fa-chart-bar"></i> {% trans "Top Selling Products" %}</h5>
             </div>
             <div class="card-body">
                 <canvas id="topProductsChart" height="100" aria-label="Top products chart"></canvas>
@@ -101,16 +102,16 @@
     <div class="col-md-4 mb-4">
         <div class="card">
             <div class="card-header">
-                <h5>Top Products by Sales</h5>
+                <h5>{% trans "Top Products by Sales" %}</h5>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Product</th>
-                                <th>Quantity Sold</th>
-                                <th>Revenue</th>
+                                <th>{% trans "Product" %}</th>
+                                <th>{% trans "Quantity Sold" %}</th>
+                                <th>{% trans "Revenue" %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -122,7 +123,7 @@
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="3" class="text-center">No sales data available.</td>
+                                <td colspan="3" class="text-center">{% trans "No sales data available." %}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -152,7 +153,7 @@
             data: {
                 labels: salesTrendDates,
                 datasets: [{
-                    label: 'Sales ({{ business_settings.currency_symbol }})',
+                    label: '{% trans "Sales" %} ({{ business_settings.currency_symbol }})',
                     data: salesTrendAmounts,
                     borderColor: 'rgba(54, 162, 235, 1)',
                     backgroundColor: 'transparent', // Removed background
@@ -198,7 +199,7 @@
                 labels: productNames,
                 datasets: [
                     {
-                        label: 'Units Sold',
+                        label: '{% trans "Units Sold" %}',
                         data: productQuantities,
                         backgroundColor: 'rgba(75, 192, 192, 0.7)', // Teal with opacity
                         borderColor: 'rgba(75, 192, 192, 1)',
@@ -206,7 +207,7 @@
                         borderRadius: 4
                     },
                     {
-                        label: 'Revenue ({{ business_settings.currency_symbol }})',
+                        label: '{% trans "Revenue" %} ({{ business_settings.currency_symbol }})',
                         data: productRevenues,
                         backgroundColor: 'rgba(153, 102, 255, 0.7)', // Purple with opacity
                         borderColor: 'rgba(153, 102, 255, 1)',

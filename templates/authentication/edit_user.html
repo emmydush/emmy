@@ -220,8 +220,32 @@
                             </div>
                         </div>
                         
+                        <!-- Password Change Section -->
+                        <h4 class="mt-4">Change Password</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ password_form.password1.id_for_label }}">New Password</label>
+                                    {{ password_form.password1 }}
+                                    {% if password_form.password1.errors %}
+                                        <div class="text-danger">{{ password_form.password1.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ password_form.password2.id_for_label }}">Confirm New Password</label>
+                                    {{ password_form.password2 }}
+                                    {% if password_form.password2.errors %}
+                                        <div class="text-danger">{{ password_form.password2.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="form-group mt-4">
                             <button type="submit" class="btn btn-primary">Update User</button>
+                            <button type="submit" name="change_password" value="1" class="btn btn-warning">Change Password Only</button>
                             <a href="{% url 'authentication:user_list' %}" class="btn btn-secondary">Cancel</a>
                         </div>
                     </form>

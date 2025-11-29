@@ -409,6 +409,11 @@ def audit_logs(request):
     View to display audit logs with filtering capabilities.
     Only accessible by admin users.
     """
+    from superadmin.middleware import get_current_business
+    
+    # Get current business context
+    current_business = get_current_business()
+    
     # Get filter parameters
     action_filter = request.GET.get("action", "")
     user_filter = request.GET.get("user", "")
@@ -416,8 +421,8 @@ def audit_logs(request):
     date_from = request.GET.get("date_from", "")
     date_to = request.GET.get("date_to", "")
 
-    # Start with all audit logs
-    logs = AuditLog.objects.select_related("user").all()
+    # Start with audit logs for the current business only
+    logs = AuditLog.objects.select_related("user").filter(business=current_business)
 
     # Apply filters
     if action_filter:
@@ -435,9 +440,13 @@ def audit_logs(request):
     if date_to:
         logs = logs.filter(timestamp__lte=date_to)
 
-    # Get filter options
-    users = User.objects.all()
-    models = AuditLog.objects.values_list("model_name", flat=True).distinct()
+    # Get filter options (only for users in the current business)
+    if current_business:
+        users = User.objects.filter(businesses=current_business)
+    else:
+        users = User.objects.none()
+        
+    models = logs.values_list("model_name", flat=True).distinct()
     actions = [choice[0] for choice in AuditLog.ACTION_CHOICES]
 
     # Paginate the logs

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Overdue Credit Sales" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">{% trans "Overdue Credit Sales" %}</h3>
+                    <a href="{% url 'sales:credit_sales_list' %}" class="btn btn-light">
+                        <i class="fas fa-arrow-left"></i> {% trans "All Credit Sales" %}
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if overdue_sales %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>{% trans "Sale ID" %}</th>
+                                        <th>{% trans "Customer" %}</th>
+                                        <th>{% trans "Total Amount" %}</th>
+                                        <th>{% trans "Amount Paid" %}</th>
+                                        <th>{% trans "Balance" %}</th>
+                                        <th>{% trans "Due Date" %}</th>
+                                        <th>{% trans "Days Overdue" %}</th>
+                                        <th>{% trans "Actions" %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for credit_sale in overdue_sales %}
+                                        <tr>
+                                            <td>{{ credit_sale.sale.id }}</td>
+                                            <td>{{ credit_sale.customer.full_name }}</td>
+                                            <td>{{ credit_sale.total_amount }}</td>
+                                            <td>{{ credit_sale.amount_paid }}</td>
+                                            <td>{{ credit_sale.balance }}</td>
+                                            <td>{{ credit_sale.due_date|date:"M d, Y" }}</td>
+                                            <td>
+                                                {% now "Y-m-d" as today %}
+                                                {% if credit_sale.due_date %}
+                                                    {% with days_overdue=today|date:"U"|add:"-7"|add:credit_sale.due_date|date:"U" %}
+                                                        {{ days_overdue|floatformat:"0" }}
+                                                    {% endwith %}
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'sales:credit_sale_detail' credit_sale.pk %}" 
+                                                   class="btn btn-sm btn-info">
+                                                    <i class="fas fa-eye"></i> {% trans "View" %}
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <h4>{% trans "No overdue credit sales" %}</h4>
+                            <p class="text-muted">{% trans "All credit sales are up to date!" %}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

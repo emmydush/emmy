@@ -84,6 +84,7 @@ def log_activity(
         request: The HTTP request object (for IP and user agent)
     """
     from .models import AuditLog
+    from superadmin.middleware import get_current_business
 
     # Get IP address and user agent from request if available
     ip_address = None
@@ -92,9 +93,13 @@ def log_activity(
         ip_address = get_client_ip(request)
         user_agent = request.META.get("HTTP_USER_AGENT", "")[:255]  # Limit to 255 chars
 
+    # Get current business context
+    business = get_current_business()
+
     # Create the audit log entry
     AuditLog.objects.create(
         user=user,
+        business=business,
         action=action,
         model_name=model_name,
         object_id=object_id,

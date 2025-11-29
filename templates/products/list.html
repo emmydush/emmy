@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
-{% block title %}Products - {{ business_settings.business_name }}{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Products" %} - {{ business_settings.business_name }}{% endblock %}
 
 {% block content %}
 <!-- Permission Warnings -->
@@ -20,7 +21,7 @@
 <div class="row">
     <div class="col-md-12">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2><i class="fas fa-box"></i> Products</h2>
+            <h2><i class="fas fa-box"></i> {% trans "Products" %}</h2>
             <div class="btn-group">
                 {% if can_create %}
                     <a href="{% url 'products:create' %}" class="btn btn-primary">
@@ -35,7 +36,7 @@
                 </a>
             </div>
         </div>
-        <p class="text-muted">Manage your inventory products.</p>
+        <p class="text-muted">{% trans "Manage your inventory products." %}</p>
     </div>
 </div>
 
@@ -44,13 +45,13 @@
     <div class="card-body">
         <form method="get" class="row g-3">
             <div class="col-md-4">
-                <label for="search" class="form-label">Search</label>
+                <label for="search" class="form-label">{% trans "Search" %}</label>
                 <input type="text" class="form-control" id="search" name="search" value="{{ search_query }}" placeholder="Search by name, SKU, or description">
             </div>
             <div class="col-md-3">
-                <label for="category" class="form-label">Category</label>
+                <label for="category" class="form-label">{% trans "Category" %}</label>
                 <select class="form-select" id="category" name="category">
-                    <option value="">All Categories</option>
+                    <option value="">{% trans "All Categories" %}</option>
                     {% for category in categories %}
                         <option value="{{ category.id }}" {% if category.id|stringformat:"s" == selected_category %}selected{% endif %}>
                             {{ category.name }}
@@ -59,12 +60,12 @@
                 </select>
             </div>
             <div class="col-md-3">
-                <label for="status" class="form-label">Status</label>
+                <label for="status" class="form-label">{% trans "Status" %}</label>
                 <select class="form-select" id="status" name="status">
-                    <option value="">All Statuses</option>
-                    <option value="low_stock" {% if selected_status == 'low_stock' %}selected{% endif %}>Low Stock</option>
-                    <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Active</option>
-                    <option value="inactive" {% if selected_status == 'inactive' %}selected{% endif %}>Inactive</option>
+                    <option value="">{% trans "All Statuses" %}</option>
+                    <option value="low_stock" {% if selected_status == 'low_stock' %}selected{% endif %}>{% trans "Low Stock" %}</option>
+                    <option value="active" {% if selected_status == 'active' %}selected{% endif %}>{% trans "Active" %}</option>
+                    <option value="inactive" {% if selected_status == 'inactive' %}selected{% endif %}>{% trans "Inactive" %}</option>
                 </select>
             </div>
             <div class="col-md-2 d-flex align-items-end">
@@ -88,15 +89,15 @@
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th>Image</th>
-                        <th>Name</th>
-                        <th>SKU</th>
-                        <th>Category</th>
-                        <th>Unit</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th>{% trans "Image" %}</th>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "SKU" %}</th>
+                        <th>{% trans "Category" %}</th>
+                        <th>{% trans "Unit" %}</th>
+                        <th>{% trans "Quantity" %}</th>
+                        <th>{% trans "Price" %}</th>
+                        <th>{% trans "Status" %}</th>
+                        <th>{% trans "Actions" %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -150,7 +151,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="9" class="text-center">No products found.</td>
+                        <td colspan="9" class="text-center">{% trans "No products found." %}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

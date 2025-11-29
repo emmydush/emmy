@@ -10,7 +10,7 @@ class POSSystem {
         this.scanDebounceTime = 2000; // Increased from 1000ms to 2000ms to prevent duplicate scans
         this.autoStopScanner = false; // Whether to auto-stop scanner after each scan
         this.pendingRequests = new Map(); // Track pending requests to prevent duplicates
-        this.loadCartFromStorage();
+        this.loadCart(); // Load cart from server instead of localStorage
         this.initializeEventListeners();
         this.initializeKeyboardShortcuts();
     }
@@ -110,6 +110,13 @@ class POSSystem {
                 // Add animation effect
                 this.animateButton(e.target);
             }
+            
+            // Handle variant selection
+            if (e.target.classList.contains('variant-option')) {
+                const variantId = e.target.dataset.variantId;
+                const productId = e.target.closest('.product-card').dataset.productId;
+                this.selectProductVariant(productId, variantId);
+            }
         });
 
         // Handle discount input changes
@@ -136,6 +143,27 @@ class POSSystem {
         if (customerSelect) {
             customerSelect.addEventListener('change', () => {
                 this.updateCustomerInfo();
+            });
+        }
+        
+        // Handle credit sale checkbox
+        const creditSaleCheckbox = document.getElementById('creditSaleCheckbox');
+        const creditSaleOptions = document.getElementById('creditSaleOptions');
+        const dueDateInput = document.getElementById('dueDateInput');
+        
+        if (creditSaleCheckbox && creditSaleOptions) {
+            creditSaleCheckbox.addEventListener('change', () => {
+                if (creditSaleCheckbox.checked) {
+                    creditSaleOptions.style.display = 'block';
+                    // Set default due date to 30 days from now
+                    const today = new Date();
+                    const dueDate = new Date();
+                    dueDate.setDate(today.getDate() + 30);
+                    dueDateInput.valueAsDate = dueDate;
+                } else {
+                    creditSaleOptions.style.display = 'none';
+                    dueDateInput.value = '';
+                }
             });
         }
 
@@ -239,13 +267,15 @@ class POSSystem {
 
     // Create and show scanner modal completely dynamically
     createAndShowScanner() {
+        console.log('Creating and showing scanner modal');
+        
         // Remove any existing scanner modal
         const existingModal = document.getElementById('dynamicScannerModal');
         if (existingModal) {
             existingModal.remove();
         }
         
-        // Create scanner modal HTML
+        // Create scanner modal HTML - SIMPLIFIED VERSION WITHOUT ANIMATION
         const scannerModalHtml = `
             <div class="modal fade" id="dynamicScannerModal" tabindex="-1" aria-labelledby="dynamicScannerModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
@@ -257,8 +287,9 @@ class POSSystem {
                         <div class="modal-body text-center">
                             <div id="dynamicScannerContainer" style="position: relative; width: 100%; height: 300px; border: 2px solid #007bff; border-radius: 8px; overflow: hidden;">
                                 <video id="dynamicScannerVideo" style="width: 100%; height: 100%; object-fit: cover;"></video>
+                                <canvas class="drawingBuffer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
                                 <div id="dynamicScannerOverlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
-                                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 20%; border: 3px solid rgba(0, 255, 0, 0.8); box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.5); animation: scannerPulse 2s infinite;"></div>
+                                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 20%; border: 3px solid rgba(0, 255, 0, 0.8); box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.5);"></div>
                                 </div>
                             </div>
                             <div id="dynamicScannerStatus" class="mt-2 alert alert-info">Scanner not started. Make sure to allow camera access when prompted.</div>
@@ -283,6 +314,7 @@ class POSSystem {
         
         // Initialize scanner when modal is shown
         scannerModal.addEventListener('shown.bs.modal', () => {
+            console.log('Scanner modal shown, initializing scanner...');
             setTimeout(() => {
                 this.initDynamicScanner();
             }, 100);
@@ -290,6 +322,7 @@ class POSSystem {
         
         // Clean up when modal is hidden
         scannerModal.addEventListener('hidden.bs.modal', () => {
+            console.log('Scanner modal hidden, stopping scanner...');
             this.stopScanner();
             // Remove modal from DOM after a short delay to ensure animations complete
             setTimeout(() => {
@@ -302,16 +335,19 @@ class POSSystem {
 
     // Initialize the dynamic barcode scanner
     initDynamicScanner() {
+        console.log('Initializing dynamic scanner...');
+        
         // Check if QuaggaJS is loaded
         if (typeof Quagga === 'undefined') {
+            console.error('QuaggaJS library not loaded');
             this.showNotification('Barcode scanner library not loaded', 'error');
             return;
         }
 
         // Check if we're in a secure context
         if (!window.isSecureContext) {
+            console.warn('Not in secure context - this may affect camera access');
             this.showNotification('Camera requires HTTPS or localhost', 'warning');
-            return;
         }
 
         // Get scanner elements (these should now exist since we just created them)
@@ -334,7 +370,7 @@ class POSSystem {
         scannerStatus.textContent = 'Initializing camera...';
         scannerStatus.className = 'mt-2 alert alert-warning';
 
-        // Configure QuaggaJS with IMPROVED settings for better accuracy
+        // Configure QuaggaJS with settings similar to the working product form scanner
         const config = {
             inputStream: {
                 name: "Live",
@@ -342,9 +378,8 @@ class POSSystem {
                 target: scannerVideo,
                 constraints: {
                     facingMode: "environment", // Use rear camera
-                    width: { min: 800, ideal: 1280, max: 1920 },
-                    height: { min: 600, ideal: 720, max: 1080 },
-                    aspectRatio: { min: 1.333, ideal: 1.777, max: 2 }
+                    width: { min: 640 },
+                    height: { min: 480 }
                 }
             },
             decoder: {
@@ -354,33 +389,16 @@ class POSSystem {
                     "ean_8_reader",
                     "code_39_reader",
                     "upc_reader",
-                    "upc_e_reader",
-                    "codabar_reader"
+                    "upc_e_reader"
                 ]
             },
             locator: {
                 halfSample: false,
-                patchSize: "medium", // medium is better for accuracy than small
-                area: {
-                    top: "10%",
-                    right: "10%",
-                    left: "10%",
-                    bottom: "10%"
-                }
-            },
-            frequency: 10, // Reduce frequency to prevent overload
-            decoder: {
-                readers: [
-                    "code_128_reader",
-                    "ean_reader",
-                    "ean_8_reader",
-                    "code_39_reader",
-                    "upc_reader",
-                    "upc_e_reader",
-                    "codabar_reader"
-                ]
+                patchSize: "medium"
             }
         };
+
+        console.log('Quagga config:', config);
 
         Quagga.init(config, (err) => {
             if (err) {
@@ -402,22 +420,21 @@ class POSSystem {
                     scannerStatus.textContent = 'No camera found. Please connect a camera and try again.';
                 } else if (err.name === 'NotReadableError') {
                     scannerStatus.textContent = 'Camera is already in use. Close other applications using the camera.';
-                } else if (err.name === 'OverconstrainedError') {
-                    scannerStatus.textContent = 'Camera constraints cannot be satisfied. Trying with default constraints...';
-                    // Try with default constraints
-                    this.initScannerWithDefaultConstraints(scannerVideo, scannerStatus);
-                    return;
                 }
                 return;
             }
 
-            // Start scanning
-            Quagga.start();
-            this.scannerActive = true;
+            console.log('Quagga initialized successfully');
+            
+            // Update status
             scannerStatus.textContent = 'Scanner started. Position barcode in the frame';
             scannerStatus.className = 'mt-2 alert alert-success';
 
-            // Add drawing canvas for debug visualization
+            // Start scanning
+            Quagga.start();
+            console.log('Quagga started');
+
+            // Handle processed frames for visualization (similar to product form)
             Quagga.onProcessed((result) => {
                 var drawingCtx = Quagga.canvas.ctx.overlay;
                 var drawingCanvas = Quagga.canvas.dom.overlay;
@@ -441,184 +458,85 @@ class POSSystem {
                     }
                 }
             });
-        });
 
-        // Register callback for detected barcodes - ENHANCED FOR BETTER ACCURACY
-        Quagga.onDetected((result) => {
-            // Immediate check to prevent any processing if scanner is not active or already processing
-            if (!this.scannerActive || this.scannerStopping) {
-                return;
-            }
-
-            const code = result.codeResult.code;
-            const format = result.codeResult.format;
-            const confidence = result.codeResult.decodedCodes ? 
-                result.codeResult.decodedCodes.reduce((sum, code) => sum + (code.quality || 0), 0) / result.codeResult.decodedCodes.length : 0;
-            
-            console.log('Barcode detected:', {code, format, confidence});
-            
-            // Only process barcodes with high confidence (above 0.5)
-            if (confidence < 0.5) {
-                console.log('Ignoring low confidence barcode:', code, 'Confidence:', confidence);
-                return;
-            }
-            
-            // Check if this is the same barcode detected recently (debounce)
-            const currentTime = Date.now();
-            if (this.lastScannedBarcode === code && (currentTime - this.lastScanTime) < this.scanDebounceTime) {
-                // Ignore this detection as it's too soon after the last one
-                console.log('Ignoring duplicate barcode detection:', code);
-                return;
-            }
-            
-            // If we're already processing a scan, ignore this one
-            if (this.scanProcessing) {
-                console.log('Scanner busy, ignoring new scan:', code);
-                return;
-            }
-            
-            // Set processing flag to prevent multiple concurrent scans
-            this.scanProcessing = true;
-            
-            // Update last scanned barcode and time
-            this.lastScannedBarcode = code;
-            this.lastScanTime = currentTime;
-            
-            const scannerStatus = document.getElementById('dynamicScannerStatus');
-            if (scannerStatus) {
-                scannerStatus.textContent = `Barcode detected: ${code} (${format})`;
-                scannerStatus.className = 'mt-2 alert alert-success';
-            }
-            
-            // Search for product and add to cart
-            this.searchProductByBarcode(code)
-                .finally(() => {
-                    // Always reset the processing flag after the request completes
-                    this.scanProcessing = false;
-                    
-                    // If auto-stop is enabled, stop the scanner after each scan
-                    if (this.autoStopScanner) {
-                        this.scannerStopping = true;
-                        setTimeout(() => {
-                            this.stopScanner();
-                            const scannerModal = document.getElementById('dynamicScannerModal');
-                            if (scannerModal) {
-                                const modal = bootstrap.Modal.getInstance(scannerModal);
-                                if (modal) {
-                                    modal.hide();
-                                }
-                            }
-                        }, 1500); // Close after 1.5 seconds
-                    }
-                });
-        });
-    }
-
-    // Initialize scanner with default constraints as fallback
-    initScannerWithDefaultConstraints(scannerVideo, scannerStatus) {
-        const defaultConfig = {
-            inputStream: {
-                name: "Live",
-                type: "LiveStream",
-                target: scannerVideo,
-                constraints: {
-                    facingMode: "environment", // Use rear camera
-                    width: { min: 640, ideal: 1280 },
-                    height: { min: 480, ideal: 720 }
+            // Handle detected barcodes
+            Quagga.onDetected((data) => {
+                console.log('Barcode detected:', data);
+                
+                // Reduce debounce time for better responsiveness
+                const now = Date.now();
+                if (this.lastScannedBarcode === data.codeResult.code && 
+                    (now - this.lastScanTime) < 1000) { // Reduced from 2000ms to 1000ms
+                    console.log('Ignoring duplicate scan');
+                    return;
                 }
-            },
-            decoder: {
-                readers: [
-                    "code_128_reader",
-                    "ean_reader",
-                    "ean_8_reader",
-                    "code_39_reader",
-                    "upc_reader",
-                    "upc_e_reader",
-                    "codabar_reader"
-                ]
-            },
-            locator: {
-                halfSample: false,
-                patchSize: "medium",
-                area: {
-                    top: "10%",
-                    right: "10%",
-                    left: "10%",
-                    bottom: "10%"
+                
+                this.lastScannedBarcode = data.codeResult.code;
+                this.lastScanTime = now;
+                
+                // Process the scanned barcode
+                console.log('Processing scanned barcode:', data.codeResult.code);
+                this.processScannedBarcode(data.codeResult.code);
+                
+                // Auto-stop scanner if enabled
+                if (this.autoStopScanner) {
+                    this.manuallyStopScanner();
                 }
-            },
-            frequency: 10
-        };
+            });
 
-        Quagga.init(defaultConfig, (err) => {
-            if (err) {
-                console.error('Error initializing scanner with default constraints:', err);
-                scannerStatus.textContent = 'Failed to initialize camera with any settings. Please check your camera and try again.';
-                scannerStatus.className = 'mt-2 alert alert-danger';
-                return;
-            }
-
-            // Start scanning
-            Quagga.start();
             this.scannerActive = true;
-            scannerStatus.textContent = 'Scanner started with default settings. Position barcode in the frame';
-            scannerStatus.className = 'mt-2 alert alert-success';
         });
     }
 
-    // Stop the barcode scanner
+    // Stop the scanner
     stopScanner() {
-        this.scannerActive = false;
-        this.scannerStopping = true; // Set stopping flag
-        this.scanProcessing = false; // Reset processing flag
-        this.lastScannedBarcode = null; // Clear last scanned barcode
-        if (typeof Quagga !== 'undefined' && Quagga) {
+        console.log('Stopping scanner, currently active:', this.scannerActive);
+        if (this.scannerActive) {
             try {
                 Quagga.stop();
-                console.log('Quagga scanner stopped');
+                console.log('Quagga stopped successfully');
             } catch (e) {
                 console.error('Error stopping Quagga:', e);
             }
+            this.scannerActive = false;
         }
-        // Reset stopping flag after a short delay
-        setTimeout(() => {
-            this.scannerStopping = false;
-        }, 1000); // Increased delay to ensure scanner is fully stopped
     }
 
-    // New method to reset scanner state for continuous scanning
-    resetScannerState() {
-        this.scanProcessing = false;
-        this.scannerStopping = false;
-        // Don't reset scannerActive as the scanner might still be running
-        console.log('Scanner state reset for continuous scanning');
+    // Process scanned barcode
+    processScannedBarcode(barcode) {
+        console.log('Processing barcode:', barcode);
+        
+        // Show loading indicator
+        const scannerStatus = document.getElementById('dynamicScannerStatus');
+        if (scannerStatus) {
+            scannerStatus.textContent = `Scanned: ${barcode}. Processing...`;
+            scannerStatus.className = 'mt-2 alert alert-info';
+        }
+
+        // Search for product by barcode
+        this.searchProductByBarcode(barcode);
     }
 
-    // Search for product by barcode and add to cart - NOW RETURNS PROMISE
+    // Search for product by barcode
     searchProductByBarcode(barcode) {
+        console.log('Searching for product with barcode:', barcode);
+        
         // Show loading indicator
         this.showLoading(true);
         
-        // Check if there's already a pending request for this barcode
-        if (this.pendingRequests.has(barcode)) {
-            console.log('Ignoring duplicate request for barcode:', barcode);
-            this.showLoading(false);
-            return Promise.resolve(); // Return resolved promise
-        }
-        
-        // Mark this barcode as having a pending request
-        this.pendingRequests.set(barcode, true);
-        
-        // Fetch product by barcode
-        return fetch(`/sales/product/barcode/${barcode}/`)
-            .then(response => response.json())
+        // Make AJAX request to search for product
+        fetch(`/sales/product/barcode/${barcode}/`)
+            .then(response => {
+                console.log('Received response from server:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
-                // Remove from pending requests
-                this.pendingRequests.delete(barcode);
-                
+                console.log('Received data from server:', data);
                 if (data.error) {
-                    this.showNotification(`Product not found: ${data.error}`, 'warning');
+                    this.showNotification(`Product not found: ${data.error}`, 'error');
                 } else {
                     // Add product to cart
                     this.addProductToCartFromData(data);
@@ -626,75 +544,85 @@ class POSSystem {
                 }
             })
             .catch(error => {
-                // Remove from pending requests on error
-                this.pendingRequests.delete(barcode);
-                
-                console.error('Error searching product:', error);
-                this.showNotification(`Error searching product: ${error.message}`, 'error');
+                console.error('Error searching for product:', error);
+                this.showNotification('Error searching for product. Please try again.', 'error');
             })
             .finally(() => {
+                // Hide loading indicator
                 this.showLoading(false);
             });
     }
 
-    // Add product to cart from API data
+    // Add product to cart from data
     addProductToCartFromData(productData) {
-        // Check if product is already in cart
-        const existingItem = this.cart.find(item => item.id == productData.id);
+        console.log('Adding product to cart:', productData);
         
-        if (existingItem) {
-            // Check if we can add more (stock limit)
-            if (existingItem.quantity < productData.stock) {
-                existingItem.quantity += 1;
-            } else {
-                this.showNotification('Cannot add more of this item. Insufficient stock.', 'warning');
-                return;
-            }
+        // Check if product already exists in cart
+        const existingItemIndex = this.cart.findIndex(item => 
+            item.id == productData.id && !item.is_variant);
+        
+        if (existingItemIndex !== -1) {
+            // Update quantity of existing item
+            this.cart[existingItemIndex].quantity += 1;
+            console.log('Updated existing item quantity');
         } else {
-            // Check stock before adding
-            if (productData.stock <= 0) {
-                this.showNotification('This product is out of stock.', 'warning');
-                return;
-            }
-            
             // Add new item to cart
             this.cart.push({
                 id: productData.id,
                 name: productData.name,
-                price: productData.price,
+                price: productData.selling_price,
                 quantity: 1,
-                stock: productData.stock
+                stock: productData.stock,
+                unit: productData.unit,
+                is_variant: false
             });
+            console.log('Added new item to cart');
         }
         
         // Save cart and update display
-        this.saveCartToStorage();
+        this.saveCart();
         this.updateCartDisplay();
+        this.updateCheckoutButtonState();
+        
+        // Show notification
+        this.showNotification(`${productData.name} added to cart`, 'success');
     }
 
+    // Add product to cart
     addProductToCart(productCard) {
+        // Check if product has variants
+        const hasVariants = productCard.dataset.hasVariants === 'true';
+        
+        if (hasVariants) {
+            // Show variant selection modal
+            this.showVariantSelectionModal(productCard);
+            return;
+        }
+        
+        // Get product data from card
         const productId = productCard.dataset.productId;
-        const productName = productCard.querySelector('h6').textContent;
-        const productPriceText = productCard.querySelector('.product-price').textContent;
-        const productPrice = parseFloat(productPriceText.replace(/[^\d.-]/g, ''));
-        const productStockText = productCard.querySelector('.product-stock').textContent;
-        const productStock = parseFloat(productStockText);
+        const productName = productCard.dataset.productName;
+        const productPrice = parseFloat(productCard.dataset.productPrice);
+        const productStock = parseFloat(productCard.dataset.productStock);
+        const productUnit = productCard.dataset.productUnit || '';
         
-        // Check if product is already in cart
-        const existingItem = this.cart.find(item => item.id == productId);
+        // Check if product already exists in cart
+        const existingItemIndex = this.cart.findIndex(item => 
+            item.id == productId && !item.is_variant);
         
-        if (existingItem) {
-            // Check if we can add more (stock limit)
-            if (existingItem.quantity < productStock) {
-                existingItem.quantity += 1;
-            } else {
-                this.showNotification('Cannot add more of this item. Insufficient stock.', 'warning');
+        if (existingItemIndex !== -1) {
+            // Check stock availability
+            if (this.cart[existingItemIndex].quantity >= productStock) {
+                this.showNotification('Cannot add more items. Insufficient stock available.', 'warning');
                 return;
             }
+            
+            // Update quantity of existing item
+            this.cart[existingItemIndex].quantity += 1;
         } else {
-            // Check stock before adding
+            // Check stock availability
             if (productStock <= 0) {
-                this.showNotification('This product is out of stock.', 'warning');
+                this.showNotification('Cannot add item. Product is out of stock.', 'warning');
                 return;
             }
             
@@ -704,56 +632,210 @@ class POSSystem {
                 name: productName,
                 price: productPrice,
                 quantity: 1,
-                stock: productStock
+                stock: productStock,
+                unit: productUnit,
+                is_variant: false
             });
         }
         
         // Save cart and update display
-        this.saveCartToStorage();
+        this.saveCart();
         this.updateCartDisplay();
+        this.updateCheckoutButtonState();
+        
+        // Show notification
         this.showNotification(`${productName} added to cart`, 'success');
     }
 
-    updateQuantity(productId, change) {
-        const item = this.cart.find(item => item.id == productId);
-        if (!item) return;
+    // Show variant selection modal
+    showVariantSelectionModal(productCard) {
+        const productId = productCard.dataset.productId;
+        const productName = productCard.dataset.productName;
         
-        const newQuantity = item.quantity + change;
-        
-        // Check stock limits
-        if (newQuantity <= 0) {
-            this.removeFromCart(productId);
-            return;
-        }
-        
-        if (newQuantity > item.stock) {
-            this.showNotification('Cannot add more of this item. Insufficient stock.', 'warning');
-            return;
-        }
-        
-        item.quantity = newQuantity;
-        this.saveCartToStorage();
-        this.updateCartDisplay();
+        // Fetch variants via AJAX
+        fetch(`/sales/product/${productId}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    this.showNotification(`Error loading variants: ${data.error}`, 'error');
+                    return;
+                }
+                
+                if (!data.has_variants || !data.variants || data.variants.length === 0) {
+                    this.showNotification('No variants available for this product', 'warning');
+                    return;
+                }
+                
+                // Generate variant options
+                let variantOptionsHtml = '';
+                data.variants.forEach(variant => {
+                    variantOptionsHtml += `
+                        <div class="variant-option" data-variant-id="${variant.id}">
+                            <div class="variant-info">
+                                <h6>${variant.name}</h6>
+                                <p class="variant-price">${this.getCurrencySymbol()}${variant.price}</p>
+                                <p class="variant-stock">${variant.stock} ${data.unit} left</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                // Create modal HTML
+                const modalHtml = `
+                    <div class="modal fade" id="variantSelectionModal" tabindex="-1" aria-labelledby="variantSelectionModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="variantSelectionModalLabel">Select Variant for ${productName}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="variant-options">
+                                        ${variantOptionsHtml}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Remove existing modal if present
+                const existingModal = document.getElementById('variantSelectionModal');
+                if (existingModal) {
+                    existingModal.remove();
+                }
+                
+                // Add modal to body
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById('variantSelectionModal'));
+                modal.show();
+            })
+            .catch(error => {
+                console.error('Error fetching variants:', error);
+                this.showNotification('Error loading variants. Please try again.', 'error');
+            });
     }
 
+    // Select product variant
+    selectProductVariant(productId, variantId) {
+        // Fetch variant details via AJAX
+        fetch(`/sales/product/variant/${variantId}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    this.showNotification(`Error loading variant: ${data.error}`, 'error');
+                    return;
+                }
+                
+                // Check if variant already exists in cart
+                const existingItemIndex = this.cart.findIndex(item => 
+                    item.id == data.id && item.is_variant);
+                
+                if (existingItemIndex !== -1) {
+                    // Check stock availability
+                    if (this.cart[existingItemIndex].quantity >= data.stock) {
+                        this.showNotification('Cannot add more items. Insufficient stock available.', 'warning');
+                        return;
+                    }
+                    
+                    // Update quantity of existing variant
+                    this.cart[existingItemIndex].quantity += 1;
+                } else {
+                    // Check stock availability
+                    if (data.stock <= 0) {
+                        this.showNotification('Cannot add variant. Variant is out of stock.', 'warning');
+                        return;
+                    }
+                    
+                    // Add new variant to cart
+                    this.cart.push({
+                        id: data.id,
+                        name: data.name,
+                        price: data.price,
+                        quantity: 1,
+                        stock: data.stock,
+                        unit: data.unit,
+                        is_variant: true,
+                        parent_product_id: data.parent_product_id,
+                        parent_product_name: data.parent_product_name
+                    });
+                }
+                
+                // Save cart and update display
+                this.saveCart();
+                this.updateCartDisplay();
+                this.updateCheckoutButtonState();
+                
+                // Close the modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('variantSelectionModal'));
+                if (modal) {
+                    modal.hide();
+                }
+                
+                // Show notification
+                this.showNotification(`${data.name} added to cart`, 'success');
+            })
+            .catch(error => {
+                console.error('Error fetching variant details:', error);
+                this.showNotification('Error adding variant to cart. Please try again.', 'error');
+            });
+    }
+
+    // Update quantity of item in cart
+    updateQuantity(productId, change) {
+        const itemIndex = this.cart.findIndex(item => item.id == productId);
+        if (itemIndex !== -1) {
+            const newItemQuantity = this.cart[itemIndex].quantity + change;
+            
+            // Ensure quantity doesn't go below 1
+            if (newItemQuantity < 1) {
+                return;
+            }
+            
+            // Check stock availability when increasing quantity
+            if (change > 0 && newItemQuantity > this.cart[itemIndex].stock) {
+                this.showNotification('Cannot add more items. Insufficient stock available.', 'warning');
+                return;
+            }
+            
+            this.cart[itemIndex].quantity = newItemQuantity;
+            
+            // Save cart and update display
+            this.saveCart();
+            this.updateCartDisplay();
+            this.updateCheckoutButtonState();
+        }
+    }
+
+    // Remove item from cart
     removeFromCart(productId) {
         this.cart = this.cart.filter(item => item.id != productId);
-        this.saveCartToStorage();
+        
+        // Save cart and update display
+        this.saveCart();
         this.updateCartDisplay();
+        this.updateCheckoutButtonState();
+        
+        // Show notification
         this.showNotification('Item removed from cart', 'info');
     }
 
+    // Clear cart
     clearCart() {
-        if (this.cart.length === 0) return;
+        this.cart = [];
         
-        if (confirm('Are you sure you want to clear the cart?')) {
-            this.cart = [];
-            this.saveCartToStorage();
-            this.updateCartDisplay();
-            this.showNotification('Cart cleared', 'info');
-        }
+        // Save cart and update display
+        this.saveCart();
+        this.updateCartDisplay();
+        this.updateCheckoutButtonState();
+        
+        // Show notification
+        this.showNotification('Cart cleared', 'info');
     }
 
+    // Update cart display
     updateCartDisplay() {
         const cartItemsContainer = document.getElementById('cartItems');
         const cartItemCount = document.getElementById('cartItemCount');
@@ -765,50 +847,72 @@ class POSSystem {
         
         if (!cartItemsContainer) return;
         
-        // Update cart items count
-        const totalItems = this.cart.reduce((sum, item) => sum + item.quantity, 0);
-        if (cartItemCount) {
-            cartItemCount.textContent = `${totalItems} ${totalItems === 1 ? 'item' : 'items'}`;
-        }
-        
-        // Update cart items display
         if (this.cart.length === 0) {
+            // Show empty cart message
             cartItemsContainer.innerHTML = `
                 <div class="empty-cart">
                     <i class="fas fa-shopping-cart fa-3x mb-3"></i>
                     <p>Your cart is empty</p>
                 </div>
             `;
-            if (checkoutButton) checkoutButton.disabled = true;
-        } else {
-            let cartHTML = '';
-            this.cart.forEach(item => {
-                const itemTotal = item.price * item.quantity;
-                cartHTML += `
-                    <div class="cart-item" data-product-id="${item.id}">
-                        <div class="item-info">
-                            <h6>${item.name}</h6>
-                            <p class="item-price">${this.getCurrencySymbol()}${item.price.toFixed(2)}</p>
-                        </div>
-                        <div class="item-controls">
-                            <button class="btn btn-sm btn-outline-secondary qty-btn qty-decrease">
+            
+            // Update item count
+            if (cartItemCount) {
+                cartItemCount.textContent = '0 items';
+                cartItemCount.className = 'badge bg-primary';
+            }
+            
+            // Update totals
+            if (cartSubtotal) cartSubtotal.textContent = `${this.getCurrencySymbol()}0.00`;
+            if (cartTax) cartTax.textContent = `${this.getCurrencySymbol()}0.00`;
+            if (cartDiscount) cartDiscount.textContent = `${this.getCurrencySymbol()}0.00`;
+            if (cartTotal) cartTotal.textContent = `${this.getCurrencySymbol()}0.00`;
+            
+            // Disable checkout button
+            if (checkoutButton) {
+                checkoutButton.disabled = true;
+            }
+            
+            return;
+        }
+        
+        // Update item count
+        const totalItems = this.cart.reduce((sum, item) => sum + item.quantity, 0);
+        if (cartItemCount) {
+            cartItemCount.textContent = `${totalItems} ${totalItems === 1 ? 'item' : 'items'}`;
+            cartItemCount.className = 'badge bg-primary';
+        }
+        
+        // Generate cart items HTML
+        let cartHTML = '';
+        this.cart.forEach(item => {
+            const itemTotal = item.price * item.quantity;
+            cartHTML += `
+                <div class="cart-item" data-product-id="${item.id}">
+                    <div class="cart-item-info">
+                        <h6>${item.name}</h6>
+                        <p class="item-details">${item.quantity} × ${this.getCurrencySymbol()}${item.price.toFixed(2)}</p>
+                    </div>
+                    <div class="cart-item-actions">
+                        <div class="quantity-controls">
+                            <button class="btn btn-sm btn-outline-secondary qty-btn qty-decrease" type="button">
                                 <i class="fas fa-minus"></i>
                             </button>
-                            <span class="item-quantity">${item.quantity}</span>
-                            <button class="btn btn-sm btn-outline-secondary qty-btn qty-increase">
+                            <span class="quantity-display">${item.quantity}</span>
+                            <button class="btn btn-sm btn-outline-secondary qty-btn qty-increase" type="button">
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
                         <div class="item-total">${this.getCurrencySymbol()}${itemTotal.toFixed(2)}</div>
-                        <button class="btn btn-sm btn-outline-danger remove-item">
+                        <button class="btn btn-sm btn-outline-danger remove-item" type="button">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
-                `;
-            });
-            cartItemsContainer.innerHTML = cartHTML;
-            if (checkoutButton) checkoutButton.disabled = false;
-        }
+                </div>
+            `;
+        });
+        
+        cartItemsContainer.innerHTML = cartHTML;
         
         // Update totals
         const totals = this.calculateTotals();
@@ -816,8 +920,22 @@ class POSSystem {
         if (cartTax) cartTax.textContent = `${this.getCurrencySymbol()}${totals.tax.toFixed(2)}`;
         if (cartDiscount) cartDiscount.textContent = `${this.getCurrencySymbol()}${totals.discount.toFixed(2)}`;
         if (cartTotal) cartTotal.textContent = `${this.getCurrencySymbol()}${totals.total.toFixed(2)}`;
+        
+        // Enable checkout button
+        if (checkoutButton) {
+            checkoutButton.disabled = false;
+        }
     }
 
+    // Update checkout button state
+    updateCheckoutButtonState() {
+        const checkoutButton = document.getElementById('checkoutButton');
+        if (checkoutButton) {
+            checkoutButton.disabled = this.cart.length === 0;
+        }
+    }
+
+    // Update order summary
     updateOrderSummary() {
         const summaryItems = document.getElementById('summaryItems');
         const summarySubtotal = document.getElementById('summarySubtotal');
@@ -956,16 +1074,21 @@ class POSSystem {
         const customerSelect = document.getElementById('customerSelect');
         const paymentOptions = document.querySelectorAll('.payment-option.active');
         const discountInput = document.getElementById('discountInput');
+        const creditSaleCheckbox = document.getElementById('creditSaleCheckbox');
+        const dueDateInput = document.getElementById('dueDateInput');
         
         const saleData = {
             customer_id: customerSelect ? customerSelect.value : null,
             payment_method: paymentOptions.length > 0 ? paymentOptions[0].dataset.method : 'cash',
             discount: discountInput ? parseFloat(discountInput.value) || 0 : 0,
+            is_credit_sale: creditSaleCheckbox ? creditSaleCheckbox.checked : false,
+            due_date: dueDateInput ? dueDateInput.value : null,
             cart_items: this.cart.map(item => ({
                 id: item.id,
                 name: item.name,
                 price: item.price,
-                quantity: item.quantity
+                quantity: item.quantity,
+                is_variant: item.is_variant || false
             }))
         };
         
@@ -1013,6 +1136,13 @@ class POSSystem {
                 this.updateCartDisplay();
                 this.updateOrderSummary();
                 
+                // Reset credit sale form
+                if (creditSaleCheckbox) {
+                    creditSaleCheckbox.checked = false;
+                    creditSaleOptions.style.display = 'none';
+                    dueDateInput.value = '';
+                }
+                
                 // Redirect to sale detail page or show receipt
                 if (data.sale_id) {
                     setTimeout(() => {
@@ -1032,154 +1162,80 @@ class POSSystem {
         });
     }
 
+    // Show/hide loading indicator
+    showLoading(show) {
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+            loadingOverlay.style.display = show ? 'flex' : 'none';
+        }
+    }
+    
+    // Show notification message
     showNotification(message, type = 'info') {
-        // Remove any existing notifications of the same type
-        const existingNotifications = document.querySelectorAll(`.notification-${type}`);
-        existingNotifications.forEach(notification => {
-            notification.style.animation = 'fadeOutUp 0.3s ease';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-            }, 300);
-        });
-        
-        // Create modern notification element
+        // Create notification element
         const notification = document.createElement('div');
-        notification.className = `notification notification-${type} position-fixed shadow-lg`;
-        notification.style.cssText = `
-            top: 20px; 
-            right: 20px; 
-            z-index: 9999; 
-            min-width: 300px;
-            max-width: 400px;
-            border-radius: 8px;
-            padding: 15px 20px;
-            margin: 10px;
-            backdrop-filter: blur(10px);
-            transform: translateX(100%);
-            opacity: 0;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        `;
-        
-        // Set background and text colors based on type
-        const typeStyles = {
-            'success': {
-                'background': 'linear-gradient(135deg, rgba(40, 167, 69, 0.9) 0%, rgba(40, 167, 69, 0.95) 100%)',
-                'color': 'white',
-                'border': '1px solid rgba(255, 255, 255, 0.2)'
-            },
-            'error': {
-                'background': 'linear-gradient(135deg, rgba(220, 53, 69, 0.9) 0%, rgba(220, 53, 69, 0.95) 100%)',
-                'color': 'white',
-                'border': '1px solid rgba(255, 255, 255, 0.2)'
-            },
-            'warning': {
-                'background': 'linear-gradient(135deg, rgba(255, 193, 7, 0.9) 0%, rgba(255, 193, 7, 0.95) 100%)',
-                'color': 'black',
-                'border': '1px solid rgba(0, 0, 0, 0.1)'
-            },
-            'info': {
-                'background': 'linear-gradient(135deg, rgba(23, 162, 184, 0.9) 0%, rgba(23, 162, 184, 0.95) 100%)',
-                'color': 'white',
-                'border': '1px solid rgba(255, 255, 255, 0.2)'
-            }
-        };
-        
-        const styles = typeStyles[type] || typeStyles['info'];
-        Object.assign(notification.style, styles);
-        
-        // Add icon based on type
-        const icons = {
-            'success': '<i class="fas fa-check-circle me-2"></i>',
-            'error': '<i class="fas fa-exclamation-circle me-2"></i>',
-            'warning': '<i class="fas fa-exclamation-triangle me-2"></i>',
-            'info': '<i class="fas fa-info-circle me-2"></i>'
-        };
-        
-        const icon = icons[type] || icons['info'];
-        
-        // Create notification content
-        notification.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center">
-                    ${icon}
-                    <div class="notification-message">${message}</div>
-                </div>
-                <button type="button" class="btn-close btn-close-white" aria-label="Close" style="font-size: 0.6rem;"></button>
-            </div>
-        `;
-        
-        // Add close button functionality
-        const closeBtn = notification.querySelector('.btn-close');
-        closeBtn.addEventListener('click', () => {
-            notification.style.animation = 'fadeOutRight 0.3s ease';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-            }, 300);
-        });
+        notification.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
+        notification.style.zIndex = '9999';
+        notification.style.maxWidth = '300px';
+        notification.textContent = message;
         
         // Add to document
         document.body.appendChild(notification);
         
-        // Animate in
-        setTimeout(() => {
-            notification.style.transform = 'translateX(0)';
-            notification.style.opacity = '1';
-        }, 10);
-        
-        // Auto remove after 5 seconds
+        // Remove after 3 seconds
         setTimeout(() => {
             if (notification.parentNode) {
-                notification.style.animation = 'fadeOutRight 0.3s ease';
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.parentNode.removeChild(notification);
-                    }
-                }, 300);
+                notification.parentNode.removeChild(notification);
             }
-        }, 5000);
-    }
-
-    showLoading(show) {
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        if (loadingOverlay) {
-            if (show) {
-                loadingOverlay.style.display = 'flex';
-                loadingOverlay.style.animation = 'fadeIn 0.3s ease';
-            } else {
-                loadingOverlay.style.animation = 'fadeOut 0.3s ease';
-                setTimeout(() => {
-                    loadingOverlay.style.display = 'none';
-                }, 300);
-            }
-        }
+        }, 3000);
     }
 
     getCurrencySymbol() {
         return window.business_settings ? window.business_settings.currency_symbol : '$';
     }
 
-    saveCartToStorage() {
+    // Load cart from server instead of localStorage
+    async loadCart() {
         try {
-            localStorage.setItem('posCart', JSON.stringify(this.cart));
-        } catch (e) {
-            console.error('Error saving cart to localStorage:', e);
+            console.log('Fetching cart data from server...');
+            const response = await fetch('/sales/cart/get/');
+            console.log('Cart fetch response status:', response.status);
+            
+            // Check if response is OK
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Server error response:', errorText);
+                throw new Error(`Server error (${response.status}): ${errorText}`);
+            }
+            
+            const data = await response.json();
+            console.log('Cart data received:', data);
+            
+            if (data.success) {
+                this.cart = data.items.map(item => ({
+                    id: item.product_id,
+                    name: item.product_name,
+                    price: item.unit_price,
+                    quantity: item.quantity,
+                    stock: item.product_stock || 0, // Add stock if available
+                    unit: item.product_unit || '', // Add unit if available
+                    is_variant: item.is_variant || false // Add variant flag
+                }));
+                console.log('Cart items loaded:', this.cart);
+                this.updateCartDisplay();
+            } else {
+                console.error('Error loading cart:', data.error);
+            }
+        } catch (error) {
+            console.error('Error loading cart:', error);
         }
     }
 
-    loadCartFromStorage() {
-        try {
-            const savedCart = localStorage.getItem('posCart');
-            if (savedCart) {
-                this.cart = JSON.parse(savedCart);
-            }
-        } catch (e) {
-            console.error('Error loading cart from localStorage:', e);
-            this.cart = [];
-        }
+    // Save cart to server instead of localStorage
+    async saveCart() {
+        // In this implementation, we're directly working with server-side cart
+        // So we don't need to save to localStorage, but we do need to update the display
+        this.updateCartDisplay();
     }
 
     // New method to manually stop the scanner
@@ -1206,26 +1262,5 @@ class POSSystem {
         this.autoStopScanner = !this.autoStopScanner;
         const status = this.autoStopScanner ? 'enabled' : 'disabled';
         this.showNotification(`Auto-stop scanner ${status}`, 'info');
-        
-        // Update UI button if it exists
-        const toggleButton = document.getElementById('toggleAutoStop');
-        if (toggleButton) {
-            toggleButton.innerHTML = this.autoStopScanner ? 
-                '<i class="fas fa-stop"></i> Auto-Stop: ON' : 
-                '<i class="fas fa-play"></i> Auto-Stop: OFF';
-            toggleButton.className = this.autoStopScanner ? 
-                'btn btn-sm btn-success' : 
-                'btn btn-sm btn-warning';
-        }
-        
-        // If enabling auto-stop and scanner is active, make sure we can process scans
-        if (this.autoStopScanner && this.scannerActive) {
-            this.scanProcessing = false;
-        }
     }
 }
-
-// Initialize POS system when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    window.posSystem = new POSSystem();
-});

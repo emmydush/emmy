@@ -2,6 +2,7 @@
 <html lang="en" data-theme="light">
 <head>
     {% load static %}
+    {% load i18n %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Smart Solution{% endblock %}</title>
@@ -109,36 +110,48 @@
             border-radius: 10px;
             backdrop-filter: blur(5px);
             border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem !important; /* Reduce padding */
         }
-        
+
+        /* Add smaller font size classes */
+        .fs-7 {
+            font-size: 0.75rem !important;
+        }
+
         .profile-container {
-            width: 80px;
-            height: 80px;
+            width: 60px; /* Reduced from 80px */
+            height: 60px; /* Reduced from 80px */
             margin: 0 auto;
         }
-        
+
         .profile-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             border: 2px solid rgba(255, 255, 255, 0.3);
         }
-        
+
         .profile-placeholder {
             width: 100%;
             height: 100%;
             background: rgba(255, 255, 255, 0.2);
             border: 2px solid rgba(255, 255, 255, 0.3);
         }
-        
+
         .profile-link {
             display: block;
             text-decoration: none;
         }
-        
+
         .profile-link:hover .profile-container {
             transform: scale(1.05);
             transition: transform 0.2s ease;
+        }
+
+        /* Adjust the collapsed sidebar profile size */
+        .sidebar.collapsed .profile-container {
+            width: 40px; /* Reduced from 50px */
+            height: 40px;
         }
         
         /* Navigation link styles */
@@ -221,6 +234,16 @@
             .main-content {
                 margin-left: 0 !important;
                 width: 100%;
+            }
+            
+            /* Adjust profile section for mobile */
+            .profile-container {
+                width: 50px; /* Even smaller on mobile */
+                height: 50px;
+            }
+            
+            .profile-section {
+                padding: 0.75rem !important;
             }
         }
         
@@ -466,6 +489,26 @@
                         <span id="currentTime" class="text-white"></span>
                     </li>
                     
+                    <!-- Language Selector -->
+                    <li class="nav-item dropdown me-2">
+                        <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-globe"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+                            <li><a class="dropdown-item" href="#" data-lang="en">English</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="rw">Kinyarwanda</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="es">Español</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="fr">Français</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="de">Deutsch</a></li>
+                        </ul>
+                        {# Hidden language form that posts to user preference endpoint when logged in, otherwise to Django's set_language view #}
+                        <form id="language-form" action="{% if user.is_authenticated %}{% url 'authentication:set_user_language' %}{% else %}{% url 'set_language' %}{% endif %}" method="post" style="display:none;">
+                          {% csrf_token %}
+                          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                          <input type="hidden" name="language" id="language-input" value="">
+                        </form>
+                    </li>
+                    
                     <!-- Notifications -->
                     <li class="nav-item dropdown me-2">
                         <a class="nav-link dropdown-toggle position-relative" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -544,9 +587,9 @@
             <nav id="sidebar" class="col-md-3 col-lg-2 sidebar glassmorphism-sidebar">
                 <div class="position-sticky pt-3" style="height: calc(100vh - 56px); overflow-y: auto;">
                     <!-- Profile Section -->
-                    <div class="profile-section text-center mb-4 p-3">
+                    <div class="profile-section text-center mb-3 p-2"> <!-- Reduced margin and padding -->
                         <a href="{% url 'authentication:profile' %}" class="profile-link">
-                            <div class="profile-container mb-3 mx-auto">
+                            <div class="profile-container mb-2 mx-auto"> <!-- Reduced margin -->
                                 {% if user.profile_picture %}
                                     <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="profile-img rounded-circle">
                                 {% else %}
@@ -556,80 +599,94 @@
                                 {% endif %}
                             </div>
                         </a>
-                        <h6 class="text-white mb-1">{{ user.get_full_name|default:user.username }}</h6>
-                        <small class="text-white-50">{{ user.get_role_display }}</small>
+                        <h6 class="text-white mb-0 fs-6"> <!-- Reduced margin and font size -->
+                            {{ user.get_full_name|default:user.username }}
+                        </h6>
+                        <small class="text-white-50 fs-7"> <!-- Smaller text -->
+                            {{ user.get_role_display }}
+                        </small>
                     </div>
                     
                     <!-- Navigation Menu -->
                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'dashboard:index' %}">
-                                <i class="fas fa-home" aria-hidden="true"></i> Home
+                                <i class="fas fa-home" aria-hidden="true"></i> {% trans "Home" %}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'products:list' %}">
-                                <i class="fas fa-box" aria-hidden="true"></i> Products
+                                <i class="fas fa-box" aria-hidden="true"></i> {% trans "Products" %}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'products:category_list' %}">
-                                <i class="fas fa-tags" aria-hidden="true"></i> Categories
+                                <i class="fas fa-tags" aria-hidden="true"></i> {% trans "Categories" %}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'products:unit_list' %}">
-                                <i class="fas fa-ruler" aria-hidden="true"></i> Units
+                                <i class="fas fa-ruler" aria-hidden="true"></i> {% trans "Units" %}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'sales:list' %}">
-                                <i class="fas fa-shopping-cart" aria-hidden="true"></i> Sales
+                                <i class="fas fa-shopping-cart" aria-hidden="true"></i> {% trans "Sales" %}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'sales:pos' %}">
-                                <i class="fas fa-cash-register" aria-hidden="true"></i> Point of Sale
+                                <i class="fas fa-cash-register" aria-hidden="true"></i> {% trans "Point of Sale" %}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'sales:credit_sales_list' %}">
+                                <i class="fas fa-file-invoice-dollar" aria-hidden="true"></i> {% trans "Credit Sales" %}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'sales:overdue_credit_sales' %}">
+                                <i class="fas fa-exclamation-triangle" aria-hidden="true"></i> {% trans "Overdue Credits" %}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'purchases:list' %}">
-                                <i class="fas fa-truck" aria-hidden="true"></i> Purchases
+                                <i class="fas fa-truck" aria-hidden="true"></i> {% trans "Purchases" %}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'expenses:list' %}">
-                                <i class="fas fa-money-bill-wave" aria-hidden="true"></i> Expenses
+                                <i class="fas fa-money-bill-wave" aria-hidden="true"></i> {% trans "Expenses" %}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'customers:list' %}">
-                                <i class="fas fa-users" aria-hidden="true"></i> Customers
+                                <i class="fas fa-users" aria-hidden="true"></i> {% trans "Customers" %}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'suppliers:list' %}">
-                                <i class="fas fa-industry" aria-hidden="true"></i> Suppliers
+                                <i class="fas fa-industry" aria-hidden="true"></i> {% trans "Suppliers" %}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'reports:list' %}">
-                                <i class="fas fa-chart-bar" aria-hidden="true"></i> Reports
+                                <i class="fas fa-chart-bar" aria-hidden="true"></i> {% trans "Reports" %}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'settings:index' %}">
-                                <i class="fas fa-cog" aria-hidden="true"></i> Settings
+                                <i class="fas fa-cog" aria-hidden="true"></i> {% trans "Settings" %}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'settings:theme' %}">
-                                <i class="fas fa-palette" aria-hidden="true"></i> Theme
+                                <i class="fas fa-palette" aria-hidden="true"></i> {% trans "Theme" %}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'authentication:logout' %}">
-                                <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Logout
+                                <i class="fas fa-sign-out-alt" aria-hidden="true"></i> {% trans "Logout" %}
                             </a>
                         </li>
                     </ul>
@@ -737,6 +794,21 @@
                             icon.classList.remove('fa-times');
                             icon.classList.add('fa-bars');
                         }
+                    });
+                });
+            }
+            
+            // Language switcher functionality
+            var langLinks = document.querySelectorAll('.dropdown-menu a[data-lang]');
+            var langInput = document.getElementById('language-input');
+            var langForm = document.getElementById('language-form');
+            if (langLinks && langForm && langInput) {
+                langLinks.forEach(function(link) {
+                    link.addEventListener('click', function(ev) {
+                        ev.preventDefault();
+                        var lang = this.getAttribute('data-lang');
+                        langInput.value = lang;
+                        langForm.submit();
                     });
                 });
             }

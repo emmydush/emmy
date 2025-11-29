@@ -40,13 +40,35 @@ class CustomUserCreationForm(UserCreationForm):
 
 
 class AdminUserCreationForm(forms.Form):
-    username = forms.CharField(max_length=150, required=True)
-    email = forms.EmailField(required=False)
-    first_name = forms.CharField(max_length=30, required=False)
-    last_name = forms.CharField(max_length=30, required=False)
-    phone = forms.CharField(max_length=15, required=False)
-    password = forms.CharField(widget=forms.PasswordInput, required=True)
-    role = forms.ChoiceField(choices=User.ROLE_CHOICES, initial="cashier")
+    username = forms.CharField(max_length=150, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField(required=False, widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    first_name = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    last_name = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    phone = forms.CharField(max_length=15, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=True)
+    role = forms.ChoiceField(choices=User.ROLE_CHOICES, initial="cashier", widget=forms.Select(attrs={'class': 'form-select'}))
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError("A user with that username already exists.")
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and User.objects.filter(email=email).exists():
+            raise forms.ValidationError("A user with that email already exists.")
+        return email
+
+    def clean_password(self):
+        password = self.cleaned_data['password']
+        # Validate the password using Django's password validation
+        from django.contrib.auth.password_validation import validate_password
+        try:
+            validate_password(password)
+        except forms.ValidationError as e:
+            raise forms.ValidationError(e.messages)
+        return password
 
     def save(self, business):
         # Create user with provided details
@@ -98,6 +120,13 @@ class UserProfileForm(forms.ModelForm):
             "address": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
             "profile_picture": forms.FileInput(attrs={"class": "form-control"}),
         }
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        # Check if this email is already used by another user
+        if email and User.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("A user with that email already exists.")
+        return email
 
 
 class UserPermissionForm(forms.ModelForm):
@@ -159,6 +188,11 @@ class UserPermissionForm(forms.ModelForm):
             "can_edit": forms.CheckboxInput(attrs={"class": "form-check-input"}),
             "can_delete": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        # Add any cross-field validation if needed
+        return cleaned_data
 
 
 class UserThemePreferenceForm(forms.ModelForm):

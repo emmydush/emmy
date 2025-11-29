@@ -5,6 +5,7 @@ Test script to verify language switching functionality
 import os
 import sys
 import django
+import uuid
 
 # Add the project directory to the Python path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -12,6 +13,10 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "inventory_management.settings")
 django.setup()
+
+# Add 'testserver' to ALLOWED_HOSTS for testing
+from django.conf import settings
+settings.ALLOWED_HOSTS.append('testserver')
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
@@ -21,11 +26,15 @@ from django.urls import reverse
 def test_language_switching():
     """Test that language switching works correctly"""
     User = get_user_model()
+    
+    # Generate a unique username for each test run
+    unique_id = str(uuid.uuid4())[:8]
+    username = f"testuser_{unique_id}"
 
     # Create a test user
     user = User.objects.create_user(
-        username="testuser",
-        email="test@example.com",
+        username=username,
+        email=f"test{unique_id}@example.com",
         password="testpass123",
         language="en",
     )
@@ -34,7 +43,7 @@ def test_language_switching():
     client = Client()
 
     # Log in the user
-    login_success = client.login(username="testuser", password="testpass123")
+    login_success = client.login(username=username, password="testpass123")
     if not login_success:
         print("❌ Failed to log in test user")
         return False

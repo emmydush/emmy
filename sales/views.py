@@ -5,18 +5,21 @@ from django.http import JsonResponse
 from django.db import transaction
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import F
+from django.db.models import F, Sum
+from django.utils import timezone
 from typing import TYPE_CHECKING
+from datetime import date, timedelta
 
 if TYPE_CHECKING:
     from django.db.models.manager import Manager
     from customers.models import Customer as CustomerModel
     from products.models import Product as ProductModel
+    from products.models import ProductVariant as ProductVariantModel
     from .models import Sale as SaleModel, Refund as RefundModel
 
-from .models import Sale, SaleItem, Refund
-from .forms import SaleForm
-from products.models import Product
+from .models import Sale, SaleItem, Refund, CreditSale, CreditPayment
+from .forms import SaleForm, CreditSaleForm, CreditPaymentForm
+from products.models import Product, ProductVariant
 from customers.models import Customer
 from superadmin.models import Business
 from superadmin.middleware import get_current_business
@@ -261,6 +264,17 @@ def scanner_debug_view(request):
 
 
 @login_required
+def quagga_test_view(request):
+    return render(request, "sales/quagga_test.html")
+
+
+@login_required
+def quagga_test_simple_view(request):
+    return render(request, "sales/quagga_test_simple.html")
+
+
+@csrf_exempt
+@login_required
 @require_http_methods(["POST"])
 def process_pos_sale(request):
     """Process a POS sale from the frontend"""
@@ -353,9 +367,11 @@ def process_pos_sale(request):
         payment_method = data.get("payment_method", "cash")
         discount = float(data.get("discount", 0))
         cart_items = data.get("cart_items", [])
+        is_credit_sale = data.get("is_credit_sale", False)
+        due_date = data.get("due_date")
 
         logger.info(
-            f"Sale data extracted - Customer ID: {customer_id}, Payment method: {payment_method}, Discount: {discount}, Cart items: {len(cart_items)}"
+            f"Sale data extracted - Customer ID: {customer_id}, Payment method: {payment_method}, Discount: {discount}, Cart items: {len(cart_items)}, Is Credit Sale: {is_credit_sale}"
         )
 
         if not cart_items:
@@ -416,6 +432,26 @@ def process_pos_sale(request):
                 status=400,
             )
 
+        # Validate credit sale requirements
+        if is_credit_sale:
+            if not customer_id:
+                logger.error("Credit sale requires a customer")
+                return JsonResponse(
+                    {
+                        "error": "Credit sales require selecting a customer."
+                    },
+                    status=400,
+                )
+            
+            if not due_date:
+                logger.error("Credit sale requires a due date")
+                return JsonResponse(
+                    {
+                        "error": "Credit sales require specifying a due date."
+                    },
+                    status=400,
+                )
+
         # Create the sale in a transaction
         logger.info("Starting database transaction")
         with transaction.atomic():  # type: ignore
@@ -459,17 +495,29 @@ def process_pos_sale(request):
                 quantity = float(item["quantity"])
                 price = float(item["price"])
                 total_price = quantity * price
+                is_variant = item.get("is_variant", False)
 
                 logger.info(
-                    f"Creating sale item {i} - Product ID: {product_id}, Quantity: {quantity}, Price: {price}"
+                    f"Creating sale item {i} - Product ID: {product_id}, Quantity: {quantity}, Price: {price}, Is Variant: {is_variant}"
                 )
 
                 # Verify product belongs to current business
                 try:
-                    product = Product.objects.business_specific().get(pk=product_id)
-                    logger.info(f"Product found: {product}")
-                except Product.DoesNotExist:
-                    logger.error(f"Product {product_id} not found in current business")
+                    if is_variant:
+                        # Handle product variant
+                        product = ProductVariant.objects.business_specific().get(pk=product_id)
+                        product_name = product.name
+                        product_quantity = float(product.quantity)
+                        product_unit_symbol = product.product.unit.symbol
+                    else:
+                        # Handle regular product
+                        product = Product.objects.business_specific().get(pk=product_id)
+                        product_name = product.name
+                        product_quantity = float(product.quantity)
+                        product_unit_symbol = product.unit.symbol
+                    logger.info(f"Product/Variant found: {product}")
+                except (Product.DoesNotExist, ProductVariant.DoesNotExist):
+                    logger.error(f"Product/Variant {product_id} not found in current business")
                     return JsonResponse(
                         {
                             "error": f'Product not found: {item.get("name", "Unknown product")}. Please refresh and try again.'
@@ -478,11 +526,11 @@ def process_pos_sale(request):
                     )
 
                 # Check if sufficient stock is available
-                if float(product.quantity) < quantity:
-                    logger.error(f"Insufficient stock for product {product.name}")
+                if product_quantity < quantity:
+                    logger.error(f"Insufficient stock for product {product_name}")
                     return JsonResponse(
                         {
-                            "error": f"Insufficient stock for {product.name}. Available: {product.quantity}, Requested: {quantity}"
+                            "error": f"Insufficient stock for {product_name}. Available: {product_quantity}, Requested: {quantity}"
                         },
                         status=400,
                     )
@@ -491,11 +539,13 @@ def process_pos_sale(request):
                 try:
                     sale_item = SaleItem.objects.create(  # type: ignore
                         sale=sale,
-                        product=product,  # Use the product object instead of product_id
+                        product=product if not is_variant else product.product,  # Use the parent product for regular products, or the parent product of the variant
                         quantity=quantity,
                         unit_price=price,
                         total_price=total_price,
                         business=current_business,  # Set business context for multi-tenancy
+                        is_product_variant=is_variant,
+                        product_variant=product if is_variant else None
                     )
                     logger.info(f"Sale item created: {sale_item}")
                 except Exception as e:
@@ -506,6 +556,28 @@ def process_pos_sale(request):
 
                 # Note: Product quantity is now automatically updated by signals
                 # No need to manually update product.quantity here
+
+            # Handle credit sale creation if applicable
+            if is_credit_sale and customer_id:
+                try:
+                    # Convert due_date string to date object
+                    from datetime import datetime
+                    due_date_obj = datetime.strptime(due_date, "%Y-%m-%d").date()
+                    
+                    # Create credit sale record
+                    credit_sale = CreditSale.objects.create(
+                        business=current_business,
+                        customer=customer,
+                        sale=sale,
+                        total_amount=total_amount,
+                        due_date=due_date_obj
+                    )
+                    logger.info(f"Credit sale created with ID: {credit_sale.pk}")
+                except Exception as e:
+                    logger.error(f"Error creating credit sale: {str(e)}")
+                    return JsonResponse(
+                        {"error": f"Error creating credit sale record: {str(e)}"}, status=500
+                    )
 
         logger.info(f"=== SALE PROCESSED SUCCESSFULLY! Sale ID: {sale.pk} ===")
         return JsonResponse(
@@ -543,6 +615,41 @@ def get_product_details(request, product_id):
             "price": float(product.selling_price),
             "stock": float(product.quantity),
             "unit": product.unit.symbol,
+            "has_variants": product.has_variants,
+        }
+        
+        # If product has variants, include variant information
+        if product.has_variants:
+            variants = product.variants.filter(is_active=True)
+            data["variants"] = [
+                {
+                    "id": variant.pk,
+                    "name": variant.name,
+                    "price": float(variant.selling_price),
+                    "stock": float(variant.quantity),
+                    "sku": variant.sku,
+                }
+                for variant in variants
+            ]
+        
+        return JsonResponse(data)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+
+def get_product_variant_details(request, variant_id):
+    """AJAX view to get product variant details for POS"""
+    try:
+        variant = get_object_or_404(ProductVariant.objects.business_specific(), pk=variant_id)
+        data = {
+            "id": variant.pk,
+            "name": variant.name,
+            "price": float(variant.selling_price),
+            "stock": float(variant.quantity),
+            "unit": variant.product.unit.symbol,
+            "is_variant": True,
+            "parent_product_id": variant.product.pk,
+            "parent_product_name": variant.product.name,
         }
         return JsonResponse(data)
     except Exception as e:
@@ -565,3 +672,158 @@ def get_product_by_barcode(request, barcode):
         return JsonResponse(data)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
+
+
+@login_required
+def credit_sales_list(request):
+    """Display list of credit sales"""
+    # Account owners have access to everything
+    if request.user.role != "admin" and not check_user_permission(
+        request.user, "can_view"
+    ):
+        messages.error(request, "You do not have permission to view credit sales.")
+        return redirect("dashboard:index")
+    
+    # Get credit sales with related data
+    credit_sales = CreditSale.objects.business_specific().select_related(
+        "customer", "sale"
+    ).prefetch_related("payments")
+    
+    return render(request, "sales/credit_sales_list.html", {
+        "credit_sales": credit_sales
+    })
+
+
+@login_required
+def credit_sale_create(request):
+    """Create a new credit sale"""
+    # Account owners have access to everything
+    if request.user.role != "admin" and not check_user_permission(
+        request.user, "can_create"
+    ):
+        messages.error(request, "You do not have permission to create credit sales.")
+        return redirect("sales:credit_sales_list")
+    
+    if request.method == "POST":
+        form = CreditSaleForm(request.POST)
+        if form.is_valid():
+            # Get current business from session
+            current_business = None
+            if "current_business_id" in request.session:
+                try:
+                    current_business = Business.objects.get(
+                        id=request.session["current_business_id"]
+                    )
+                except Business.DoesNotExist:
+                    pass
+            
+            if not current_business:
+                messages.error(request, "No business context found.")
+                return redirect("sales:credit_sales_list")
+            
+            # Save the credit sale with business context
+            credit_sale = form.save(commit=False)
+            credit_sale.business = current_business
+            # Set total amount from the related sale
+            # For now, we'll set it to 0 and update it when the sale is processed
+            credit_sale.total_amount = 0
+            credit_sale.save()
+            
+            messages.success(request, "Credit sale created successfully!")
+            return redirect("sales:credit_sale_detail", pk=credit_sale.pk)
+    else:
+        form = CreditSaleForm()
+    
+    return render(request, "sales/credit_sale_form.html", {
+        "form": form, 
+        "title": "Create Credit Sale"
+    })
+
+
+@login_required
+def credit_sale_detail(request, pk):
+    """View details of a specific credit sale"""
+    credit_sale = get_object_or_404(
+        CreditSale.objects.business_specific().select_related("customer", "sale"),
+        pk=pk
+    )
+    
+    return render(request, "sales/credit_sale_detail.html", {
+        "credit_sale": credit_sale
+    })
+
+
+@login_required
+def credit_payment_create(request, credit_sale_pk):
+    """Add a payment to a credit sale"""
+    credit_sale = get_object_or_404(
+        CreditSale.objects.business_specific(),
+        pk=credit_sale_pk
+    )
+    
+    # Account owners have access to everything
+    if request.user.role != "admin" and not check_user_permission(
+        request.user, "can_create"
+    ):
+        messages.error(request, "You do not have permission to add payments.")
+        return redirect("sales:credit_sale_detail", pk=credit_sale.pk)
+    
+    if request.method == "POST":
+        form = CreditPaymentForm(request.POST)
+        if form.is_valid():
+            # Get current business from session
+            current_business = None
+            if "current_business_id" in request.session:
+                try:
+                    current_business = Business.objects.get(
+                        id=request.session["current_business_id"]
+                    )
+                except Business.DoesNotExist:
+                    pass
+            
+            if not current_business:
+                messages.error(request, "No business context found.")
+                return redirect("sales:credit_sale_detail", pk=credit_sale.pk)
+            
+            # Save the payment with business context
+            payment = form.save(commit=False)
+            payment.credit_sale = credit_sale
+            payment.business = current_business
+            payment.save()
+            
+            messages.success(request, "Payment recorded successfully!")
+            return redirect("sales:credit_sale_detail", pk=credit_sale.pk)
+    else:
+        # Pre-populate the form with the maximum allowable payment amount
+        max_amount = credit_sale.outstanding_balance
+        form = CreditPaymentForm(initial={"amount": max_amount})
+    
+    return render(request, "sales/credit_payment_form.html", {
+        "form": form,
+        "credit_sale": credit_sale,
+        "title": "Record Payment"
+    })
+
+
+@login_required
+def overdue_credit_sales(request):
+    """Display list of overdue credit sales"""
+    # Account owners have access to everything
+    if request.user.role != "admin" and not check_user_permission(
+        request.user, "can_view"
+    ):
+        messages.error(request, "You do not have permission to view credit sales.")
+        return redirect("dashboard:index")
+    
+    # Get overdue credit sales (due date has passed and not fully paid)
+    today = date.today()
+    overdue_sales = CreditSale.objects.business_specific().select_related(
+        "customer", "sale"
+    ).prefetch_related("payments").filter(
+        due_date__lt=today,
+        is_fully_paid=False
+    )
+    
+    return render(request, "sales/overdue_credit_sales.html", {
+        "overdue_sales": overdue_sales
+    })

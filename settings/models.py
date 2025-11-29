@@ -151,6 +151,7 @@ class AuditLog(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    business = models.ForeignKey('superadmin.Business', on_delete=models.SET_NULL, null=True, blank=True)
     action = models.CharField(max_length=10, choices=ACTION_CHOICES)
     model_name = models.CharField(max_length=100)
     object_id = models.CharField(max_length=100, null=True, blank=True)
@@ -166,4 +167,5 @@ class AuditLog(models.Model):
         ordering = ["-timestamp"]
 
     def __str__(self):
-        return f"{self.action} {self.model_name} by {self.user or 'Anonymous'} at {self.timestamp}"
+        business_name = self.business.company_name if self.business else 'No Business'
+        return f"{self.action} {self.model_name} by {self.user or 'Anonymous'} at {self.timestamp} for {business_name}"
