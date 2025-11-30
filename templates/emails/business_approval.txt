@@ -1,0 +1,39 @@
+Business Account {{ status|title }} - {{ business_settings.business_name }}
+
+Hello {{ business.owner.get_full_name|default:business.owner.username }},
+
+We're writing to inform you that your business account registration for "{{ business.company_name }}" has been {{ status|lower }} by our administration team.
+
+{% if business.status == "active" %}
+Account Activated
+=================
+
+Your business account is now active and ready to use. You can log in to the system and start managing your inventory.
+
+Next Steps:
+- Log in to your account at: {{ login_url }}
+- Set up your business profile
+- Add your products and inventory
+- Start using the system to manage your business
+
+{% else %}
+Account Rejected
+================
+
+We regret to inform you that your business account registration has been rejected.
+
+{% if rejection_reason %}
+Reason: {{ rejection_reason }}
+{% endif %}
+
+If you believe this decision was made in error, please contact our support team for assistance.
+{% endif %}
+
+If you have any questions or need assistance, please don't hesitate to contact our support team.
+
+Best regards,
+{{ business_settings.business_name }} Team
+
+---
+This is an automated message. Please do not reply to this email.
+&copy; {{ current_year }} {{ business_settings.business_name }}. All rights reserved.

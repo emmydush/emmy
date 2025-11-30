@@ -24,10 +24,12 @@
             <div class="col-md-6 text-md-end">
                 <div class="d-flex justify-content-md-end align-items-center gap-2">
                     <!-- Super Admin Link -->
+                    {% if user.is_superuser %}
                     <a href="{% url 'superadmin:dashboard' %}" class="btn btn-sm btn-outline-light" role="button">
                         <i class="fas fa-crown me-1"></i>
                         <span class="d-none d-sm-inline">{% trans "Super Admin" %}</span>
                     </a>
+                    {% endif %}
                     
                     <!-- Language Selector -->
                     <div class="dropdown">

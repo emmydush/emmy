@@ -1,0 +1,28 @@
+{% extends 'business_owner/base.html' %}
+
+{% block business_owner_content %}
+<div class="card">
+  <div class="card-header">
+    <h5 class="mb-0">Delete Branch</h5>
+  </div>
+  <div class="card-body">
+    <div class="alert alert-warning">
+      <h5><i class="fas fa-exclamation-triangle me-2"></i>Warning</h5>
+      <p>Are you sure you want to delete the branch "<strong>{{ branch.name }}</strong>"?</p>
+      <p>This action cannot be undone.</p>
+    </div>
+    
+    <form method="post">
+      {% csrf_token %}
+      <div class="d-flex justify-content-between">
+        <a href="{% url 'superadmin:branch_list' business.pk %}" class="btn btn-secondary">
+          <i class="fas fa-arrow-left me-1"></i> Cancel
+        </a>
+        <button type="submit" class="btn btn-danger">
+          <i class="fas fa-trash me-1"></i> Delete Branch
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

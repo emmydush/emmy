@@ -1,0 +1,116 @@
+{% extends 'superadmin/base.html' %}
+
+{% block title %}Branch Management - {{ business.company_name }}{% endblock %}
+
+{% block superadmin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>Branch Management for {{ business.company_name }}</h1>
+  <div>
+    <a href="{% url 'superadmin:branch_create' business.pk %}" class="btn btn-primary">
+      <i class="fas fa-plus me-1"></i> Create Branch
+    </a>
+    <a href="{% url 'superadmin:business_management' %}" class="btn btn-secondary ms-2">
+      <i class="fas fa-arrow-left me-1"></i> Back to Businesses
+    </a>
+  </div>
+</div>
+
+<!-- Branch List -->
+<div class="card">
+  <div class="card-header">
+    <h5 class="mb-0">All Branches</h5>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Address</th>
+          <th>Contact</th>
+          <th>Main Branch</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for branch in branches %}
+        <tr>
+          <td>{{ branch.name }}</td>
+          <td>{{ branch.address|truncatewords:10 }}</td>
+          <td>
+            {% if branch.phone %}<div><i class="fas fa-phone me-1"></i> {{ branch.phone }}</div>{% endif %}
+            {% if branch.email %}<div><i class="fas fa-envelope me-1"></i> {{ branch.email }}</div>{% endif %}
+          </td>
+          <td>
+            {% if branch.is_main %}
+              <span class="badge bg-primary">Main</span>
+            {% else %}
+              <span class="badge bg-secondary">Secondary</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if branch.is_active %}
+              <span class="badge bg-success">Active</span>
+            {% else %}
+              <span class="badge bg-danger">Inactive</span>
+            {% endif %}
+          </td>
+          <td>{{ branch.created_at|date:"M d, Y" }}</td>
+          <td>
+            <div class="btn-group btn-group-sm" role="group">
+              <a href="{% url 'superadmin:branch_update' business.pk branch.pk %}" class="btn btn-outline-warning" title="Edit">
+                <i class="fas fa-edit"></i>
+              </a>
+              <a href="{% url 'superadmin:branch_delete' business.pk branch.pk %}" class="btn btn-outline-danger" title="Delete">
+                <i class="fas fa-trash"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="text-center">No branches found</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Branch Statistics -->
+<div class="row mt-4">
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body text-center">
+        <h5 class="card-title">{{ branches|length }}</h5>
+        <p class="card-text">Total Branches</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body text-center">
+        <h5 class="card-title">
+          {% for branch in branches %}
+            {% if branch.is_main %}
+              {{ branch.name }}
+            {% endif %}
+          {% empty %}
+            None
+          {% endfor %}
+        </h5>
+        <p class="card-text">Main Branch</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body text-center">
+        <h5 class="card-title">{{ active_branches_count }}</h5>
+        <p class="card-text">Active Branches</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

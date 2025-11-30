@@ -16,7 +16,7 @@ import datetime
 import qrcode
 import csv
 import io
-from .models import Product, Category, Unit, StockAdjustment, StockAlert, StockMovement, ProductVariant, VariantAttribute, VariantAttributeValue, ProductVariantAttribute
+from .models import Product, Category, Unit, StockAdjustment, StockAlert, StockMovement, ProductVariant, VariantAttribute, VariantAttributeValue, ProductVariantAttribute, InventoryTransfer
 from .forms import (
     ProductForm,
     CategoryForm,
@@ -27,7 +27,9 @@ from .forms import (
     VariantAttributeForm,
     VariantAttributeValueForm,
     ProductVariantAttributeForm,
+    InventoryTransferForm,
 )
+
 from .utils import generate_product_qr_code
 from authentication.utils import check_user_permission, require_permission
 
@@ -1158,6 +1160,209 @@ def product_variant_delete(request, pk):
     }
     
     return render(request, "products/variants/confirm_delete.html", context)
+
+
+# Inventory Transfer Views
+
+@login_required
+def inventory_transfer_list(request):
+    """Display list of inventory transfers"""
+    # Account owners have access to everything
+    if request.user.role != "admin" and not check_user_permission(
+        request.user, "can_view"
+    ):
+        messages.error(request, "You do not have permission to view inventory transfers.")
+        return redirect("products:list")
+    
+    transfers = InventoryTransfer.objects.business_specific()
+    
+    # Filter by status if provided
+    status = request.GET.get("status")
+    if status:
+        transfers = transfers.filter(status=status)
+    
+    context = {
+        "transfers": transfers,
+        "selected_status": status,
+    }
+    
+    return render(request, "products/transfers/list.html", context)
+
+
+@login_required
+def inventory_transfer_create(request):
+    """Create a new inventory transfer"""
+    # Account owners have access to everything
+    if request.user.role != "admin" and not check_user_permission(
+        request.user, "can_create"
+    ):
+        messages.error(request, "You do not have permission to create inventory transfers.")
+        return redirect("products:list")
+    
+    # Get the current business from the request
+    from superadmin.middleware import get_current_business
+    current_business = get_current_business()
+    
+    if request.method == "POST":
+        form = InventoryTransferForm(request.POST, business=current_business, user=request.user)
+        if form.is_valid():
+            if current_business:
+                try:
+                    transfer = form.save(commit=False)
+                    transfer.business = current_business
+                    transfer.created_by = request.user
+                    transfer.save()
+                    messages.success(request, "Inventory transfer created successfully!")
+                    return redirect("products:inventory_transfer_list")
+                except Exception as e:
+                    messages.error(
+                        request,
+                        f"An error occurred while creating the inventory transfer: {str(e)}",
+                    )
+            else:
+                messages.error(
+                    request,
+                    "No business context found. Please select a business before creating inventory transfers.",
+                )
+        else:
+            # Form is not valid, display errors
+            if form.errors:
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f"{field}: {error}")
+    else:
+        form = InventoryTransferForm(business=current_business, user=request.user)
+    
+    context = {
+        "form": form,
+        "title": "Create Inventory Transfer",
+    }
+    
+    return render(request, "products/transfers/form.html", context)
+
+
+@login_required
+def inventory_transfer_detail(request, pk):
+    """Display details of a specific inventory transfer"""
+    transfer = get_object_or_404(InventoryTransfer.objects.business_specific(), pk=pk)
+    
+    context = {
+        "transfer": transfer,
+    }
+    
+    return render(request, "products/transfers/detail.html", context)
+
+
+@login_required
+def inventory_transfer_update(request, pk):
+    """Update a specific inventory transfer"""
+    # Account owners have access to everything
+    if request.user.role != "admin" and not check_user_permission(
+        request.user, "can_edit"
+    ):
+        messages.error(request, "You do not have permission to edit inventory transfers.")
+        return redirect("products:list")
+    
+    transfer = get_object_or_404(InventoryTransfer.objects.business_specific(), pk=pk)
+    
+    # Get the current business from the request
+    from superadmin.middleware import get_current_business
+    current_business = get_current_business()
+    
+    if request.method == "POST":
+        form = InventoryTransferForm(request.POST, instance=transfer, business=current_business, user=request.user)
+        if form.is_valid():
+            if current_business:
+                try:
+                    transfer = form.save(commit=False)
+                    transfer.business = current_business
+                    transfer.created_by = request.user
+                    transfer.save()
+                    messages.success(request, "Inventory transfer updated successfully!")
+                    return redirect("products:inventory_transfer_detail", pk=transfer.pk)
+                except Exception as e:
+                    messages.error(
+                        request,
+                        f"An error occurred while updating the inventory transfer: {str(e)}",
+                    )
+            else:
+                messages.error(
+                    request,
+                    "No business context found. Please select a business before updating inventory transfers.",
+                )
+        else:
+            # Form is not valid, display errors
+            if form.errors:
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f"{field}: {error}")
+    else:
+        form = InventoryTransferForm(instance=transfer, business=current_business, user=request.user)
+    
+    context = {
+        "form": form,
+        "transfer": transfer,
+        "title": "Update Inventory Transfer",
+    }
+    
+    return render(request, "products/transfers/form.html", context)
+
+
+@login_required
+def inventory_transfer_complete(request, pk):
+    """Complete a specific inventory transfer"""
+    # Account owners have access to everything
+    if request.user.role != "admin" and not check_user_permission(
+        request.user, "can_edit"
+    ):
+        messages.error(request, "You do not have permission to complete inventory transfers.")
+        return redirect("products:list")
+    
+    transfer = get_object_or_404(InventoryTransfer.objects.business_specific(), pk=pk)
+    
+    if request.method == "POST":
+        # Update the transfer status to completed
+        transfer.status = "completed"
+        transfer.save()
+        
+        # Process the transfer to update inventory levels
+        transfer.process_transfer()
+        
+        messages.success(request, "Inventory transfer completed successfully!")
+        return redirect("products:inventory_transfer_detail", pk=transfer.pk)
+    
+    context = {
+        "transfer": transfer,
+    }
+    
+    return render(request, "products/transfers/confirm_complete.html", context)
+
+
+@login_required
+def inventory_transfer_cancel(request, pk):
+    """Cancel a specific inventory transfer"""
+    # Account owners have access to everything
+    if request.user.role != "admin" and not check_user_permission(
+        request.user, "can_edit"
+    ):
+        messages.error(request, "You do not have permission to cancel inventory transfers.")
+        return redirect("products:list")
+    
+    transfer = get_object_or_404(InventoryTransfer.objects.business_specific(), pk=pk)
+    
+    if request.method == "POST":
+        # Update the transfer status to cancelled
+        transfer.status = "cancelled"
+        transfer.save()
+        
+        messages.success(request, "Inventory transfer cancelled successfully!")
+        return redirect("products:inventory_transfer_detail", pk=transfer.pk)
+    
+    context = {
+        "transfer": transfer,
+    }
+    
+    return render(request, "products/transfers/confirm_cancel.html", context)
 
 
 # Variant Attribute Management Views

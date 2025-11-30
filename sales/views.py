@@ -165,20 +165,41 @@ def sale_refund(request, pk):
 @login_required
 def pos_view(request):
     from settings.models import BusinessSettings
+    from superadmin.models import Business
+    from superadmin.middleware import get_current_business
 
-    try:
-        business_settings = BusinessSettings.objects.get(id=1)
-    except BusinessSettings.DoesNotExist:
-        business_settings = BusinessSettings.objects.create(
-            id=1,
-            business_name="Smart Solution",
-            business_address="123 Business Street, City, Country",
-            business_email="info@smartsolution.com",
-            business_phone="+1 (555) 123-4567",
-            currency="USD",
-            currency_symbol="$",
-            tax_rate=0,
-        )
+    # Try to get business-specific settings first
+    business_settings = None
+    
+    # Try to get current business from session
+    business_id = request.session.get("current_business_id")
+    if business_id:
+        try:
+            business = Business.objects.get(id=business_id)
+            # Get business-specific settings
+            try:
+                business_settings = BusinessSettings.objects.get(business=business)
+            except BusinessSettings.DoesNotExist:
+                # Create default business settings for this business
+                business_settings = BusinessSettings.objects.create(business=business)
+        except Business.DoesNotExist:
+            pass
+    
+    # If no business-specific settings, fall back to global settings
+    if not business_settings:
+        try:
+            business_settings = BusinessSettings.objects.get(id=1)
+        except BusinessSettings.DoesNotExist:
+            business_settings = BusinessSettings.objects.create(
+                id=1,
+                business_name="Smart Solution",
+                business_address="123 Business Street, City, Country",
+                business_email="info@smartsolution.com",
+                business_phone="+1 (555) 123-4567",
+                currency="USD",
+                currency_symbol="$",
+                tax_rate=0,
+            )
 
     # Ensure business context is properly set
     current_business = None

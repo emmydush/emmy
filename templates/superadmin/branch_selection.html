@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Select Branch - {{ business.company_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Select Your Branch</h3>
+                </div>
+                <div class="card-body">
+                    <p>Please select the branch you want to work with for <strong>{{ business.company_name }}</strong>:</p>
+                    
+                    {% if branches %}
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="row">
+                                {% for branch in branches %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ branch.name }}</h5>
+                                            <p class="card-text">
+                                                <strong>Address:</strong> {{ branch.address|truncatewords:10 }}<br>
+                                                {% if branch.phone %}
+                                                    <strong>Phone:</strong> {{ branch.phone }}<br>
+                                                {% endif %}
+                                                {% if branch.email %}
+                                                    <strong>Email:</strong> {{ branch.email }}
+                                                {% endif %}
+                                            </p>
+                                            {% if branch.is_main %}
+                                                <span class="badge bg-primary">Main Branch</span>
+                                            {% endif %}
+                                            <br><br>
+                                            <button type="submit" name="branch_id" value="{{ branch.id }}" class="btn btn-primary">
+                                                Select Branch
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <p>No active branches found for this business.</p>
+                            <a href="{% url 'superadmin:branch_list' business.pk %}" class="btn btn-primary">Manage Branches</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

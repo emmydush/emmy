@@ -14,6 +14,23 @@ def check_user_permission(user, permission_type):
     Returns:
         bool: True if user has permission, False otherwise
     """
+    # Check if user's business is pending approval
+    # If so, deny all create/edit/delete permissions
+    from superadmin.middleware import get_current_business
+    current_business = get_current_business()
+    if current_business and current_business.status == "pending":
+        # Deny all create/edit/delete permissions for pending businesses
+        if permission_type in [
+            "can_create",
+            "can_edit",
+            "can_delete",
+            "can_manage_users",
+            "can_create_users",
+            "can_edit_users",
+            "can_delete_users",
+        ]:
+            return False
+    
     # Account owners have access to everything
     if user.role.lower() == "admin":
         return True
@@ -87,6 +104,26 @@ def require_permission(permission_type, redirect_url="dashboard:index"):
 
     def decorator(view_func):
         def wrapped_view(request, *args, **kwargs):
+            # Check if user's business is pending approval
+            # If so, deny all create/edit/delete permissions
+            from superadmin.middleware import get_current_business
+            current_business = get_current_business()
+            if current_business and current_business.status == "pending":
+                # Deny all create/edit/delete permissions for pending businesses
+                if permission_type in [
+                    "can_create",
+                    "can_edit",
+                    "can_delete",
+                    "can_manage_users",
+                    "can_create_users",
+                    "can_edit_users",
+                    "can_delete_users",
+                ]:
+                    messages.error(
+                        request, "Your business is pending approval. You cannot perform this action until it is approved."
+                    )
+                    return redirect(redirect_url)
+            
             # Account owners have access to everything
             if request.user.role.lower() == "admin":
                 return view_func(request, *args, **kwargs)

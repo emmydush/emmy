@@ -1,0 +1,95 @@
+{% extends 'superadmin/standalone_base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Profile" %} - Super Admin{% endblock %}
+
+{% block content %}
+<!-- Super Admin Header -->
+<div class="superadmin-header">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <h1 class="h3 fw-bold mb-1">
+                            <i class="fas fa-user-circle me-2"></i>{% trans "Super Admin Profile" %}
+                        </h1>
+                        <p class="mb-0 small">Manage your account settings</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <div class="d-flex justify-content-md-end align-items-center gap-2">
+                    <!-- Back to Dashboard -->
+                    <a href="{% url 'superadmin:dashboard' %}" class="btn btn-sm btn-outline-light" role="button">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        <span class="d-none d-sm-inline">Back to Dashboard</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid" style="margin-top: 100px;">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-user-edit"></i> {% trans "Edit Profile" %}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="first_name" class="form-label">{% trans "First Name" %}</label>
+                                    <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="last_name" class="form-label">{% trans "Last Name" %}</label>
+                                    <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">{% trans "Username" %}</label>
+                            <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">{% trans "Email" %}</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">{% trans "Phone" %}</label>
+                            <input type="text" class="form-control" id="phone" name="phone" value="{{ user.phone }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="address" class="form-label">{% trans "Address" %}</label>
+                            <textarea class="form-control" id="address" name="address" rows="3">{{ user.address }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="profile_picture" class="form-label">{% trans "Profile Picture" %}</label>
+                            <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*">
+                            {% if user.profile_picture %}
+                                <div class="mt-2">
+                                    <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="img-thumbnail" style="max-height: 150px;">
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="role" class="form-label">{% trans "Role" %}</label>
+                            <input type="text" class="form-control" id="role" name="role" value="{{ user.get_role_display }}" readonly>
+                        </div>
+                        <button type="submit" class="btn btn-primary">{% trans "Update Profile" %}</button>
+                        <a href="{% url 'authentication:change_password' %}" class="btn btn-secondary">{% trans "Change Password" %}</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

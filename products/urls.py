@@ -33,6 +33,14 @@ urlpatterns = [
     path("attribute-values/<int:pk>/update/", views.variant_attribute_value_update, name="variant_attribute_value_update"),
     path("attribute-values/<int:pk>/delete/", views.variant_attribute_value_delete, name="variant_attribute_value_delete"),
     
+    # Inventory transfer URLs
+    path("transfers/", views.inventory_transfer_list, name="inventory_transfer_list"),
+    path("transfers/create/", views.inventory_transfer_create, name="inventory_transfer_create"),
+    path("transfers/<int:pk>/", views.inventory_transfer_detail, name="inventory_transfer_detail"),
+    path("transfers/<int:pk>/update/", views.inventory_transfer_update, name="inventory_transfer_update"),
+    path("transfers/<int:pk>/complete/", views.inventory_transfer_complete, name="inventory_transfer_complete"),
+    path("transfers/<int:pk>/cancel/", views.inventory_transfer_cancel, name="inventory_transfer_cancel"),
+    
     path("categories/", views.category_list, name="category_list"),
     path("categories/create/", views.category_create, name="category_create"),
     path("categories/<int:pk>/update/", views.category_update, name="category_update"),

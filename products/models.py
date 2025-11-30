@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse
+from django.core.exceptions import ValidationError
 from decimal import Decimal
 import uuid
 import os
@@ -7,7 +8,7 @@ import re
 from io import BytesIO
 from django.core.files.base import ContentFile
 from typing import TYPE_CHECKING
-from superadmin.models import Business
+from superadmin.models import Business, Branch
 from superadmin.managers import BusinessSpecificManager
 
 # Import signals
@@ -78,6 +79,11 @@ class Product(models.Model):
     # Add business relationship for multi-tenancy
     business = models.ForeignKey(
         Business, on_delete=models.CASCADE, related_name="products", null=True
+    )
+    
+    # Add branch relationship for multi-branch support
+    branch = models.ForeignKey(
+        Branch, on_delete=models.CASCADE, related_name="products", null=True, blank=True
     )
 
     BARCODE_FORMAT_CHOICES = [
@@ -652,6 +658,11 @@ class ProductVariant(models.Model):
         Business, on_delete=models.CASCADE, related_name="product_variants", null=True
     )
     
+    # Add branch relationship for multi-branch support
+    branch = models.ForeignKey(
+        Branch, on_delete=models.CASCADE, related_name="product_variants", null=True, blank=True
+    )
+    
     # Link to the main product
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="variants")
     
@@ -878,6 +889,151 @@ class ProductVariantAttribute(models.Model):
 
     def __str__(self) -> str:  # type: ignore
         return f"{self.product_variant.name} - {self.attribute_value}"  # type: ignore
+
+
+class InventoryTransfer(models.Model):
+    """Model for tracking inventory transfers between branches"""
+    
+    if TYPE_CHECKING:
+        objects: "Manager"
+
+    # Use business-specific manager
+    objects = BusinessSpecificManager()
+
+    # Add business relationship for multi-tenancy
+    business = models.ForeignKey(
+        Business, on_delete=models.CASCADE, related_name="inventory_transfers", null=True
+    )
+    
+    # Source and destination branches
+    from_branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name="outgoing_transfers")
+    to_branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name="incoming_transfers")
+    
+    # Product or variant being transferred
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
+    product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, null=True, blank=True)
+    
+    # Transfer details
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    transfer_date = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True, null=True)
+    
+    # Status tracking
+    TRANSFER_STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("completed", "Completed"),
+        ("cancelled", "Cancelled"),
+    ]
+    status = models.CharField(max_length=20, choices=TRANSFER_STATUS_CHOICES, default="pending")
+    
+    # User who initiated the transfer
+    created_by = models.ForeignKey(
+        "authentication.User", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-transfer_date"]
+
+    def __str__(self) -> str:  # type: ignore
+        if self.product_variant:
+            return f"Transfer of {self.quantity} {self.product_variant.name} from {self.from_branch.name} to {self.to_branch.name}"
+        elif self.product:
+            return f"Transfer of {self.quantity} {self.product.name} from {self.from_branch.name} to {self.to_branch.name}"
+        return f"Transfer from {self.from_branch.name} to {self.to_branch.name}"
+
+    def clean(self):
+        # Ensure either product or product_variant is specified, but not both
+        if not self.product and not self.product_variant:
+            raise ValidationError("Either product or product variant must be specified.")
+        if self.product and self.product_variant:
+            raise ValidationError("Only one of product or product variant can be specified.")
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+        
+        # If transfer is completed, update inventory levels
+        if self.status == "completed":
+            self.process_transfer()
+
+    def process_transfer(self):
+        """Process the inventory transfer by updating stock levels"""
+        if self.product:
+            # Reduce stock from source branch
+            if self.product.branch == self.from_branch:
+                self.product.quantity -= self.quantity
+                self.product.save(update_fields=['quantity'])
+            
+            # Increase stock in destination branch
+            # Note: This assumes the product already exists in the destination branch
+            # In a real implementation, you might need to create the product in the destination branch
+            dest_product = Product.objects.filter(
+                business=self.business,
+                branch=self.to_branch,
+                sku=self.product.sku
+            ).first()
+            
+            if dest_product:
+                dest_product.quantity += self.quantity
+                dest_product.save(update_fields=['quantity'])
+            else:
+                # Create the product in the destination branch if it doesn't exist
+                Product.objects.create(
+                    business=self.business,
+                    branch=self.to_branch,
+                    name=self.product.name,
+                    sku=self.product.sku,
+                    barcode=self.product.barcode,
+                    barcode_format=self.product.barcode_format,
+                    category=self.product.category,
+                    unit=self.product.unit,
+                    description=self.product.description,
+                    image=self.product.image,
+                    cost_price=self.product.cost_price,
+                    selling_price=self.product.selling_price,
+                    quantity=self.quantity,
+                    reorder_level=self.product.reorder_level,
+                    expiry_date=self.product.expiry_date,
+                    is_active=self.product.is_active,
+                )
+        
+        elif self.product_variant:
+            # Reduce stock from source branch
+            if self.product_variant.branch == self.from_branch:
+                self.product_variant.quantity -= self.quantity
+                self.product_variant.save(update_fields=['quantity'])
+            
+            # Increase stock in destination branch
+            # Note: This assumes the variant already exists in the destination branch
+            dest_variant = ProductVariant.objects.filter(
+                business=self.business,
+                branch=self.to_branch,
+                sku=self.product_variant.sku
+            ).first()
+            
+            if dest_variant:
+                dest_variant.quantity += self.quantity
+                dest_variant.save(update_fields=['quantity'])
+            else:
+                # Create the variant in the destination branch if it doesn't exist
+                ProductVariant.objects.create(
+                    business=self.business,
+                    branch=self.to_branch,
+                    product=self.product_variant.product,  # This assumes the product exists in the destination branch
+                    name=self.product_variant.name,
+                    sku=self.product_variant.sku,
+                    barcode=self.product_variant.barcode,
+                    barcode_format=self.product_variant.barcode_format,
+                    cost_price=self.product_variant.cost_price,
+                    selling_price=self.product_variant.selling_price,
+                    quantity=self.quantity,
+                    reorder_level=self.product_variant.reorder_level,
+                    image=self.product_variant.image,
+                    is_active=self.product_variant.is_active,
+                )
 
 
 @receiver(post_save, sender=ProductVariant)

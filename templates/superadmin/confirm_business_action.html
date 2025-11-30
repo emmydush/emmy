@@ -1,0 +1,64 @@
+{% extends 'superadmin/base.html' %}
+
+{% block title %}{% if action == "suspend" %}Suspend Business{% elif action == "approve" %}Approve Business{% elif action == "delete" %}Delete Business{% else %}Activate Business{% endif %} - {{ business.company_name }}{% endblock %}
+
+{% block superadmin_content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h3>
+          {% if action == "suspend" %}
+          <i class="fas fa-ban"></i> Suspend Business
+          {% elif action == "approve" %}
+          <i class="fas fa-thumbs-up"></i> Approve Business
+          {% elif action == "delete" %}
+          <i class="fas fa-trash"></i> Delete Business
+          {% else %}
+          <i class="fas fa-check-circle"></i> Activate Business
+          {% endif %}
+        </h3>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-warning">
+          <h5><i class="fas fa-exclamation-triangle"></i> Confirmation Required</h5>
+          {% if action == "suspend" %}
+          <p>You are about to suspend the business <strong>{{ business.company_name }}</strong>.</p>
+          <p>When suspended, this business will not be able to access the system until reactivated.</p>
+          {% elif action == "approve" %}
+          <p>You are about to approve the business <strong>{{ business.company_name }}</strong>.</p>
+          <p>When approved, this business will be activated and able to access the system.</p>
+          {% elif action == "delete" %}
+          <p>You are about to permanently delete the business <strong>{{ business.company_name }}</strong>.</p>
+          <p class="text-danger"><strong>Warning:</strong> This action cannot be undone and will permanently delete all data associated with this business.</p>
+          {% else %}
+          <p>You are about to activate the business <strong>{{ business.company_name }}</strong>.</p>
+          <p>When activated, this business will be able to access the system again.</p>
+          {% endif %}
+        </div>
+        
+        <form method="post">
+          {% csrf_token %}
+          <div class="d-flex justify-content-between">
+            <a href="{% url 'superadmin:business_management' %}" class="btn btn-secondary">
+              <i class="fas fa-arrow-left me-1"></i> Cancel
+            </a>
+            <button type="submit" class="btn {% if action == 'suspend' or action == 'delete' %}btn-danger{% else %}btn-success{% endif %}">
+              {% if action == "suspend" %}
+              <i class="fas fa-ban me-1"></i> Confirm Suspension
+              {% elif action == "approve" %}
+              <i class="fas fa-thumbs-up me-1"></i> Confirm Approval
+              {% elif action == "delete" %}
+              <i class="fas fa-trash me-1"></i> Confirm Deletion
+              {% else %}
+              <i class="fas fa-check-circle me-1"></i> Confirm Activation
+              {% endif %}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}

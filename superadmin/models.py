@@ -59,6 +59,14 @@ class Business(models.Model):
         # In a real implementation, this would count users associated with this business
         return 1
 
+    def get_main_branch(self):
+        """Get the main branch for this business"""
+        try:
+            return self.branches.get(is_main=True)
+        except Branch.DoesNotExist:
+            # If no main branch exists, return the first active branch
+            return self.branches.filter(is_active=True).first()
+
 
 class Branch(models.Model):
     business = models.ForeignKey(
@@ -247,6 +255,90 @@ class SupportTicket(models.Model):
 
     def __str__(self):
         return f"Ticket #{self.id}: {self.subject}"
+
+
+class BranchRequest(models.Model):
+    """Model for branch creation requests that require superadmin approval"""
+    
+    STATUS_CHOICES = [
+        ("pending", "Pending Approval"),
+        ("approved", "Approved"),
+        ("rejected", "Rejected"),
+    ]
+    
+    # Business requesting the branch
+    business = models.ForeignKey(
+        Business, on_delete=models.CASCADE, related_name="branch_requests"
+    )
+    
+    # Branch details
+    name = models.CharField(max_length=200)
+    address = models.TextField()
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    is_main = models.BooleanField(default=False)
+    
+    # Request information
+    requested_by = models.ForeignKey(
+        "authentication.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="branch_requests",
+    )
+    requested_at = models.DateTimeField(auto_now_add=True)
+    
+    # Approval information
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    approved_by = models.ForeignKey(
+        "authentication.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="branch_approvals",
+    )
+    approved_at = models.DateTimeField(null=True, blank=True)
+    approval_notes = models.TextField(blank=True, null=True)
+    
+    # Audit fields
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Branch Request"
+        verbose_name_plural = "Branch Requests"
+        ordering = ["-requested_at"]
+    
+    def __str__(self):
+        return f"Branch Request: {self.name} for {self.business.company_name} - {self.status.title()}"
+    
+    def save(self, *args, **kwargs):
+        # Automatically set approved_at when status changes to approved or rejected
+        if self.status in ["approved", "rejected"] and not self.approved_at:
+            from django.utils import timezone
+            self.approved_at = timezone.now()
+        
+        super().save(*args, **kwargs)
+        
+        # If approved, automatically create the branch
+        if self.status == "approved":
+            self.create_branch()
+    
+    def create_branch(self):
+        """Create the actual branch when the request is approved"""
+        from .models import Branch
+        
+        # Create the branch with the requested details
+        branch = Branch.objects.create(
+            business=self.business,
+            name=self.name,
+            address=self.address,
+            phone=self.phone,
+            email=self.email,
+            is_main=self.is_main,
+            is_active=True
+        )
+        
+        return branch
 
 
 class APIClient(models.Model):

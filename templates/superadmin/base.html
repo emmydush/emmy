@@ -1,120 +1,19 @@
-{% extends 'base.html' %}
+{% extends 'superadmin/standalone_base.html' %}
 
 {% block title %}Super Admin - {{ business_settings.business_name }}{% endblock %}
 
-{% block extra_css %}
-<style>
-/* Modern Admin Dashboard Styles */
-:root {
-  --primary-color: #4361ee;
-  --secondary-color: #3f37c9;
-  --success-color: #4cc9f0;
-  --danger-color: #f72585;
-  --warning-color: #f8961e;
-  --info-color: #4895ef;
-  --light-color: #f8f9fa;
-  --dark-color: #212529;
-  --sidebar-width: 250px;
-}
-
-.superadmin-container {
-  display: flex;
-  min-height: calc(100vh - 56px);
-}
-
-.superadmin-sidebar {
-  width: var(--sidebar-width);
-  background: #fff;
-  border-right: 1px solid #dee2e6;
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-  z-index: 1000;
-  transition: all 0.3s ease;
-}
-
-.superadmin-sidebar .nav-link {
-  color: var(--dark-color);
-  padding: 0.75rem 1rem;
-  border-radius: 0;
-  transition: all 0.2s ease;
-}
-
-.superadmin-sidebar .nav-link:hover {
-  background-color: rgba(67, 97, 238, 0.1);
-  color: var(--primary-color);
-}
-
-.superadmin-sidebar .nav-link.active {
-  background-color: var(--primary-color);
-  color: #fff;
-}
-
-.superadmin-main {
-  flex: 1;
-  padding: 1.5rem;
-  background-color: #f8f9fa;
-}
-
-.card-stats {
-  border-radius: 0.5rem;
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-  transition: transform 0.2s ease;
-}
-
-.card-stats:hover {
-  transform: translateY(-5px);
-}
-
-.stat-number {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.stat-label {
-  font-size: 0.875rem;
-  color: #6c757d;
-}
-
-.badge-sm {
-  font-size: 0.75em;
-}
-
-.table-responsive {
-  border-radius: 0.5rem;
-  overflow: hidden;
-}
-
-.btn-icon {
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.chart-container {
-  position: relative;
-  height: 300px;
-}
-</style>
-{% endblock %}
-
 {% block content %}
-<!-- Beautiful Header -->
-<div class="container-fluid bg-success text-white py-3 mb-0">
-    <div class="container">
+<!-- Super Admin Header -->
+<div class="superadmin-header">
+    <div class="container-fluid">
         <div class="row align-items-center">
             <div class="col-md-6">
                 <div class="d-flex align-items-center">
-                    {% if business_settings.business_logo %}
-                        <img src="{{ business_settings.business_logo.url }}" alt="{{ business_settings.business_name }} Logo" class="me-3" style="max-height: 40px; width: auto;">
-                    {% endif %}
                     <div>
                         <h1 class="h3 fw-bold mb-1">
-                            {{ business_settings.business_name }}
+                            <i class="fas fa-crown me-2"></i>Super Admin Dashboard
                         </h1>
-                        <p class="mb-0 small">Intelligent. Efficient. Simplified.</p>
+                        <p class="mb-0 small">System-wide management and monitoring</p>
                     </div>
                 </div>
             </div>
@@ -126,28 +25,28 @@
                         <span class="d-none d-sm-inline">Back to App</span>
                     </a>
                     
-          <!-- Language Selector -->
-          <div class="dropdown">
-            <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="fas fa-globe me-1"></i>
-              <span class="d-none d-sm-inline">Language</span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
-              <li><a class="dropdown-item" href="#" data-lang="en">English</a></li>
-              <li><a class="dropdown-item" href="#" data-lang="rw">Kinyarwanda</a></li>
-              <li><a class="dropdown-item" href="#" data-lang="es">Español</a></li>
-              <li><a class="dropdown-item" href="#" data-lang="fr">Français</a></li>
-              <li><a class="dropdown-item" href="#" data-lang="de">Deutsch</a></li>
-            </ul>
-            {# Hidden language form that posts to user preference endpoint when logged in,
-               otherwise to Django's set_language view #}
-            <form id="language-form" action="{% if user.is_authenticated %}{% url 'authentication:set_user_language' %}{% else %}{% url 'set_language' %}{% endif %}" method="post" style="display:none;">
-              {% csrf_token %}
-              <input type="hidden" name="next" value="{{ request.get_full_path }}">
-              <input type="hidden" name="language" id="language-input" value="">
-            </form>
-          </div>
-                    
+                    <!-- Language Selector -->
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-globe me-1"></i>
+                            <span class="d-none d-sm-inline">Language</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+                            <li><a class="dropdown-item" href="#" data-lang="en">English</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="rw">Kinyarwanda</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="es">Español</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="fr">Français</a></li>
+                            <li><a class="dropdown-item" href="#" data-lang="de">Deutsch</a></li>
+                        </ul>
+                        {# Hidden language form that posts to user preference endpoint when logged in,
+                           otherwise to Django's set_language view #}
+                        <form id="language-form" action="{% if user.is_authenticated %}{% url 'authentication:set_user_language' %}{% else %}{% url 'set_language' %}{% endif %}" method="post" style="display:none;">
+                          {% csrf_token %}
+                          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                          <input type="hidden" name="language" id="language-input" value="">
+                        </form>
+                    </div>
+
                     <!-- Theme Toggle Button -->
                     <div class="theme-toggle-container">
                         <button id="themeToggle" class="theme-toggle btn btn-sm btn-outline-light" aria-label="Toggle theme">
@@ -163,51 +62,105 @@
 <div class="superadmin-container">
   <!-- Sidebar -->
   <nav class="superadmin-sidebar d-flex flex-column">
-    <div class="p-3 border-bottom">
-      <h5 class="mb-0">Super Admin</h5>
-      <small class="text-muted">{{ user.username }}</small>
+    <div class="sidebar-brand">
+      <h4>System Control</h4>
+    </div>
+    <div class="sidebar-user">
+      <div>{{ user.username }}</div>
+      <small>Super Administrator</small>
     </div>
     <div class="flex-grow-1">
       <ul class="nav flex-column">
         <li class="nav-item">
           <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" 
              href="{% url 'superadmin:dashboard' %}">
-            <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+            <i class="fas fa-tachometer-alt me-2"></i> <span>System Dashboard</span>
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link {% if request.resolver_match.url_name == 'business_management' %}active{% endif %}" 
              href="{% url 'superadmin:business_management' %}">
-            <i class="fas fa-building me-2"></i> Business Management
+            <i class="fas fa-building me-2"></i> <span>Business Management</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'branch_list' %}active{% endif %}" 
+             href="{% url 'superadmin:branch_list' business_pk=1 %}">
+            <i class="fas fa-code-branch me-2"></i> <span>Branch Management</span>
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link {% if request.resolver_match.url_name == 'subscription_management' %}active{% endif %}" 
              href="{% url 'superadmin:subscription_management' %}">
-            <i class="fas fa-credit-card me-2"></i> Subscriptions
+            <i class="fas fa-credit-card me-2"></i> <span>Subscriptions</span>
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link {% if request.resolver_match.url_name == 'system_logs' %}active{% endif %}" 
              href="{% url 'superadmin:system_logs' %}">
-            <i class="fas fa-file-alt me-2"></i> System Logs
+            <i class="fas fa-file-alt me-2"></i> <span>System Logs</span>
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link {% if request.resolver_match.url_name == 'communication_center' %}active{% endif %}" 
              href="{% url 'superadmin:communication_center' %}">
-            <i class="fas fa-comments me-2"></i> Communication
+            <i class="fas fa-comments me-2"></i> <span>Communication</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'email_settings' %}active{% endif %}" 
+             href="{% url 'superadmin:email_settings' %}">
+            <i class="fas fa-envelope me-2"></i> <span>Email Settings</span>
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link {% if request.resolver_match.url_name == 'api_monitoring' %}active{% endif %}" 
              href="{% url 'superadmin:api_monitoring' %}">
-            <i class="fas fa-code me-2"></i> API Monitoring
+            <i class="fas fa-code me-2"></i> <span>API Monitoring</span>
+          </a>
+        </li>
+        
+        <!-- Branch Requests -->
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'branch_request_approval_list' %}active{% endif %}" 
+             href="{% url 'superadmin:branch_request_approval_list' %}">
+            <i class="fas fa-tasks me-2"></i> <span>Branch Requests</span>
+            <!-- Show pending request count if any -->
+            {% load cache %}
+            {% cache 300 pending_branch_requests_count %}
+              {% with pending_count=pending_requests_count|default:0 %}
+                {% if pending_count > 0 %}
+                  <span class="badge bg-danger float-end">{{ pending_count }}</span>
+                {% endif %}
+              {% endwith %}
+            {% endcache %}
           </a>
         </li>
       </ul>
     </div>
-
+    
+    <div class="mt-auto">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'authentication:profile' %}">
+            <i class="fas fa-user me-2"></i> <span>Profile</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <!-- Logout form - POST request needed for Django logout -->
+          <form method="post" action="{% url 'logout' %}" id="logout-form" style="display: none;">
+            {% csrf_token %}
+          </form>
+          <a class="nav-link" href="#" onclick="document.getElementById('logout-form').submit();">
+            <i class="fas fa-sign-out-alt me-2"></i> <span>Logout</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    
+    <div class="p-3 border-top border-light border-opacity-10">
+      <small class="text-light text-opacity-75">&copy; 2025 System Administration</small>
+    </div>
   </nav>
 
   <!-- Main Content -->
@@ -217,6 +170,18 @@
     {% endblock %}
   </main>
 </div>
+
+<!-- Messages -->
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}

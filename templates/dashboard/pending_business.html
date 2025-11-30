@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Business Pending Approval" %} - {{ business_settings.business_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-warning">
+                <div class="card-header bg-warning text-white text-center">
+                    <h3 class="mb-0"><i class="fas fa-clock me-2"></i>{% trans "Business Pending Approval" %}</h3>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-business-time text-warning" style="font-size: 4rem;"></i>
+                    </div>
+                    
+                    <h4 class="mb-3">{% trans "Thank You for Registering!" %}</h4>
+                    
+                    <p class="mb-4">
+                        {% trans "Your business registration for" %} <strong>{{ business.company_name }}</strong> {% trans "has been successfully submitted." %}
+                    </p>
+                    
+                    <div class="alert alert-info">
+                        <h5><i class="fas fa-info-circle me-2"></i>{% trans "What happens next?" %}</h5>
+                        <ul class="text-start">
+                            <li>{% trans "An administrator will review your business information" %}</li>
+                            <li>{% trans "You'll receive an email notification once approved" %}</li>
+                            <li>{% trans "After approval, you'll be able to access your business dashboard" %}</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'logout' %}" class="btn btn-secondary">
+                            <i class="fas fa-sign-out-alt me-2"></i>{% trans "Logout" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

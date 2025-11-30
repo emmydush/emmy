@@ -61,6 +61,14 @@ class UserPermission(models.Model):
     can_edit = models.BooleanField(default=False)
     can_delete = models.BooleanField(default=False)
 
+    # Add branch-specific permissions
+    # Branch access permissions - if empty, user can access all branches
+    branches = models.ManyToManyField(
+        "superadmin.Branch", related_name="user_permissions", blank=True
+    )
+    # If True, user can only access branches explicitly assigned to them
+    restrict_to_assigned_branches = models.BooleanField(default=False)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

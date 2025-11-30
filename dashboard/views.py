@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from products.models import Product, Category
 from sales.models import Sale, SaleItem
 from customers.models import Customer
@@ -54,12 +55,24 @@ def dashboard_view(request):
             # Set it in the session for future requests
             request.session["current_business_id"] = current_business.id
         else:
-            logger.warning(
-                "No businesses found for user, redirecting to create business"
-            )
-            # Check if user has just registered and needs to create a business
-            # Redirect to business creation page
-            return redirect("authentication:create_business")
+            # If user is a superuser, redirect to Super Admin dashboard
+            if request.user.is_superuser:
+                logger.info("Superuser detected, redirecting to Super Admin dashboard")
+                return redirect("superadmin:dashboard")
+            else:
+                logger.warning(
+                    "No businesses found for user, redirecting to create business"
+                )
+                # Check if user has just registered and needs to create a business
+                # Redirect to business creation page
+                return redirect("authentication:create_business")
+    
+    # Check if the business is pending approval
+    if current_business and current_business.status == "pending":
+        # Show a message that the business is pending approval
+        messages.info(request, "Your business registration is pending approval by an administrator. You will have full access once it's approved.")
+        # Render a special template for pending businesses
+        return render(request, "dashboard/pending_business.html", {"business": current_business})
 
     # IMPORTANT: Set the current business in middleware thread-local storage
     # This is required for business_specific() manager method to work properly

@@ -1,5 +1,5 @@
 from django.db import models
-from .middleware import get_current_business
+from .middleware import get_current_business, get_current_branch
 
 
 class BusinessSpecificManager(models.Manager):
@@ -14,22 +14,44 @@ class BusinessSpecificManager(models.Manager):
         """
         queryset = super().get_queryset()
         current_business = get_current_business()
+        current_branch = get_current_branch()
+        
         if current_business:
             # Check if the model has a direct business field
             if hasattr(self.model, "business"):
-                return queryset.filter(business=current_business)
+                base_query = queryset.filter(business=current_business)
+                # If we have a branch context and the model has a branch field, filter by branch too
+                if current_branch and hasattr(self.model, "branch"):
+                    return base_query.filter(branch=current_branch)
+                return base_query
             # Check if the model has a purchase_order relationship (for PurchaseItem)
             elif hasattr(self.model, "purchase_order"):
-                return queryset.filter(purchase_order__business=current_business)
+                base_query = queryset.filter(purchase_order__business=current_business)
+                # If we have a branch context and the model has a branch field, filter by branch too
+                if current_branch and hasattr(self.model, "branch"):
+                    return base_query.filter(branch=current_branch)
+                return base_query
             # Check if the model has a product relationship that can lead to business
             elif hasattr(self.model, "product"):
-                return queryset.filter(product__business=current_business)
+                base_query = queryset.filter(product__business=current_business)
+                # If we have a branch context and the model has a branch field, filter by branch too
+                if current_branch and hasattr(self.model, "branch"):
+                    return base_query.filter(branch=current_branch)
+                return base_query
             # Check if the model has a supplier relationship that can lead to business
             elif hasattr(self.model, "supplier"):
-                return queryset.filter(supplier__business=current_business)
+                base_query = queryset.filter(supplier__business=current_business)
+                # If we have a branch context and the model has a branch field, filter by branch too
+                if current_branch and hasattr(self.model, "branch"):
+                    return base_query.filter(branch=current_branch)
+                return base_query
             # Check if the model has a customer relationship that can lead to business
             elif hasattr(self.model, "customer"):
-                return queryset.filter(customer__business=current_business)
+                base_query = queryset.filter(customer__business=current_business)
+                # If we have a branch context and the model has a branch field, filter by branch too
+                if current_branch and hasattr(self.model, "branch"):
+                    return base_query.filter(branch=current_branch)
+                return base_query
             else:
                 # If no recognizable relationship to business, return empty queryset
                 return queryset.none()

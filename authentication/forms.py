@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AuthenticationForm
 from .models import User, UserThemePreference, UserPermission
 
 
@@ -10,6 +10,7 @@ class CustomUserCreationForm(UserCreationForm):
     phone = forms.CharField(max_length=15, required=False)
     role = forms.ChoiceField(choices=User.ROLE_CHOICES, required=False)
     profile_picture = forms.ImageField(required=False)
+    address = forms.CharField(max_length=200, required=False, widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}))
 
     class Meta:
         model = User
@@ -19,6 +20,7 @@ class CustomUserCreationForm(UserCreationForm):
             "last_name",
             "email",
             "phone",
+            "address",
             "role",
             "profile_picture",
             "password1",
@@ -31,12 +33,47 @@ class CustomUserCreationForm(UserCreationForm):
         user.first_name = self.cleaned_data["first_name"]
         user.last_name = self.cleaned_data["last_name"]
         user.phone = self.cleaned_data["phone"]
+        user.address = self.cleaned_data["address"]
         user.profile_picture = self.cleaned_data.get("profile_picture")
         # Set role, default to 'cashier' if not provided
         user.role = self.cleaned_data.get("role", "cashier")
         if commit:
             user.save()
         return user
+
+
+class CustomUserChangeForm(UserChangeForm):
+    password = None  # Exclude password field from the form
+
+    class Meta:
+        model = User
+        fields = (
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "phone",
+            "role",
+            "profile_picture",
+            "address",
+        )
+        widgets = {
+            "username": forms.TextInput(attrs={"class": "form-control"}),
+            "first_name": forms.TextInput(attrs={"class": "form-control"}),
+            "last_name": forms.TextInput(attrs={"class": "form-control"}),
+            "email": forms.EmailInput(attrs={"class": "form-control"}),
+            "phone": forms.TextInput(attrs={"class": "form-control"}),
+            "role": forms.Select(attrs={"class": "form-select"}),
+            "profile_picture": forms.FileInput(attrs={"class": "form-control"}),
+            "address": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+        }
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        # Check if this email is already used by another user
+        if email and User.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("A user with that email already exists.")
+        return email
 
 
 class AdminUserCreationForm(forms.Form):
@@ -148,6 +185,8 @@ class UserPermissionForm(forms.ModelForm):
             "can_create",
             "can_edit",
             "can_delete",
+            "restrict_to_assigned_branches",
+            "branches",
         ]
         widgets = {
             "can_access_products": forms.CheckboxInput(
@@ -187,7 +226,20 @@ class UserPermissionForm(forms.ModelForm):
             "can_create": forms.CheckboxInput(attrs={"class": "form-check-input"}),
             "can_edit": forms.CheckboxInput(attrs={"class": "form-check-input"}),
             "can_delete": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "restrict_to_assigned_branches": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "branches": forms.CheckboxSelectMultiple(attrs={"class": "form-check-input"}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make branches field not required
+        self.fields["branches"].required = False
+        # Get current business from the request if available
+        if 'request' in kwargs:
+            current_business = kwargs['request'].session.get('current_business_id')
+            if current_business:
+                from superadmin.models import Branch
+                self.fields["branches"].queryset = Branch.objects.filter(business_id=current_business)
     
     def clean(self):
         cleaned_data = super().clean()

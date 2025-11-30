@@ -4,17 +4,13 @@ from . import views
 app_name = "authentication"
 
 urlpatterns = [
-    path("login/", views.login_view, name="login"),
-    path("login/success/", views.login_success_view, name="login_success"),
-    path("logout/", views.logout_view, name="logout"),
-    path("register/", views.register_view, name="register"),
-    path("profile/", views.profile_view, name="profile"),
-    path("profile/change-password/", views.change_password_view, name="change_password"),
-    path("set-language/", views.set_user_language, name="set_user_language"),
-    path("password-reset/", views.password_reset_view, name="password_reset"),
-    path("users/", views.user_list_view, name="user_list"),
-    path("users/create/", views.create_user_view, name="create_user"),
-    path("users/edit/<int:user_id>/", views.edit_user_view, name="edit_user"),
-    path("business-details/", views.business_details_view, name="business_details"),
+    path("login/", views.custom_login_view, name="login"),
+    path("users/", views.user_list, name="user_list"),
+    path("users/edit/<int:user_id>/", views.edit_user, name="edit_user"),
+    path("users/edit-styled/<int:user_id>/", views.edit_user_styled, name="edit_user_styled"),
+    path("profile/change-password/", views.change_password, name="change_password"),
+    path("profile/", views.profile, name="profile"),
+    path("set-user-language/", views.set_user_language, name="set_user_language"),
     path("create-business/", views.create_business_view, name="create_business"),
+    path("register/", views.register_view, name="register"),
 ]

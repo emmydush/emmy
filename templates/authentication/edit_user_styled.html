@@ -1,411 +1,328 @@
-{% extends 'base.html' %}
+{% extends 'base_styled.html' %}
 
 {% block title %}Edit User - {{ business_settings.business_name }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="row justify-content-center">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm rounded-3">
-                <div class="card-header bg-primary text-white py-3 rounded-top-3">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-user-edit fa-2x me-3"></i>
-                            <div>
-                                <h2 class="mb-0 h4">Edit User</h2>
-                                <p class="mb-0 small opacity-75">Modify details for {{ user_to_edit.get_full_name|default:user_to_edit.username }}</p>
-                            </div>
-                        </div>
-                        <a href="{% url 'authentication:user_list' %}" class="btn btn-light btn-sm">
-                            <i class="fas fa-arrow-left me-1"></i>Back to Users
-                        </a>
-                    </div>
-                </div>
-                
-                <div class="card-body p-4">
-                    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
-                        {% csrf_token %}
-                        
-                        <!-- Display non-field errors -->
-                        {% if form.non_field_errors or permission_form.non_field_errors %}
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <i class="fas fa-exclamation-circle me-2"></i>
-                                <strong>Error!</strong> Please correct the following issues:
-                                <ul class="mb-0 mt-2">
-                                    {% for error in form.non_field_errors %}
-                                        <li>{{ error }}</li>
-                                    {% endfor %}
-                                    {% for error in permission_form.non_field_errors %}
-                                        <li>{{ error }}</li>
-                                    {% endfor %}
-                                </ul>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endif %}
-                        
-                        <!-- User Profile Section -->
-                        <div class="card mb-4 border-primary-subtle">
-                            <div class="card-header bg-primary-subtle">
-                                <h5 class="mb-0"><i class="fas fa-user me-2"></i>User Profile</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <!-- First Name -->
-                                    <div class="col-md-6 mb-4">
-                                        <div class="form-floating">
-                                            {{ form.first_name }}
-                                            <label for="{{ form.first_name.id_for_label }}" class="form-label">
-                                                <i class="fas fa-signature me-1"></i> First Name
-                                            </label>
-                                            {% if form.first_name.errors %}
-                                                <div class="invalid-feedback d-block">
-                                                    {% for error in form.first_name.errors %}
-                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                                    {% endfor %}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Last Name -->
-                                    <div class="col-md-6 mb-4">
-                                        <div class="form-floating">
-                                            {{ form.last_name }}
-                                            <label for="{{ form.last_name.id_for_label }}" class="form-label">
-                                                <i class="fas fa-signature me-1"></i> Last Name
-                                            </label>
-                                            {% if form.last_name.errors %}
-                                                <div class="invalid-feedback d-block">
-                                                    {% for error in form.last_name.errors %}
-                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                                    {% endfor %}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Email -->
-                                    <div class="col-md-6 mb-4">
-                                        <div class="form-floating">
-                                            {{ form.email }}
-                                            <label for="{{ form.email.id_for_label }}" class="form-label">
-                                                <i class="fas fa-envelope me-1"></i> Email
-                                            </label>
-                                            {% if form.email.errors %}
-                                                <div class="invalid-feedback d-block">
-                                                    {% for error in form.email.errors %}
-                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                                    {% endfor %}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Phone -->
-                                    <div class="col-md-6 mb-4">
-                                        <div class="form-floating">
-                                            {{ form.phone }}
-                                            <label for="{{ form.phone.id_for_label }}" class="form-label">
-                                                <i class="fas fa-phone me-1"></i> Phone
-                                            </label>
-                                            {% if form.phone.errors %}
-                                                <div class="invalid-feedback d-block">
-                                                    {% for error in form.phone.errors %}
-                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                                    {% endfor %}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Address -->
-                                    <div class="col-md-12 mb-4">
-                                        <div class="form-floating">
-                                            {{ form.address }}
-                                            <label for="{{ form.address.id_for_label }}" class="form-label">
-                                                <i class="fas fa-map-marker-alt me-1"></i> Address
-                                            </label>
-                                            {% if form.address.errors %}
-                                                <div class="invalid-feedback d-block">
-                                                    {% for error in form.address.errors %}
-                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                                    {% endfor %}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Profile Picture -->
-                                    <div class="col-md-12 mb-4">
-                                        <label for="{{ form.profile_picture.id_for_label }}" class="form-label">
-                                            <i class="fas fa-image me-1"></i> Profile Picture
-                                        </label>
-                                        {{ form.profile_picture }}
-                                        {% if form.profile_picture.errors %}
-                                            <div class="invalid-feedback d-block">
-                                                {% for error in form.profile_picture.errors %}
-                                                    <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                                {% endfor %}
-                                            </div>
-                                        {% endif %}
-                                        {% if user_to_edit.profile_picture %}
-                                            <div class="mt-3">
-                                                <p class="mb-2"><small>Current profile picture:</small></p>
-                                                <img src="{{ user_to_edit.profile_picture.url }}" alt="Profile Picture" class="img-thumbnail" style="max-height: 150px;">
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Permissions Section -->
-                        <div class="card mb-4 border-success-subtle">
-                            <div class="card-header bg-success-subtle">
-                                <h5 class="mb-0"><i class="fas fa-key me-2"></i>Access Permissions</h5>
-                            </div>
-                            <div class="card-body">
-                                <!-- Access Permissions Sections -->
-                                <div class="row">
-                                    <!-- Modules Section -->
-                                    <div class="col-12 mb-4">
-                                        <div class="card border-secondary-subtle">
-                                            <div class="card-header bg-secondary-subtle">
-                                                <h6 class="mb-0"><i class="fas fa-cubes me-2"></i>Module Access Permissions</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <div class="col-md-4 mb-3">
-                                                        <div class="form-check form-switch">
-                                                            {{ permission_form.can_access_products }}
-                                                            <label class="form-check-label" for="{{ permission_form.can_access_products.id_for_label }}">
-                                                                <i class="fas fa-box me-1"></i> Access Products
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-4 mb-3">
-                                                        <div class="form-check form-switch">
-                                                            {{ permission_form.can_access_sales }}
-                                                            <label class="form-check-label" for="{{ permission_form.can_access_sales.id_for_label }}">
-                                                                <i class="fas fa-shopping-cart me-1"></i> Access Sales
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-4 mb-3">
-                                                        <div class="form-check form-switch">
-                                                            {{ permission_form.can_access_purchases }}
-                                                            <label class="form-check-label" for="{{ permission_form.can_access_purchases.id_for_label }}">
-                                                                <i class="fas fa-truck me-1"></i> Access Purchases
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-4 mb-3">
-                                                        <div class="form-check form-switch">
-                                                            {{ permission_form.can_access_customers }}
-                                                            <label class="form-check-label" for="{{ permission_form.can_access_customers.id_for_label }}">
-                                                                <i class="fas fa-users me-1"></i> Access Customers
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-4 mb-3">
-                                                        <div class="form-check form-switch">
-                                                            {{ permission_form.can_access_suppliers }}
-                                                            <label class="form-check-label" for="{{ permission_form.can_access_suppliers.id_for_label }}">
-                                                                <i class="fas fa-industry me-1"></i> Access Suppliers
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-4 mb-3">
-                                                        <div class="form-check form-switch">
-                                                            {{ permission_form.can_access_expenses }}
-                                                            <label class="form-check-label" for="{{ permission_form.can_access_expenses.id_for_label }}">
-                                                                <i class="fas fa-money-bill-wave me-1"></i> Access Expenses
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-4 mb-3">
-                                                        <div class="form-check form-switch">
-                                                            {{ permission_form.can_access_reports }}
-                                                            <label class="form-check-label" for="{{ permission_form.can_access_reports.id_for_label }}">
-                                                                <i class="fas fa-chart-bar me-1"></i> Access Reports
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-4 mb-3">
-                                                        <div class="form-check form-switch">
-                                                            {{ permission_form.can_access_settings }}
-                                                            <label class="form-check-label" for="{{ permission_form.can_access_settings.id_for_label }}">
-                                                                <i class="fas fa-cog me-1"></i> Access Settings
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- User Management Section -->
-                                    <div class="col-12 mb-4">
-                                        <div class="card border-info-subtle">
-                                            <div class="card-header bg-info-subtle">
-                                                <h6 class="mb-0"><i class="fas fa-users-cog me-2"></i>User Management Permissions</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <div class="col-md-6 mb-3">
-                                                        <div class="form-check form-switch">
-                                                            {{ permission_form.can_manage_users }}
-                                                            <label class="form-check-label" for="{{ permission_form.can_manage_users.id_for_label }}">
-                                                                <i class="fas fa-users-cog me-1"></i> Manage Users
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6 mb-3">
-                                                        <div class="form-check form-switch">
-                                                            {{ permission_form.can_create_users }}
-                                                            <label class="form-check-label" for="{{ permission_form.can_create_users.id_for_label }}">
-                                                                <i class="fas fa-user-plus me-1"></i> Create Users
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6 mb-3">
-                                                        <div class="form-check form-switch">
-                                                            {{ permission_form.can_edit_users }}
-                                                            <label class="form-check-label" for="{{ permission_form.can_edit_users.id_for_label }}">
-                                                                <i class="fas fa-user-edit me-1"></i> Edit Users
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6 mb-3">
-                                                        <div class="form-check form-switch">
-                                                            {{ permission_form.can_delete_users }}
-                                                            <label class="form-check-label" for="{{ permission_form.can_delete_users.id_for_label }}">
-                                                                <i class="fas fa-user-times me-1"></i> Delete Users
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Action Permissions Section -->
-                                    <div class="col-12 mb-4">
-                                        <div class="card border-warning-subtle">
-                                            <div class="card-header bg-warning-subtle">
-                                                <h6 class="mb-0"><i class="fas fa-edit me-2"></i>Action Permissions</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <div class="col-md-4 mb-3">
-                                                        <div class="form-check form-switch">
-                                                            {{ permission_form.can_create }}
-                                                            <label class="form-check-label" for="{{ permission_form.can_create.id_for_label }}">
-                                                                <i class="fas fa-plus-circle me-1"></i> Create Records
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-4 mb-3">
-                                                        <div class="form-check form-switch">
-                                                            {{ permission_form.can_edit }}
-                                                            <label class="form-check-label" for="{{ permission_form.can_edit.id_for_label }}">
-                                                                <i class="fas fa-edit me-1"></i> Edit Records
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-4 mb-3">
-                                                        <div class="form-check form-switch">
-                                                            {{ permission_form.can_delete }}
-                                                            <label class="form-check-label" for="{{ permission_form.can_delete.id_for_label }}">
-                                                                <i class="fas fa-trash-alt me-1"></i> Delete Records
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                {% if permission_form.non_field_errors %}
-                                    <div class="alert alert-warning mt-3">
-                                        {% for error in permission_form.non_field_errors %}
-                                            <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        
-                        <!-- Password Change Section -->
-                        <div class="card mb-4 border-warning-subtle">
-                            <div class="card-header bg-warning-subtle">
-                                <h5 class="mb-0"><i class="fas fa-lock me-2"></i>Change Password</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-4">
-                                        <div class="form-floating">
-                                            {{ password_form.password1 }}
-                                            <label for="{{ password_form.password1.id_for_label }}" class="form-label">
-                                                <i class="fas fa-lock me-1"></i> New Password
-                                            </label>
-                                            {% if password_form.password1.errors %}
-                                                <div class="invalid-feedback d-block">
-                                                    {% for error in password_form.password1.errors %}
-                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                                    {% endfor %}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 mb-4">
-                                        <div class="form-floating">
-                                            {{ password_form.password2 }}
-                                            <label for="{{ password_form.password2.id_for_label }}" class="form-label">
-                                                <i class="fas fa-lock me-1"></i> Confirm New Password
-                                            </label>
-                                            {% if password_form.password2.errors %}
-                                                <div class="invalid-feedback d-block">
-                                                    {% for error in password_form.password2.errors %}
-                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                                    {% endfor %}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="alert alert-info">
-                                    <i class="fas fa-info-circle me-2"></i>
-                                    <small>Password must be at least 8 characters long and contain both letters and numbers.</small>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Action Buttons -->
-                        <div class="d-flex flex-wrap gap-2 mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg flex-grow-1 flex-sm-grow-0">
-                                <i class="fas fa-save me-2"></i>Update User
-                            </button>
-                            <button type="submit" name="change_password" value="1" class="btn btn-warning btn-lg flex-grow-1 flex-sm-grow-0">
-                                <i class="fas fa-key me-2"></i>Change Password Only
-                            </button>
-                            <a href="{% url 'authentication:user_list' %}" class="btn btn-outline-secondary btn-lg flex-grow-1 flex-sm-grow-0">
-                                <i class="fas fa-times me-2"></i>Cancel
-                            </a>
-                        </div>
-                    </form>
-                </div>
-                
-                <div class="card-footer bg-light py-3 rounded-bottom-3">
-                    <div class="d-flex align-items-center text-muted">
-                        <i class="fas fa-user-clock me-2"></i>
-                        <small>User created on {{ user_to_edit.date_joined|date:"M d, Y" }} | Last updated {{ user_to_edit.updated_at|date:"M d, Y" }}</small>
-                    </div>
-                </div>
-            </div>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box d-flex align-items-center justify-content-between">
+        <h4 class="mb-0">Edit User</h4>
+        <div class="page-title-right">
+          <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'authentication:user_list' %}">Users</a></li>
+            <li class="breadcrumb-item active">Edit User</li>
+          </ol>
         </div>
+      </div>
     </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- User Information Section -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="{{ user_form.username.id_for_label }}" class="form-label">Username</label>
+                  {{ user_form.username }}
+                  {% if user_form.username.errors %}
+                    <div class="text-danger">{{ user_form.username.errors }}</div>
+                  {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                  <label for="{{ user_form.first_name.id_for_label }}" class="form-label">First Name</label>
+                  {{ user_form.first_name }}
+                  {% if user_form.first_name.errors %}
+                    <div class="text-danger">{{ user_form.first_name.errors }}</div>
+                  {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                  <label for="{{ user_form.email.id_for_label }}" class="form-label">Email</label>
+                  {{ user_form.email }}
+                  {% if user_form.email.errors %}
+                    <div class="text-danger">{{ user_form.email.errors }}</div>
+                  {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                  <label for="{{ user_form.role.id_for_label }}" class="form-label">Role</label>
+                  {{ user_form.role }}
+                  {% if user_form.role.errors %}
+                    <div class="text-danger">{{ user_form.role.errors }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="{{ user_form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                  {{ user_form.last_name }}
+                  {% if user_form.last_name.errors %}
+                    <div class="text-danger">{{ user_form.last_name.errors }}</div>
+                  {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                  <label for="{{ user_form.phone.id_for_label }}" class="form-label">Phone</label>
+                  {{ user_form.phone }}
+                  {% if user_form.phone.errors %}
+                    <div class="text-danger">{{ user_form.phone.errors }}</div>
+                  {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                  <label for="{{ user_form.address.id_for_label }}" class="form-label">Address</label>
+                  {{ user_form.address }}
+                  {% if user_form.address.errors %}
+                    <div class="text-danger">{{ user_form.address.errors }}</div>
+                  {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                  <label for="{{ user_form.profile_picture.id_for_label }}" class="form-label">Profile Picture</label>
+                  {{ user_form.profile_picture }}
+                  {% if user_form.profile_picture.errors %}
+                    <div class="text-danger">{{ user_form.profile_picture.errors }}</div>
+                  {% endif %}
+                  {% if user_to_edit.profile_picture %}
+                    <div class="mt-2">
+                      <img src="{{ user_to_edit.profile_picture.url }}" alt="Profile Picture" class="img-thumbnail" style="max-height: 100px;">
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            
+            <!-- Permissions Section -->
+            <div class="row">
+              <div class="col-12">
+                <h5 class="mt-4 mb-3">Access Permissions</h5>
+                <div class="row">
+                  <div class="col-md-4 mb-3">
+                    <div class="form-check form-switch">
+                      {{ permission_form.can_access_products }}
+                      <label class="form-check-label" for="{{ permission_form.can_access_products.id_for_label }}">
+                        <i class="fas fa-box me-1"></i> Access Products
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <div class="form-check form-switch">
+                      {{ permission_form.can_access_sales }}
+                      <label class="form-check-label" for="{{ permission_form.can_access_sales.id_for_label }}">
+                        <i class="fas fa-shopping-cart me-1"></i> Access Sales
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <div class="form-check form-switch">
+                      {{ permission_form.can_access_purchases }}
+                      <label class="form-check-label" for="{{ permission_form.can_access_purchases.id_for_label }}">
+                        <i class="fas fa-truck me-1"></i> Access Purchases
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <div class="form-check form-switch">
+                      {{ permission_form.can_access_customers }}
+                      <label class="form-check-label" for="{{ permission_form.can_access_customers.id_for_label }}">
+                        <i class="fas fa-users me-1"></i> Access Customers
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <div class="form-check form-switch">
+                      {{ permission_form.can_access_suppliers }}
+                      <label class="form-check-label" for="{{ permission_form.can_access_suppliers.id_for_label }}">
+                        <i class="fas fa-industry me-1"></i> Access Suppliers
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <div class="form-check form-switch">
+                      {{ permission_form.can_access_expenses }}
+                      <label class="form-check-label" for="{{ permission_form.can_access_expenses.id_for_label }}">
+                        <i class="fas fa-money-bill-wave me-1"></i> Access Expenses
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <div class="form-check form-switch">
+                      {{ permission_form.can_access_reports }}
+                      <label class="form-check-label" for="{{ permission_form.can_access_reports.id_for_label }}">
+                        <i class="fas fa-chart-bar me-1"></i> Access Reports
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <div class="form-check form-switch">
+                      {{ permission_form.can_access_settings }}
+                      <label class="form-check-label" for="{{ permission_form.can_access_settings.id_for_label }}">
+                        <i class="fas fa-cog me-1"></i> Access Settings
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- User Management Permissions Section -->
+            <div class="col-12 mb-4">
+              <div class="card border-info-subtle">
+                <div class="card-header bg-info-subtle">
+                  <h6 class="mb-0"><i class="fas fa-users-cog me-2"></i>User Management Permissions</h6>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <div class="form-check form-switch">
+                        {{ permission_form.can_manage_users }}
+                        <label class="form-check-label" for="{{ permission_form.can_manage_users.id_for_label }}">
+                          <i class="fas fa-users-cog me-1"></i> Manage Users
+                        </label>
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <div class="form-check form-switch">
+                        {{ permission_form.can_create_users }}
+                        <label class="form-check-label" for="{{ permission_form.can_create_users.id_for_label }}">
+                          <i class="fas fa-user-plus me-1"></i> Create Users
+                        </label>
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <div class="form-check form-switch">
+                        {{ permission_form.can_edit_users }}
+                        <label class="form-check-label" for="{{ permission_form.can_edit_users.id_for_label }}">
+                          <i class="fas fa-user-edit me-1"></i> Edit Users
+                        </label>
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <div class="form-check form-switch">
+                        {{ permission_form.can_delete_users }}
+                        <label class="form-check-label" for="{{ permission_form.can_delete_users.id_for_label }}">
+                          <i class="fas fa-user-times me-1"></i> Delete Users
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Action Permissions Section -->
+            <div class="col-12 mb-4">
+              <div class="card border-warning-subtle">
+                <div class="card-header bg-warning-subtle">
+                  <h6 class="mb-0"><i class="fas fa-edit me-2"></i>Action Permissions</h6>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-4 mb-3">
+                      <div class="form-check form-switch">
+                        {{ permission_form.can_create }}
+                        <label class="form-check-label" for="{{ permission_form.can_create.id_for_label }}">
+                          <i class="fas fa-plus-circle me-1"></i> Create Records
+                        </label>
+                      </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <div class="form-check form-switch">
+                        {{ permission_form.can_edit }}
+                        <label class="form-check-label" for="{{ permission_form.can_edit.id_for_label }}">
+                          <i class="fas fa-edit me-1"></i> Edit Records
+                        </label>
+                      </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <div class="form-check form-switch">
+                        {{ permission_form.can_delete }}
+                        <label class="form-check-label" for="{{ permission_form.can_delete.id_for_label }}">
+                          <i class="fas fa-trash-alt me-1"></i> Delete Records
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Branch Access Permissions Section -->
+            <div class="col-12 mb-4">
+              <div class="card border-success-subtle">
+                <div class="card-header bg-success-subtle">
+                  <h6 class="mb-0"><i class="fas fa-building me-2"></i>Branch Access Permissions</h6>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-12 mb-3">
+                      <div class="form-check form-switch">
+                        {{ permission_form.restrict_to_assigned_branches }}
+                        <label class="form-check-label" for="{{ permission_form.restrict_to_assigned_branches.id_for_label }}">
+                          <i class="fas fa-lock me-1"></i> Restrict to assigned branches only
+                        </label>
+                      </div>
+                      <small class="form-text text-muted">
+                        If enabled, user will only be able to access branches explicitly assigned below.
+                        If disabled, user can access all branches.
+                      </small>
+                    </div>
+                    
+                    <div class="col-md-12 mt-3">
+                      <label class="form-label"><i class="fas fa-building me-1"></i> Assigned Branches</label>
+                      <div class="row">
+                        {% for branch in all_branches %}
+                        <div class="col-md-6 mb-2">
+                          <div class="form-check">
+                            <input type="checkbox" 
+                                   name="branches" 
+                                   value="{{ branch.id }}" 
+                                   class="form-check-input" 
+                                   id="branch_{{ branch.id }}"
+                                   {% if branch in assigned_branches %}checked{% endif %}>
+                            <label class="form-check-label" for="branch_{{ branch.id }}">
+                              {{ branch.name }}
+                            </label>
+                          </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-md-12">
+                          <p class="text-muted">No branches available.</p>
+                        </div>
+                        {% endfor %}
+                      </div>
+                      <small class="form-text text-muted">
+                        Select branches this user can access. Only applies when "Restrict to assigned branches only" is enabled.
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="d-flex justify-content-between mt-4">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-1"></i> Save Changes
+              </button>
+              <a href="{% url 'authentication:user_list' %}" class="btn btn-secondary">
+                <i class="fas fa-times me-1"></i> Cancel
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
 

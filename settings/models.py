@@ -9,6 +9,9 @@ User = get_user_model()
 
 
 class BusinessSettings(models.Model):
+    # Add foreign key to Business model for data isolation
+    business = models.OneToOneField('superadmin.Business', on_delete=models.CASCADE, related_name='settings', null=True, blank=True)
+    
     business_name = models.CharField(max_length=200, default="Smart Solution")
     business_address = models.TextField(default="123 Business Street, City, Country")
     business_email = models.EmailField(default="info@smartsolution.com")
@@ -27,6 +30,8 @@ class BusinessSettings(models.Model):
         verbose_name_plural = "Business Settings"
 
     def __str__(self) -> str:  # type: ignore
+        if self.business:
+            return f"{self.business.company_name} Settings"
         return self.business_name  # type: ignore
 
 

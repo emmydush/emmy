@@ -1,0 +1,32 @@
+Business Registration Confirmation
+
+Hello {{ owner.username }},
+
+Thank you for registering {{ business.company_name }} with {{ business_settings.business_name }}. We're excited to have you on board!
+
+Business Details:
+------------------
+Company Name: {{ business.company_name }}
+Business Email: {{ business.email }}
+Registration Status: Pending Approval
+
+Your business registration for {{ business.company_name }} is currently pending approval by our administrative team. Once approved, you'll receive another email notification.
+
+In the meantime, you can:
+- Review our documentation and guides
+- Prepare your product inventory
+- Set up your team members
+
+Access your account: {{ login_url }}
+
+If you have any questions or need assistance, please don't hesitate to contact our support team.
+
+Best regards,
+The {{ business_settings.business_name }} Team
+
+---
+
+&copy; {{ current_year }} {{ business_settings.business_name }}. All rights reserved.
+{{ business_settings.business_address }}
+
+Login to your account: {{ login_url }}

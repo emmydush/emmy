@@ -70,31 +70,47 @@ def settings_list(request):
 @login_required
 @user_passes_test(can_access_settings)
 def business_settings(request):
-    business_settings, created = BusinessSettings.objects.get_or_create(id=1)
+    # Try to get business-specific settings first
+    business_settings_obj = None
+    
+    # Try to get current business from session
+    business_id = request.session.get("current_business_id")
+    if business_id:
+        try:
+            from superadmin.models import Business
+            business = Business.objects.get(id=business_id)
+            # Get or create business-specific settings
+            business_settings_obj, created = BusinessSettings.objects.get_or_create(business=business)
+        except Business.DoesNotExist:
+            # If business doesn't exist, fall back to global settings
+            business_settings_obj, created = BusinessSettings.objects.get_or_create(id=1)
+    else:
+        # Fall back to global settings
+        business_settings_obj, created = BusinessSettings.objects.get_or_create(id=1)
 
     if request.method == "POST":
         form = BusinessSettingsForm(
-            request.POST, request.FILES, instance=business_settings
+            request.POST, request.FILES, instance=business_settings_obj
         )
         if form.is_valid():
             # Handle logo deletion
-            if form.cleaned_data.get("delete_logo") and business_settings.business_logo:
+            if form.cleaned_data.get("delete_logo") and business_settings_obj.business_logo:
                 # Delete the logo file
-                if business_settings.business_logo and hasattr(
-                    business_settings.business_logo, "delete"
+                if business_settings_obj.business_logo and hasattr(
+                    business_settings_obj.business_logo, "delete"
                 ):
-                    business_settings.business_logo.delete(save=False)
+                    business_settings_obj.business_logo.delete(save=False)
                 # Clear the logo field
-                business_settings.business_logo = None
+                business_settings_obj.business_logo = None
 
             form.save()
             messages.success(request, "Business settings updated successfully!")
             return redirect("settings:business")
     else:
-        form = BusinessSettingsForm(instance=business_settings)
+        form = BusinessSettingsForm(instance=business_settings_obj)
 
     return render(
-        request, "settings/business.html", {"form": form, "settings": business_settings}
+        request, "settings/business.html", {"form": form, "settings": business_settings_obj}
     )
 
 

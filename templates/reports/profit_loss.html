@@ -16,6 +16,43 @@
     </div>
 </div>
 
+<!-- Branch Selection -->
+{% if branches %}
+<div class="row mb-3">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h5>{% trans "Select Branch" %}</h5>
+                <form method="get" class="d-inline-block">
+                    <select name="branch_id" class="form-select d-inline-block w-auto" onchange="this.form.submit()">
+                        <option value="">{% trans "All Branches" %}</option>
+                        {% for branch in branches %}
+                            <option value="{{ branch.id }}" {% if current_branch and current_branch.id == branch.id %}selected{% endif %}>
+                                {{ branch.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {% if request.GET.start_date %}
+                        <input type="hidden" name="start_date" value="{{ request.GET.start_date }}">
+                    {% endif %}
+                    {% if request.GET.end_date %}
+                        <input type="hidden" name="end_date" value="{{ request.GET.end_date }}">
+                    {% endif %}
+                    <noscript>
+                        <button type="submit" class="btn btn-primary btn-sm">{% trans "Apply" %}</button>
+                    </noscript>
+                </form>
+                {% if current_branch %}
+                    <span class="badge bg-info ms-2">{% trans "Currently viewing:" %} {{ current_branch.name }}</span>
+                {% else %}
+                    <span class="badge bg-secondary ms-2">{% trans "All Branches" %}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <div class="row mb-4">
     <div class="col-md-12">
         <div class="card">

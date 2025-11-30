@@ -1,0 +1,207 @@
+{% extends 'superadmin/base.html' %}
+
+{% block title %}Branch Request Details - {{ branch_request.name }}{% endblock %}
+
+{% block superadmin_content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2><i class="fas fa-code-branch me-2"></i>Branch Request Details</h2>
+    <div>
+        {% if branch_request.status == 'pending' and user.is_superuser %}
+            <a href="{% url 'superadmin:branch_request_approve' branch_request.pk %}" class="btn btn-success">
+                <i class="fas fa-check-circle me-1"></i>Approve/Reject
+            </a>
+        {% endif %}
+        <a href="{% if user.is_superuser %}{% url 'superadmin:branch_request_approval_list' %}{% else %}{% url 'superadmin:branch_request_list' %}{% endif %}" class="btn btn-secondary ms-2">
+            <i class="fas fa-arrow-left me-1"></i>Back
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle me-2"></i>Branch Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Branch Name</label>
+                            <p>{{ branch_request.name }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Main Branch</label>
+                            <p>
+                                {% if branch_request.is_main %}
+                                    <span class="badge bg-primary">Yes</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">No</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Address</label>
+                            <p>{{ branch_request.address }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Phone</label>
+                            <p>{{ branch_request.phone|default:"Not provided" }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Email</label>
+                            <p>{{ branch_request.email|default:"Not provided" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% if branch_request.status != 'pending' %}
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="fas fa-check-circle me-2"></i>Approval Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Status</label>
+                            <p>
+                                {% if branch_request.status == 'approved' %}
+                                    <span class="badge bg-success">Approved</span>
+                                {% elif branch_request.status == 'rejected' %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Approved/Rejected By</label>
+                            <p>
+                                {% if branch_request.approved_by %}
+                                    <span class="badge bg-info">{{ branch_request.approved_by.username }}</span>
+                                {% else %}
+                                    <span class="badge bg-light text-dark">System</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Approved/Rejected At</label>
+                            <p>
+                                {% if branch_request.approved_at %}
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>{{ branch_request.approved_at|date:"M d, Y H:i" }}
+                                    </small>
+                                {% else %}
+                                    <span class="text-muted">Not processed yet</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Approval Notes</label>
+                            <p>{{ branch_request.approval_notes|default:"No notes provided." }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-business-time me-2"></i>Business Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Business Name</label>
+                    <p>{{ branch_request.business.company_name }}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Business Email</label>
+                    <p>{{ branch_request.business.email }}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Business Type</label>
+                    <p>
+                        <span class="badge bg-secondary">{{ branch_request.business.get_business_type_display }}</span>
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Plan Type</label>
+                    <p>
+                        <span class="badge {% if branch_request.business.plan_type == 'premium' %}bg-warning{% elif branch_request.business.plan_type == 'enterprise' %}bg-success{% else %}bg-secondary{% endif %}">
+                            {{ branch_request.business.get_plan_type_display }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="fas fa-user me-2"></i>Request Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Requested By</label>
+                    <p>
+                        {% if branch_request.requested_by %}
+                            <span class="badge bg-info">{{ branch_request.requested_by.username }}</span>
+                        {% else %}
+                            <span class="badge bg-light text-dark">System</span>
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Requested At</label>
+                    <p>
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>{{ branch_request.requested_at|date:"M d, Y H:i" }}
+                        </small>
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Current Status</label>
+                    <p>
+                        {% if branch_request.status == 'pending' %}
+                            <span class="badge bg-warning">Pending Approval</span>
+                        {% elif branch_request.status == 'approved' %}
+                            <span class="badge bg-success">Approved</span>
+                        {% else %}
+                            <span class="badge bg-danger">Rejected</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -48,7 +48,7 @@
         <div class="d-flex align-items-center">
             <div class="flex-grow-1">
                 <h2 class="welcome-title mb-1">
-                    <span class="text-primary">{% trans "EMMY GROUP LTD" %}</span>
+                    <span class="text-primary">{{ business_settings.business_name }}</span>
                 </h2>
                 <p class="welcome-subtitle text-muted mb-0">
                     {% trans "Welcome back," %} <span class="fw-semibold">{{ user.username }}</span>! {% trans "Here's what's happening with your business today." %}

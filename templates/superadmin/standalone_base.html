@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    {% load static %}
+    {% load i18n %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Super Admin - Smart Solution{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Modern Admin Dashboard Styles */
+        :root {
+          --primary-color: #4361ee;
+          --secondary-color: #3f37c9;
+          --success-color: #4cc9f0;
+          --danger-color: #f72585;
+          --warning-color: #f8961e;
+          --info-color: #4895ef;
+          --light-color: #f8f9fa;
+          --dark-color: #212529;
+          --sidebar-width: 250px;
+          --superadmin-primary: #6f42c1;
+          --superadmin-secondary: #007bff;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .superadmin-container {
+          display: flex;
+          min-height: 100vh;
+        }
+
+        .superadmin-sidebar {
+          width: var(--sidebar-width);
+          background: linear-gradient(180deg, var(--superadmin-primary) 0%, #5a32a3 100%);
+          color: white;
+          box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+          z-index: 1000;
+          transition: all 0.3s ease;
+          position: fixed;
+          height: 100%;
+          overflow-y: auto;
+        }
+
+        .superadmin-sidebar .nav-link {
+          color: rgba(255, 255, 255, 0.8);
+          padding: 0.75rem 1rem;
+          border-radius: 0;
+          transition: all 0.2s ease;
+          border-left: 3px solid transparent;
+        }
+
+        .superadmin-sidebar .nav-link:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+          color: #fff;
+          border-left: 3px solid #fff;
+        }
+
+        .superadmin-sidebar .nav-link.active {
+          background-color: rgba(255, 255, 255, 0.15);
+          color: #fff;
+          border-left: 3px solid #fff;
+        }
+
+        .superadmin-main {
+          flex: 1;
+          padding: 1.5rem;
+          background-color: #f8f9fa;
+          margin-left: var(--sidebar-width);
+          width: calc(100% - var(--sidebar-width));
+          margin-top: 70px;
+        }
+
+        .card-stats {
+          border-radius: 0.5rem;
+          box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+          transition: transform 0.2s ease;
+        }
+
+        .card-stats:hover {
+          transform: translateY(-5px);
+        }
+
+        .stat-number {
+          font-size: 2rem;
+          font-weight: 700;
+          margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+          font-size: 0.875rem;
+          color: #6c757d;
+        }
+
+        .badge-sm {
+          font-size: 0.75em;
+        }
+
+        .table-responsive {
+          border-radius: 0.5rem;
+          overflow: hidden;
+        }
+
+        .btn-icon {
+          width: 36px;
+          height: 36px;
+          padding: 0;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .chart-container {
+          position: relative;
+          height: 300px;
+        }
+
+        /* Super Admin Header */
+        .superadmin-header {
+          background: linear-gradient(135deg, var(--superadmin-primary) 0%, var(--superadmin-secondary) 100%);
+          color: white;
+          padding: 1rem 0;
+          margin-bottom: 0;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 1020;
+        }
+
+        /* Sidebar brand */
+        .sidebar-brand {
+          padding: 1rem 1.5rem;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-brand h4 {
+          margin: 0;
+          font-weight: 600;
+        }
+
+        .sidebar-user {
+          padding: 0.5rem 1.5rem;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          margin-bottom: 1rem;
+        }
+
+        .sidebar-user small {
+          color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+          .superadmin-sidebar {
+            width: 70px;
+          }
+          
+          .superadmin-sidebar .nav-link span {
+            display: none;
+          }
+          
+          .superadmin-sidebar .nav-link i {
+            margin-right: 0;
+            font-size: 1.2rem;
+          }
+          
+          .superadmin-main {
+            margin-left: 70px;
+            width: calc(100% - 70px);
+          }
+          
+          .sidebar-brand h4, .sidebar-user {
+            display: none;
+          }
+        }
+        
+        /* Messages */
+        .messages {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 9999;
+            width: 300px;
+        }
+        
+        /* Footer */
+        .footer {
+            background-color: #fff;
+            border-top: 1px solid #dee2e6;
+            padding: 1rem 0;
+            margin-top: 2rem;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% block content %}{% endblock %}
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

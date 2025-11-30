@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Business Account Status Update</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #28a745;">{{ business_settings.business_name }}</h1>
+        </div>
+        
+        <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <h2 style="color: #28a745; margin-top: 0;">Business Account {{ status }}!</h2>
+            
+            <p>Hello {{ business.owner.get_full_name|default:business.owner.username }},</p>
+            
+            <p>We're writing to inform you that your business account registration for <strong>{{ business.company_name }}</strong> has been {{ status|lower }} by our administration team.</p>
+            
+            {% if business.status == "active" %}
+            <div style="background: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; padding: 15px; margin: 20px 0;">
+                <h3 style="color: #155724; margin-top: 0;"><i class="fas fa-check-circle"></i> Account Activated</h3>
+                <p>Your business account is now active and ready to use. You can log in to the system and start managing your inventory.</p>
+            </div>
+            
+            <p><strong>Next Steps:</strong></p>
+            <ul>
+                <li><a href="{{ login_url }}" style="color: #007bff; text-decoration: none;">Log in to your account</a></li>
+                <li>Set up your business profile</li>
+                <li>Add your products and inventory</li>
+                <li>Start using the system to manage your business</li>
+            </ul>
+            {% else %}
+            <div style="background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 5px; padding: 15px; margin: 20px 0;">
+                <h3 style="color: #721c24; margin-top: 0;"><i class="fas fa-times-circle"></i> Account Rejected</h3>
+                <p>We regret to inform you that your business account registration has been rejected.</p>
+                {% if rejection_reason %}
+                <p><strong>Reason:</strong> {{ rejection_reason }}</p>
+                {% endif %}
+            </div>
+            
+            <p>If you believe this decision was made in error, please contact our support team for assistance.</p>
+            {% endif %}
+            
+            <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
+            
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                <p>Best regards,<br>
+                <strong>{{ business_settings.business_name }} Team</strong></p>
+            </div>
+        </div>
+        
+        <div style="text-align: center; font-size: 12px; color: #666; margin-top: 20px;">
+            <p>This is an automated message. Please do not reply to this email.</p>
+            <p>&copy; {{ current_year }} {{ business_settings.business_name }}. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
