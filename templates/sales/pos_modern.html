@@ -61,15 +61,12 @@
 @keyframes scannerPulse {
     0% {
         border-color: rgba(0, 255, 0, 0.8);
-        box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.5);
     }
     50% {
-        border-color: rgba(0, 255, 0, 1);
-        box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.4);
+        border-color: rgba(0, 255, 0, 0.4);
     }
     100% {
         border-color: rgba(0, 255, 0, 0.8);
-        box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.5);
     }
 }
 
@@ -417,6 +414,12 @@
             </div>
             <div class="modal-footer">
                 <!-- Manual Controls -->
+                <button type="button" class="btn btn-sm btn-primary" onclick="window.posSystem.runScannerDiagnostics()">
+                    <i class="fas fa-stethoscope"></i> Diagnostics
+                </button>
+                <button type="button" class="btn btn-sm btn-info" onclick="window.posSystem.testCameraAccess()">
+                    <i class="fas fa-camera"></i> Test Camera
+                </button>
                 <button type="button" class="btn btn-sm btn-warning" id="toggleAutoStop" onclick="window.posSystem.toggleAutoStop()">
                     <i class="fas fa-play"></i> Auto-Stop: OFF
                 </button>
@@ -441,7 +444,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/quagga.min.js' %}"></script>
 <script src="{% static 'js/pos.js' %}"></script>
 <script>
 // Make business settings available to JavaScript by extracting from DOM elements
@@ -469,13 +471,6 @@ document.addEventListener('DOMContentLoaded', function() {
         window.posSystem = new POSSystem();
         console.log('POSSystem initialized');
     }
-    
-    // Do not initialize ModernCartSystem to prevent event duplication
-    // Only initialize if POS system is not available as fallback
-    // if (typeof ModernCartSystem !== 'undefined' && typeof window.posSystem === 'undefined') {
-    //     window.modernCartSystem = new ModernCartSystem();
-    //     console.log('ModernCartSystem initialized');
-    // }
 });
 </script>
 {% endblock %}

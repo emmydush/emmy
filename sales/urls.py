@@ -44,6 +44,7 @@ urlpatterns = [
         views.get_product_variant_details,
         name="get_product_variant_details",
     ),
+    # Barcode scanning endpoint
     path("product/barcode/<str:barcode>/", views.get_product_by_barcode, name="get_product_by_barcode"),
     path("credit-sales/", views.credit_sales_list, name="credit_sales_list"),
     path("credit-sales/create/", views.credit_sale_create, name="credit_sale_create"),

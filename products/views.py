@@ -12,6 +12,7 @@ from django.views.decorators.http import require_http_methods
 from django.db import IntegrityError
 from django.utils import timezone
 from decimal import Decimal
+import datetime
 import qrcode
 import csv
 import io
@@ -459,6 +460,7 @@ def bulk_upload(request):
                 next(reader)
 
                 success_count = 0
+                update_count = 0
                 error_count = 0
                 errors = []
 
@@ -519,51 +521,105 @@ def bulk_upload(request):
 
                         # Handle empty values
                         barcode = barcode if barcode else None
+                        description = description if description else ""
+                        
+                        # Parse numeric values
+                        try:
+                            cost_price = Decimal(cost_price) if cost_price else Decimal("0")
+                        except:
+                            cost_price = Decimal("0")
+                            
+                        try:
+                            selling_price = Decimal(selling_price) if selling_price else Decimal("0")
+                        except:
+                            selling_price = Decimal("0")
+                            
+                        try:
+                            quantity = Decimal(quantity) if quantity else Decimal("0")
+                        except:
+                            quantity = Decimal("0")
+                            
+                        try:
+                            reorder_level = Decimal(reorder_level) if reorder_level else Decimal("0")
+                        except:
+                            reorder_level = Decimal("0")
 
-                        # Create product
-                        Product.objects.create(
-                            business=current_business,
-                            name=name,
-                            sku=sku,
-                            barcode=barcode,
-                            category=category,
-                            unit=unit,
-                            description=description or "",
-                            cost_price=(
-                                Decimal(cost_price) if cost_price else Decimal("0")
-                            ),
-                            selling_price=(
-                                Decimal(selling_price)
-                                if selling_price
-                                else Decimal("0")
-                            ),
-                            quantity=Decimal(quantity) if quantity else Decimal("0"),
-                            reorder_level=(
-                                Decimal(reorder_level)
-                                if reorder_level
-                                else Decimal("0")
-                            ),
-                            expiry_date=expiry_date if expiry_date else None,
-                        )
-                        success_count += 1
+                        # Parse expiry date
+                        parsed_expiry_date = None
+                        if expiry_date:
+                            try:
+                                parsed_expiry_date = datetime.datetime.strptime(expiry_date, "%Y-%m-%d").date()
+                            except ValueError:
+                                # Try other common date formats
+                                try:
+                                    parsed_expiry_date = datetime.datetime.strptime(expiry_date, "%d/%m/%Y").date()
+                                except ValueError:
+                                    try:
+                                        parsed_expiry_date = datetime.datetime.strptime(expiry_date, "%m/%d/%Y").date()
+                                    except ValueError:
+                                        parsed_expiry_date = None
+
+                        # Check if product with this SKU already exists
+                        existing_product = Product.objects.filter(
+                            business=current_business, sku=sku
+                        ).first()
+
+                        if existing_product:
+                            # Update existing product
+                            existing_product.name = name
+                            existing_product.barcode = barcode
+                            existing_product.category = category
+                            existing_product.unit = unit
+                            existing_product.description = description
+                            existing_product.cost_price = cost_price
+                            existing_product.selling_price = selling_price
+                            existing_product.quantity = quantity
+                            existing_product.reorder_level = reorder_level
+                            existing_product.expiry_date = parsed_expiry_date
+                            existing_product.save()
+                            update_count += 1
+                        else:
+                            # Create new product
+                            Product.objects.create(
+                                business=current_business,
+                                name=name,
+                                sku=sku,
+                                barcode=barcode,
+                                category=category,
+                                unit=unit,
+                                description=description,
+                                cost_price=cost_price,
+                                selling_price=selling_price,
+                                quantity=quantity,
+                                reorder_level=reorder_level,
+                                expiry_date=parsed_expiry_date,
+                            )
+                            success_count += 1
 
                     except Exception as e:
                         errors.append(f"Row {i+2}: {str(e)}")
                         error_count += 1
 
+                # Prepare success message
+                success_message = ""
                 if success_count > 0:
-                    messages.success(
-                        request, f"Successfully imported {success_count} products."
-                    )
+                    success_message += f"Successfully imported {success_count} new products."
+                if update_count > 0:
+                    success_message += f" Updated {update_count} existing products."
+                
+                if success_message:
+                    messages.success(request, success_message.strip())
+                    
                 if error_count > 0:
-                    messages.error(
-                        request,
-                        f'Failed to import {error_count} products. Errors: {" ".join(errors)}',
-                    )
+                    error_message = f"Failed to process {error_count} rows."
+                    if errors:
+                        error_message += " Errors: " + "; ".join(errors[:5])  # Show first 5 errors
+                        if len(errors) > 5:
+                            error_message += f" ... and {len(errors) - 5} more."
+                    messages.error(request, error_message)
 
             except Exception as e:
                 messages.error(request, f"Error processing CSV file: {str(e)}")
-
         else:
             messages.error(request, "No file uploaded.")
 
@@ -628,38 +684,66 @@ def download_template(request):
     writer = csv.writer(response)
 
     # Write header row
-    writer.writerow(
-        [
-            "Name",
-            "SKU",
-            "Barcode",
-            "Category",
-            "Unit",
-            "Description",
-            "Cost Price",
-            "Selling Price",
-            "Quantity",
-            "Reorder Level",
-            "Expiry Date",
-        ]
-    )
+    writer.writerow([
+        "Name",
+        "SKU",
+        "Barcode",
+        "Category",
+        "Unit",
+        "Description",
+        "Cost Price",
+        "Selling Price",
+        "Quantity",
+        "Reorder Level",
+        "Expiry Date"
+    ])
 
-    # Write sample data row
-    writer.writerow(
+    # Write sample data rows
+    sample_data = [
         [
-            "Sample Product",
-            "SKU001",
-            "123456789012",
+            "iPhone 15 Pro",
+            "IP15PRO-256-BLK",
+            "1234567890128",
             "Electronics",
             "Piece",
-            "Sample product description",
-            "10.50",
-            "15.99",
-            "100",
-            "10",
-            "2025-12-31",
+            "Apple iPhone 15 Pro 256GB Black",
+            "899.99",
+            "1099.99",
+            "25",
+            "5",
+            "2026-12-31"
+        ],
+        [
+            "Samsung Galaxy Tab S9",
+            "S9TAB-128-WHT",
+            "2345678901234",
+            "Electronics",
+            "Piece",
+            "Samsung Galaxy Tab S9 128GB White",
+            "599.99",
+            "749.99",
+            "15",
+            "3",
+            "2026-11-30"
+        ],
+        [
+            "Office Chair",
+            "OFCCHR-BLK-LRG",
+            "3456789012345",
+            "Furniture",
+            "Piece",
+            "Ergonomic Office Chair Black Large",
+            "149.99",
+            "199.99",
+            "8",
+            "2",
+            ""
         ]
-    )
+    ]
+
+    # Write sample data rows
+    for row in sample_data:
+        writer.writerow(row)
 
     return response
 
@@ -934,6 +1018,12 @@ def product_variant_create(request, product_pk):
                     variant.business = current_business
                     variant.product = product
                     variant.save()
+                    
+                    # Update the product's has_variants field
+                    if not product.has_variants:
+                        product.has_variants = True
+                        product.save(update_fields=['has_variants'])
+                    
                     messages.success(request, "Product variant created successfully!")
                     return redirect("products:variant_list", product_pk=product.pk)
                 except IntegrityError as e:
@@ -1048,10 +1138,18 @@ def product_variant_delete(request, pk):
     
     variant = get_object_or_404(ProductVariant.objects.business_specific(), pk=pk)
     product_pk = variant.product.pk
+    product = variant.product
     
     if request.method == "POST":
         variant.is_active = False
         variant.save()
+        
+        # Check if this was the last variant for the product
+        # If so, update the product's has_variants field
+        if product.has_variants and not product.variants.filter(is_active=True).exists():
+            product.has_variants = False
+            product.save(update_fields=['has_variants'])
+        
         messages.success(request, "Product variant deleted successfully!")
         return redirect("products:variant_list", product_pk=product_pk)
     

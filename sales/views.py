@@ -255,6 +255,7 @@ def simple_camera_test_view(request):
 
 @login_required
 def scanner_diagnostics_view(request):
+    """Diagnostics view for troubleshooting scanner issues"""
     return render(request, "sales/scanner_diagnostics.html")
 
 
@@ -657,19 +658,38 @@ def get_product_variant_details(request, variant_id):
 
 
 def get_product_by_barcode(request, barcode):
-    """AJAX view to get product details by barcode"""
+    """AJAX view to get product details by barcode - checks both products and variants"""
     try:
-        product = get_object_or_404(
-            Product.objects.business_specific(), barcode=barcode
-        )
-        data = {
-            "id": product.pk,
-            "name": product.name,
-            "price": float(product.selling_price),
-            "stock": float(product.quantity),
-            "unit": product.unit.symbol,
-        }
-        return JsonResponse(data)
+        # First try to find a regular product with this barcode
+        try:
+            product = get_object_or_404(
+                Product.objects.business_specific(), barcode=barcode
+            )
+            data = {
+                "id": product.pk,
+                "name": product.name,
+                "price": float(product.selling_price),
+                "stock": float(product.quantity),
+                "unit": product.unit.symbol,
+                "is_variant": False,
+            }
+            return JsonResponse(data)
+        except:
+            # If not found as regular product, check for variant
+            variant = get_object_or_404(
+                ProductVariant.objects.business_specific(), barcode=barcode
+            )
+            data = {
+                "id": variant.pk,
+                "name": variant.name,
+                "price": float(variant.selling_price),
+                "stock": float(variant.quantity),
+                "unit": variant.product.unit.symbol,
+                "is_variant": True,
+                "parent_product_id": variant.product.pk,
+                "parent_product_name": variant.product.name,
+            }
+            return JsonResponse(data)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
 

@@ -254,6 +254,14 @@
                     <p>{{ product.description }}</p>
                 </div>
                 {% endif %}
+                
+                <!-- Variants Section -->
+                {% if product.has_variants %}
+                <div class="mt-4">
+                    <h5>Variants</h5>
+                    <p>This product has variants. <a href="{% url 'products:variant_list' product.pk %}">View all variants</a></p>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>

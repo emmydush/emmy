@@ -1,15 +1,18 @@
 from django.db import models
 from django.urls import reverse
-from typing import TYPE_CHECKING
+from decimal import Decimal
 import uuid
 import os
-from django.core.files.base import ContentFile
-from io import BytesIO
 import re
-
-# Import the Business model for multi-tenancy
+from io import BytesIO
+from django.core.files.base import ContentFile
+from typing import TYPE_CHECKING
 from superadmin.models import Business
 from superadmin.managers import BusinessSpecificManager
+
+# Import signals
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 
 if TYPE_CHECKING:
     from django.db.models.manager import Manager
@@ -689,7 +692,8 @@ class ProductVariant(models.Model):
         super().save(*args, **kwargs)
         
         # Generate barcode image after saving (so we have a pk)
-        if self.pk and not self.barcode_image:
+        # Only generate on creation, not on updates
+        if self.pk and hasattr(self, '_state') and self._state.adding:
             self.generate_barcode_image()
 
     def generate_barcode(self):
@@ -874,3 +878,20 @@ class ProductVariantAttribute(models.Model):
 
     def __str__(self) -> str:  # type: ignore
         return f"{self.product_variant.name} - {self.attribute_value}"  # type: ignore
+
+
+@receiver(post_save, sender=ProductVariant)
+def update_product_has_variants_on_variant_save(sender, instance, created, **kwargs):
+    """Update the product's has_variants field when a variant is created or updated"""
+    product = instance.product
+    if not product.has_variants and product.variants.filter(is_active=True).exists():
+        product.has_variants = True
+        product.save(update_fields=['has_variants'])
+
+@receiver(post_delete, sender=ProductVariant)
+def update_product_has_variants_on_variant_delete(sender, instance, **kwargs):
+    """Update the product's has_variants field when a variant is deleted"""
+    product = instance.product
+    if product.has_variants and not product.variants.filter(is_active=True).exists():
+        product.has_variants = False
+        product.save(update_fields=['has_variants'])

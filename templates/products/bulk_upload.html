@@ -21,21 +21,28 @@
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="csv_file" class="form-label">Select CSV File</label>
-                        <input type="file" class="form-control" id="csv_file" name="csv_file" accept=".csv">
+                        <input type="file" class="form-control" id="csv_file" name="csv_file" accept=".csv" required>
                         <div class="form-text">
                             <p class="mb-1">CSV file should contain the following columns in order:</p>
                             <ul>
-                                <li>Name</li>
-                                <li>SKU (Stock Keeping Unit)</li>
-                                <li>Barcode (optional)</li>
-                                <li>Category Name</li>
-                                <li>Unit Name</li>
-                                <li>Description (optional)</li>
-                                <li>Cost Price</li>
-                                <li>Selling Price</li>
-                                <li>Quantity</li>
-                                <li>Reorder Level</li>
-                                <li>Expiry Date (optional, format: YYYY-MM-DD)</li>
+                                <li><strong>Name</strong> - Product name (required)</li>
+                                <li><strong>SKU</strong> - Stock Keeping Unit (required, unique)</li>
+                                <li><strong>Barcode</strong> - Product barcode (optional)</li>
+                                <li><strong>Category Name</strong> - Product category (required)</li>
+                                <li><strong>Unit Name</strong> - Measurement unit (required)</li>
+                                <li><strong>Description</strong> - Product description (optional)</li>
+                                <li><strong>Cost Price</strong> - Purchase price (required, numeric)</li>
+                                <li><strong>Selling Price</strong> - Retail price (required, numeric)</li>
+                                <li><strong>Quantity</strong> - Current stock quantity (required, numeric)</li>
+                                <li><strong>Reorder Level</strong> - Minimum stock level (required, numeric)</li>
+                                <li><strong>Expiry Date</strong> - Expiry date (optional, format: YYYY-MM-DD)</li>
+                            </ul>
+                            <p class="mb-1"><strong>Important Notes:</strong></p>
+                            <ul>
+                                <li>Products with matching SKUs will be updated, not duplicated</li>
+                                <li>New categories and units will be automatically created</li>
+                                <li>Date format should be YYYY-MM-DD (e.g., 2025-12-31)</li>
+                                <li>All numeric fields should use period (.) as decimal separator</li>
                             </ul>
                         </div>
                     </div>
@@ -50,29 +57,14 @@
     <div class="col-md-4">
         <div class="card">
             <div class="card-header">
-                <h5>Download Template</h5>
+                <h5>Instructions</h5>
             </div>
             <div class="card-body">
-                <p>Download our CSV template to ensure your file is formatted correctly.</p>
+                <p>Upload a CSV file with your product information using the form on the left.</p>
+                <p>Products with matching SKUs will be updated automatically.</p>
                 <a href="{% url 'products:download_template' %}" class="btn btn-success">
                     <i class="fas fa-download"></i> Download CSV Template
                 </a>
-            </div>
-        </div>
-        
-        <div class="card mt-4">
-            <div class="card-header">
-                <h5>How It Works</h5>
-            </div>
-            <div class="card-body">
-                <ol>
-                    <li>Download the CSV template</li>
-                    <li>Fill in your product information</li>
-                    <li>Save the file as CSV</li>
-                    <li>Upload using the form on the left</li>
-                    <li>Review the results in the product list</li>
-                </ol>
-                <p class="mb-0"><strong>Note:</strong> Existing products with matching SKUs will be updated.</p>
             </div>
         </div>
     </div>
