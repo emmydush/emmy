@@ -501,7 +501,6 @@
                             <li><a class="dropdown-item" href="#" data-lang="fr">Français</a></li>
                             <li><a class="dropdown-item" href="#" data-lang="de">Deutsch</a></li>
                         </ul>
-                        {# Hidden language form that posts to user preference endpoint when logged in, otherwise to Django's set_language view #}
                         <form id="language-form" action="{% if user.is_authenticated %}{% url 'authentication:set_user_language' %}{% else %}{% url 'set_language' %}{% endif %}" method="post" style="display:none;">
                           {% csrf_token %}
                           <input type="hidden" name="next" value="{{ request.get_full_path }}">
@@ -534,6 +533,50 @@
                             </li>
                         </ul>
                     </li>
+                    
+                    <!-- Branch Switcher -->
+                    {% if request.session.current_business_id %}
+                        {% load superadmin_extras %}
+                        {% get_business_branches request.session.current_business_id as business_branches %}
+                        {% if business_branches %}
+                            <li class="nav-item dropdown me-2">
+                                <a class="nav-link dropdown-toggle" href="#" id="branchSwitcherDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-code-branch"></i>
+                                    {% if request.session.current_branch_id %}
+                                        {% get_branch_name request.session.current_branch_id as current_branch_name %}
+                                        {{ current_branch_name|truncatechars:15 }}
+                                    {% else %}
+                                        Main Branch
+                                    {% endif %}
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="branchSwitcherDropdown">
+                                    <li><h6 class="dropdown-header">Switch Branch</h6></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form method="post" action="{% url 'dashboard:switch_branch' %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="branch_id" value="main">
+                                            <button class="dropdown-item" type="submit">
+                                                <i class="fas fa-building me-2"></i> Main Branch
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    {% for branch in business_branches %}
+                                        <li>
+                                            <form method="post" action="{% url 'dashboard:switch_branch' %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="branch_id" value="{{ branch.id }}">
+                                                <button class="dropdown-item" type="submit">
+                                                    <i class="fas fa-code-branch me-2"></i> {{ branch.name }}
+                                                </button>
+                                            </form>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                        {% endif %}
+                    {% endif %}
                 </ul>
             </div>
         </div>

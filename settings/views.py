@@ -30,6 +30,7 @@ from .forms import (
 )
 from authentication.models import User, UserThemePreference
 from authentication.forms import UserThemePreferenceForm
+from superadmin.models import Business
 
 
 def is_admin(user):
@@ -37,7 +38,31 @@ def is_admin(user):
 
 
 def can_access_settings(user):
-    return user.is_authenticated
+    # Check if user is authenticated
+    if not user.is_authenticated:
+        return False
+    
+    # Admin users can always access settings
+    if user.role == "admin":
+        return True
+    
+    # Check if user has explicit permission to access settings
+    try:
+        from authentication.models import UserPermission
+        user_permission = UserPermission.objects.get(user=user)
+        if user_permission.can_access_settings:
+            return True
+    except:
+        pass
+    
+    # Check if user is a business owner
+    try:
+        if user.owned_businesses.exists():
+            return True
+    except:
+        pass
+    
+    return False
 
 
 def admin_required(view_func):

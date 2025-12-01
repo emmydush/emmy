@@ -38,8 +38,6 @@
                             <li><a class="dropdown-item" href="#" data-lang="fr">Français</a></li>
                             <li><a class="dropdown-item" href="#" data-lang="de">Deutsch</a></li>
                         </ul>
-                        {# Hidden language form that posts to user preference endpoint when logged in,
-                           otherwise to Django's set_language view #}
                         <form id="language-form" action="{% if user.is_authenticated %}{% url 'authentication:set_user_language' %}{% else %}{% url 'set_language' %}{% endif %}" method="post" style="display:none;">
                           {% csrf_token %}
                           <input type="hidden" name="next" value="{{ request.get_full_path }}">
@@ -117,6 +115,14 @@
           <a class="nav-link {% if request.resolver_match.url_name == 'api_monitoring' %}active{% endif %}" 
              href="{% url 'superadmin:api_monitoring' %}">
             <i class="fas fa-code me-2"></i> <span>API Monitoring</span>
+          </a>
+        </li>
+        
+        <!-- User Management -->
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'user_list' %}active{% endif %}" 
+             href="{% url 'superadmin:user_list' %}">
+            <i class="fas fa-users me-2"></i> <span>User Management</span>
           </a>
         </li>
         
