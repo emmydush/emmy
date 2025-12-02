@@ -1,0 +1,110 @@
+{% extends 'superadmin/base.html' %}
+
+{% block title %}Edit Announcement - Super Admin - Smart Solution{% endblock %}
+
+{% block superadmin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1><i class="fas fa-edit me-2"></i>Edit Announcement</h1>
+    <p class="text-muted">Editing announcement: {{ announcement.title }}</p>
+  </div>
+  <div>
+    <a href="{% url 'superadmin:communication_center' %}" class="btn btn-secondary">
+      <i class="fas fa-arrow-left me-1"></i> Back to Communication Center
+    </a>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title mb-0">Announcement Details</h3>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" class="form-control" id="title" name="title" value="{{ announcement.title }}" required>
+          </div>
+          
+          <div class="mb-3">
+            <label for="content" class="form-label">Content</label>
+            <textarea class="form-control" id="content" name="content" rows="5" required>{{ announcement.content }}</textarea>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Target Businesses</label>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" id="selectAll" onclick="toggleAllBusinesses()">
+              <label class="form-check-label" for="selectAll">
+                Select All Businesses
+              </label>
+            </div>
+            <div class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+              {% for business in businesses %}
+              <div class="form-check">
+                <input class="form-check-input business-checkbox" type="checkbox" name="target_businesses" value="{{ business.id }}" id="business_{{ business.id }}"
+                  {% if business in target_businesses %}checked{% endif %}>
+                <label class="form-check-label" for="business_{{ business.id }}">
+                  {{ business.company_name }}
+                </label>
+              </div>
+              {% empty %}
+              <p class="text-muted">No businesses found.</p>
+              {% endfor %}
+            </div>
+          </div>
+          
+          <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="is_active" name="is_active" {% if announcement.is_active %}checked{% endif %}>
+            <label class="form-check-label" for="is_active">Active</label>
+          </div>
+          
+          <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save me-1"></i> Update Announcement
+            </button>
+            <a href="{% url 'superadmin:communication_center' %}" class="btn btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title mb-0">Preview</h3>
+      </div>
+      <div class="card-body">
+        <div class="border rounded p-3 bg-light">
+          <h5 id="previewTitle">{{ announcement.title }}</h5>
+          <div id="previewContent">{{ announcement.content|linebreaks }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleAllBusinesses() {
+  const checkboxes = document.querySelectorAll('.business-checkbox');
+  const selectAllCheckbox = document.getElementById('selectAll');
+  
+  checkboxes.forEach(checkbox => {
+    checkbox.checked = selectAllCheckbox.checked;
+  });
+}
+
+// Update preview as user types
+document.getElementById('title').addEventListener('input', function() {
+  document.getElementById('previewTitle').textContent = this.value;
+});
+
+document.getElementById('content').addEventListener('input', function() {
+  document.getElementById('previewContent').innerHTML = this.value.replace(/\n/g, '<br>');
+});
+</script>
+{% endblock %}

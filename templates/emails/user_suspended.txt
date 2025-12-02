@@ -1,0 +1,25 @@
+Account Suspended - {{ business_settings.business_name }}
+
+Hello {{ user.get_full_name|default:user.username }},
+
+We're writing to inform you that your account "{{ user.username }}" has been suspended by our administration team.
+
+Account Suspended
+=================
+
+Your account has been suspended and you will not be able to access the system until it is reactivated.
+
+{% if suspension_reason %}
+Reason for suspension: {{ suspension_reason }}
+{% endif %}
+
+If you believe this decision was made in error, please contact our support team for assistance.
+
+If you have any questions or need assistance, please don't hesitate to contact our support team.
+
+Best regards,
+{{ business_settings.business_name }} Team
+
+---
+This is an automated message. Please do not reply to this email.
+&copy; {{ current_year }} {{ business_settings.business_name }}. All rights reserved.

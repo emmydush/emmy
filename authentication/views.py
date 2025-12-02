@@ -113,6 +113,73 @@ def user_list(request):
 
 
 @login_required
+def create_user(request):
+    # Account owners have access to everything
+    if request.user.role != "admin" and not check_user_permission(
+        request.user, "can_create_users"
+    ):
+        messages.error(request, "You do not have permission to create users.")
+        return redirect("dashboard:index")
+
+    # Get current business
+    current_business = get_current_business()
+    if not current_business:
+        messages.error(request, "No business context found.")
+        return redirect("dashboard:index")
+
+    # Get all branches for this business
+    all_branches = Branch.objects.filter(business=current_business)
+
+    if request.method == "POST":
+        user_form = CustomUserCreationForm(request.POST)
+        permission_form = UserPermissionForm(request.POST)
+        
+        if user_form.is_valid() and permission_form.is_valid():
+            try:
+                with transaction.atomic():
+                    # Save the user
+                    user = user_form.save(current_business)
+                    
+                    # Save the permissions
+                    permission = permission_form.save(commit=False)
+                    permission.user = user
+                    permission.save()
+                    
+                    # Handle branch assignments
+                    selected_branches = request.POST.getlist('branches')
+                    if selected_branches:
+                        branches = Branch.objects.filter(
+                            id__in=selected_branches, 
+                            business=current_business
+                        )
+                        permission.branches.set(branches)
+                    
+                    messages.success(request, f"User {user.username} created successfully!")
+                    return redirect("authentication:user_list")
+            except Exception as e:
+                messages.error(request, f"An error occurred while creating the user: {str(e)}")
+        else:
+            if user_form.errors:
+                for field, errors in user_form.errors.items():
+                    for error in errors:
+                        messages.error(request, f"User form - {field}: {error}")
+            if permission_form.errors:
+                for field, errors in permission_form.errors.items():
+                    for error in errors:
+                        messages.error(request, f"Permission form - {field}: {error}")
+    else:
+        user_form = CustomUserCreationForm()
+        permission_form = UserPermissionForm()
+
+    context = {
+        "user_form": user_form,
+        "permission_form": permission_form,
+        "all_branches": all_branches,
+    }
+    return render(request, "authentication/create_user_styled.html", context)
+
+
+@login_required
 def edit_user(request, user_id):
     # Account owners have access to everything
     if request.user.role != "admin" and not check_user_permission(

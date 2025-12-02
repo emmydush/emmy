@@ -1,0 +1,89 @@
+{% extends 'superadmin/base.html' %}
+
+{% block title %}Delete User - Super Admin - Smart Solution{% endblock %}
+
+{% block superadmin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1><i class="fas fa-trash-alt me-2"></i>Delete User</h1>
+    <p class="text-muted">Confirm deletion of user: {{ user_to_delete.username }}</p>
+  </div>
+  <div>
+    <a href="{% url 'superadmin:user_list' %}" class="btn btn-secondary">
+      <i class="fas fa-arrow-left me-1"></i> Back to Users
+    </a>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card border-danger">
+      <div class="card-header bg-danger text-white">
+        <h3 class="card-title mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Confirm Deletion</h3>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-warning">
+          <h4 class="alert-heading">Warning!</h4>
+          <p>You are about to permanently delete the user <strong>{{ user_to_delete.username }}</strong>.</p>
+          <p>This action cannot be undone. All data associated with this user will be permanently removed from the system.</p>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="card-title mb-0">User Details</h5>
+              </div>
+              <div class="card-body">
+                <p><strong>Username:</strong> {{ user_to_delete.username }}</p>
+                <p><strong>Email:</strong> {{ user_to_delete.email }}</p>
+                <p><strong>Name:</strong> {{ user_to_delete.first_name }} {{ user_to_delete.last_name }}</p>
+                <p><strong>Role:</strong> {{ user_to_delete.get_role_display }}</p>
+                <p><strong>Date Joined:</strong> {{ user_to_delete.date_joined|date:"M d, Y" }}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="card-title mb-0">Associated Data</h5>
+              </div>
+              <div class="card-body">
+                <p><strong>Businesses:</strong> 
+                  {% if user_to_delete.businesses.exists %}
+                    {% for business in user_to_delete.businesses.all %}
+                      <span class="badge bg-info">{{ business.company_name }}</span>
+                    {% endfor %}
+                  {% else %}
+                    <span class="text-muted">None</span>
+                  {% endif %}
+                </p>
+                <p><strong>Status:</strong> 
+                  {% if user_to_delete.is_active %}
+                    <span class="badge bg-success">Active</span>
+                  {% else %}
+                    <span class="badge bg-danger">Inactive</span>
+                  {% endif %}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <form method="post" class="mt-4">
+          {% csrf_token %}
+          <div class="d-flex justify-content-between">
+            <a href="{% url 'superadmin:user_list' %}" class="btn btn-secondary">
+              <i class="fas fa-times me-1"></i> Cancel
+            </a>
+            <button type="submit" class="btn btn-danger">
+              <i class="fas fa-trash-alt me-1"></i> Confirm Deletion
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

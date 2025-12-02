@@ -1,0 +1,86 @@
+<div class="sidebar-sticky">
+    <!-- Sidebar toggle for mobile -->
+    <div class="sidebar-toggle d-md-none" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+    </div>
+    
+    <ul class="nav flex-column">
+        {% if user.is_superuser %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'superadmin:dashboard' %}">
+                    <i class="fas fa-user-shield me-2"></i> Super Admin
+                </a>
+            </li>
+        {% endif %}
+        
+        {% if user.role == 'admin' or user.is_superuser %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'dashboard:index' %}">
+                    <i class="fas fa-chart-line me-2"></i> Dashboard
+                </a>
+            </li>
+        {% endif %}
+        
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'products:list' %}">
+                <i class="fas fa-boxes me-2"></i> Products
+            </a>
+        </li>
+        
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'sales:list' %}">
+                <i class="fas fa-shopping-cart me-2"></i> Sales
+            </a>
+        </li>
+        
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'purchases:list' %}">
+                <i class="fas fa-truck me-2"></i> Purchases
+            </a>
+        </li>
+        
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'customers:list' %}">
+                <i class="fas fa-users me-2"></i> Customers
+            </a>
+        </li>
+        
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'suppliers:list' %}">
+                <i class="fas fa-industry me-2"></i> Suppliers
+            </a>
+        </li>
+        
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'expenses:list' %}">
+                <i class="fas fa-money-bill-wave me-2"></i> Expenses
+            </a>
+        </li>
+        
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'reports:list' %}">
+                <i class="fas fa-chart-bar me-2"></i> Reports
+            </a>
+        </li>
+    </ul>
+    
+    <hr class="sidebar-divider">
+    
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'authentication:profile' %}">
+                <i class="fas fa-user me-2"></i> Profile
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'settings:index' %}">
+                <i class="fas fa-cog me-2"></i> Settings
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" onclick="handleLogout()">
+                <i class="fas fa-sign-out-alt me-2"></i> Logout
+            </a>
+        </li>
+    </ul>
+</div>

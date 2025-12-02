@@ -1,0 +1,83 @@
+{% extends 'superadmin/base.html' %}
+
+{% block title %}Create Targeted Announcement - Super Admin - {{ business_settings.business_name }}{% endblock %}
+
+{% block superadmin_content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Create Targeted Announcement</h1>
+        <a href="{% url 'superadmin:communication_center' %}" class="btn btn-secondary">
+          <i class="fas fa-arrow-left me-1"></i> Back to Communication Center
+        </a>
+      </div>
+      
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Announcement Details</h5>
+        </div>
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="title" class="form-label">Title</label>
+              <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="content" class="form-label">Content</label>
+              <textarea class="form-control" id="content" name="content" rows="5" required></textarea>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">Target Businesses</label>
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="selectAll" onclick="toggleAllBusinesses()">
+                <label class="form-check-label" for="selectAll">
+                  Select All Businesses
+                </label>
+              </div>
+              <div class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                {% for business in businesses %}
+                <div class="form-check">
+                  <input class="form-check-input business-checkbox" type="checkbox" name="target_businesses" value="{{ business.id }}" id="business_{{ business.id }}">
+                  <label class="form-check-label" for="business_{{ business.id }}">
+                    {{ business.company_name }}
+                  </label>
+                </div>
+                {% empty %}
+                <p class="text-muted">No businesses found.</p>
+                {% endfor %}
+              </div>
+            </div>
+            
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="is_active" name="is_active" checked>
+              <label class="form-check-label" for="is_active">Active</label>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+              <button type="submit" class="btn btn-success">
+                <i class="fas fa-bullhorn me-1"></i> Create Announcement
+              </button>
+              <a href="{% url 'superadmin:communication_center' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleAllBusinesses() {
+  const checkboxes = document.querySelectorAll('.business-checkbox');
+  const selectAllCheckbox = document.getElementById('selectAll');
+  
+  checkboxes.forEach(checkbox => {
+    checkbox.checked = selectAllCheckbox.checked;
+  });
+}
+</script>
+{% endblock %}

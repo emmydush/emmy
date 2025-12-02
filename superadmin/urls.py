@@ -34,6 +34,23 @@ urlpatterns = [
     path("api-monitoring/", views.APIMonitoringView.as_view(), name="api_monitoring"),
     path("email-settings/", views.EmailSettingsView.as_view(), name="email_settings"),
     
+    # User management URLs
+    path(
+        "users/",
+        views.UserListView.as_view(),
+        name="user_list",
+    ),
+    path(
+        "users/<int:user_id>/edit/",
+        views.edit_user_view,
+        name="edit_user",
+    ),
+    path(
+        "users/<int:user_id>/delete/",
+        views.delete_user_view,
+        name="delete_user",
+    ),
+    
     # Business management URLs
     path(
         "businesses/<int:business_pk>/suspend/",

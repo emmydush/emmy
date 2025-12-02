@@ -35,6 +35,6 @@ exclude = [
 ]
 pythonVersion = "3.8"
 typeCheckingMode = "basic"
-// Disable specific checks that conflict with Django migrations
+# Disable specific checks that conflict with Django migrations
 reportGeneralTypeIssues = false
 reportArgumentType = false

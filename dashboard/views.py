@@ -335,3 +335,57 @@ def search_view(request):
     }
 
     return render(request, "dashboard/search_results.html", context)
+
+
+@login_required
+def switch_branch_view(request):
+    """
+    View to switch the current branch for the user.
+    """
+    if request.method == "POST":
+        branch_id = request.POST.get("branch_id")
+        
+        # Get current business from session
+        business_id = request.session.get("current_business_id")
+        if not business_id:
+            messages.error(request, "No business selected.")
+            return redirect("dashboard:index")
+        
+        try:
+            from superadmin.models import Business, Branch
+            business = Business.objects.get(id=business_id)
+            
+            # If branch_id is "main" or empty, clear the branch selection
+            if not branch_id or branch_id == "main":
+                if "current_branch_id" in request.session:
+                    del request.session["current_branch_id"]
+                messages.success(request, "Switched to main business context.")
+            else:
+                # Validate that the branch belongs to the current business
+                branch = Branch.objects.get(id=branch_id, business=business, is_active=True)
+                
+                # Check if user has permission to access this branch
+                try:
+                    from authentication.models import UserPermission
+                    user_permission = UserPermission.objects.get(user=request.user)
+                    if user_permission.restrict_to_assigned_branches:
+                        if not user_permission.branches.filter(id=branch_id).exists():
+                            messages.error(request, "You do not have permission to access this branch.")
+                            return redirect("dashboard:index")
+                except UserPermission.DoesNotExist:
+                    # If no custom permissions exist, user can access all branches
+                    pass
+                
+                # Set the branch in session
+                request.session["current_branch_id"] = branch.id
+                messages.success(request, f"Switched to branch: {branch.name}")
+                
+        except Business.DoesNotExist:
+            messages.error(request, "Invalid business selection.")
+        except Branch.DoesNotExist:
+            messages.error(request, "Invalid branch selection.")
+        except Exception as e:
+            messages.error(request, f"Error switching branch: {str(e)}")
+    
+    # Redirect back to the dashboard
+    return redirect("dashboard:index")

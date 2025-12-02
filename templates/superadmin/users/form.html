@@ -1,0 +1,309 @@
+{% extends 'superadmin/base.html' %}
+
+{% block title %}Edit User - Super Admin - Smart Solution{% endblock %}
+
+{% block superadmin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1><i class="fas fa-user-edit me-2"></i>Edit User</h1>
+    <p class="text-muted">Editing user: {{ user_to_edit.username }}</p>
+  </div>
+  <div>
+    <a href="{% url 'superadmin:user_list' %}" class="btn btn-secondary">
+      <i class="fas fa-arrow-left me-1"></i> Back to Users
+    </a>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title mb-0">User Details</h3>
+      </div>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          
+          <!-- User Form -->
+          <div class="mb-3">
+            <label for="{{ user_form.username.id_for_label }}" class="form-label">Username</label>
+            {{ user_form.username }}
+            {% if user_form.username.errors %}
+              <div class="text-danger">
+                {% for error in user_form.username.errors %}
+                  <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <div class="mb-3">
+            <label for="{{ user_form.email.id_for_label }}" class="form-label">Email</label>
+            {{ user_form.email }}
+            {% if user_form.email.errors %}
+              <div class="text-danger">
+                {% for error in user_form.email.errors %}
+                  <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="{{ user_form.first_name.id_for_label }}" class="form-label">First Name</label>
+                {{ user_form.first_name }}
+                {% if user_form.first_name.errors %}
+                  <div class="text-danger">
+                    {% for error in user_form.first_name.errors %}
+                      <small>{{ error }}</small>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="{{ user_form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                {{ user_form.last_name }}
+                {% if user_form.last_name.errors %}
+                  <div class="text-danger">
+                    {% for error in user_form.last_name.errors %}
+                      <small>{{ error }}</small>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="{{ user_form.phone.id_for_label }}" class="form-label">Phone</label>
+            {{ user_form.phone }}
+            {% if user_form.phone.errors %}
+              <div class="text-danger">
+                {% for error in user_form.phone.errors %}
+                  <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <div class="mb-3">
+            <label for="{{ user_form.role.id_for_label }}" class="form-label">Role</label>
+            {{ user_form.role }}
+            {% if user_form.role.errors %}
+              <div class="text-danger">
+                {% for error in user_form.role.errors %}
+                  <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <div class="form-check mb-3">
+            {{ user_form.is_active }}
+            <label class="form-check-label" for="{{ user_form.is_active.id_for_label }}">
+              Active User
+            </label>
+            {% if user_form.is_active.errors %}
+              <div class="text-danger">
+                {% for error in user_form.is_active.errors %}
+                  <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <div class="mb-3">
+            <label for="{{ user_form.profile_picture.id_for_label }}" class="form-label">Profile Picture</label>
+            {{ user_form.profile_picture }}
+            {% if user_form.profile_picture.errors %}
+              <div class="text-danger">
+                {% for error in user_form.profile_picture.errors %}
+                  <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+            {% endif %}
+            {% if user_to_edit.profile_picture %}
+              <div class="mt-2">
+                <img src="{{ user_to_edit.profile_picture.url }}" alt="Profile Picture" class="img-thumbnail" style="max-width: 150px;">
+              </div>
+            {% endif %}
+          </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title mb-0">Permissions & Assignments</h3>
+      </div>
+      <div class="card-body">
+        <!-- Permission Form -->
+        <div class="mb-3">
+          <label class="form-label">Business Assignments</label>
+          <div class="border rounded p-2" style="max-height: 200px; overflow-y: auto;">
+            {% for business in all_businesses %}
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="businesses" value="{{ business.id }}" id="business_{{ business.id }}"
+                {% if business in assigned_businesses %}checked{% endif %}>
+              <label class="form-check-label" for="business_{{ business.id }}">
+                {{ business.company_name }}
+              </label>
+            </div>
+            {% empty %}
+            <p class="text-muted">No businesses available.</p>
+            {% endfor %}
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label">Branch Assignments</label>
+          <div class="border rounded p-2" style="max-height: 200px; overflow-y: auto;">
+            {% for branch in all_branches %}
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="branches" value="{{ branch.id }}" id="branch_{{ branch.id }}"
+                {% if branch in assigned_branches %}checked{% endif %}>
+              <label class="form-check-label" for="branch_{{ branch.id }}">
+                {{ branch.name }} ({{ branch.business.company_name }})
+              </label>
+            </div>
+            {% empty %}
+            <p class="text-muted">No branches available.</p>
+            {% endfor %}
+          </div>
+        </div>
+        
+        <hr>
+        
+        <h5>Permission Settings</h5>
+        
+        <div class="form-check mb-2">
+          {{ permission_form.can_create }}
+          <label class="form-check-label" for="{{ permission_form.can_create.id_for_label }}">
+            Can Create Records
+          </label>
+        </div>
+        
+        <div class="form-check mb-2">
+          {{ permission_form.can_edit }}
+          <label class="form-check-label" for="{{ permission_form.can_edit.id_for_label }}">
+            Can Edit Records
+          </label>
+        </div>
+        
+        <div class="form-check mb-2">
+          {{ permission_form.can_delete }}
+          <label class="form-check-label" for="{{ permission_form.can_delete.id_for_label }}">
+            Can Delete Records
+          </label>
+        </div>
+        
+        <div class="form-check mb-2">
+          {{ permission_form.can_manage_users }}
+          <label class="form-check-label" for="{{ permission_form.can_manage_users.id_for_label }}">
+            Can Manage Users
+          </label>
+        </div>
+        
+        <div class="form-check mb-2">
+          {{ permission_form.can_create_users }}
+          <label class="form-check-label" for="{{ permission_form.can_create_users.id_for_label }}">
+            Can Create Users
+          </label>
+        </div>
+        
+        <div class="form-check mb-2">
+          {{ permission_form.can_edit_users }}
+          <label class="form-check-label" for="{{ permission_form.can_edit_users.id_for_label }}">
+            Can Edit Users
+          </label>
+        </div>
+        
+        <div class="form-check mb-2">
+          {{ permission_form.can_delete_users }}
+          <label class="form-check-label" for="{{ permission_form.can_delete_users.id_for_label }}">
+            Can Delete Users
+          </label>
+        </div>
+        
+        <div class="form-check mb-2">
+          {{ permission_form.can_access_products }}
+          <label class="form-check-label" for="{{ permission_form.can_access_products.id_for_label }}">
+            Can Access Products
+          </label>
+        </div>
+        
+        <div class="form-check mb-2">
+          {{ permission_form.can_access_sales }}
+          <label class="form-check-label" for="{{ permission_form.can_access_sales.id_for_label }}">
+            Can Access Sales
+          </label>
+        </div>
+        
+        <div class="form-check mb-2">
+          {{ permission_form.can_access_purchases }}
+          <label class="form-check-label" for="{{ permission_form.can_access_purchases.id_for_label }}">
+            Can Access Purchases
+          </label>
+        </div>
+        
+        <div class="form-check mb-2">
+          {{ permission_form.can_access_customers }}
+          <label class="form-check-label" for="{{ permission_form.can_access_customers.id_for_label }}">
+            Can Access Customers
+          </label>
+        </div>
+        
+        <div class="form-check mb-2">
+          {{ permission_form.can_access_suppliers }}
+          <label class="form-check-label" for="{{ permission_form.can_access_suppliers.id_for_label }}">
+            Can Access Suppliers
+          </label>
+        </div>
+        
+        <div class="form-check mb-2">
+          {{ permission_form.can_access_expenses }}
+          <label class="form-check-label" for="{{ permission_form.can_access_expenses.id_for_label }}">
+            Can Access Expenses
+          </label>
+        </div>
+        
+        <div class="form-check mb-2">
+          {{ permission_form.can_access_reports }}
+          <label class="form-check-label" for="{{ permission_form.can_access_reports.id_for_label }}">
+            Can Access Reports
+          </label>
+        </div>
+        
+        <div class="form-check mb-2">
+          {{ permission_form.can_access_settings }}
+          <label class="form-check-label" for="{{ permission_form.can_access_settings.id_for_label }}">
+            Can Access Settings
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-3">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-1"></i> Save Changes
+          </button>
+          <a href="{% url 'superadmin:user_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</form>
+{% endblock %}

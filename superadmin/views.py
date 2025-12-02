@@ -9,6 +9,7 @@ from django.db.models import Count, Sum
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib.admin.views.decorators import staff_member_required
+from django.db import transaction  # Add transaction import
 from .models import (
     Business,
     SubscriptionPlan,
@@ -26,10 +27,10 @@ from .models import (
 )
 from .forms import BranchForm, BranchRequestForm, BranchRequestApprovalForm, BusinessRegistrationForm  # Add Branch Forms
 from authentication.models import User, UserPermission
+from authentication.forms import CustomUserChangeForm, UserPermissionForm  # Add form imports
 from .middleware import set_current_business
 from settings.models import EmailSettings
 from settings.forms import EmailSettingsForm
-
 
 def is_superadmin(user):
     return user.is_superuser
@@ -919,3 +920,121 @@ class EmailSettingsView(TemplateView):
             context = self.get_context_data()
             context["form"] = form
             return self.render_to_response(context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def delete_user_view(request, user_id):
+    """Delete a user"""
+    user_to_delete = get_object_or_404(User, id=user_id)
+    
+    # Prevent users from deleting themselves
+    if user_to_delete == request.user:
+        messages.error(request, "You cannot delete your own account.")
+        return redirect("superadmin:user_list")
+    
+    if request.method == "POST":
+        username = user_to_delete.username
+        user_to_delete.delete()
+        messages.success(request, f"User '{username}' has been deleted successfully.")
+        return redirect("superadmin:user_list")
+    
+    context = {
+        "user_to_delete": user_to_delete,
+    }
+    return render(request, "superadmin/users/confirm_delete.html", context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def edit_user_view(request, user_id):
+    """Edit a user"""
+    user_to_edit = get_object_or_404(User, id=user_id)
+    
+    # Get all businesses for business assignment
+    all_businesses = Business.objects.all()
+    
+    # Get user's assigned businesses
+    assigned_businesses = user_to_edit.businesses.all()
+    
+    # Get all branches
+    all_branches = Branch.objects.all()
+    
+    # Get user's assigned branches
+    try:
+        user_permission = UserPermission.objects.get(user=user_to_edit)
+        assigned_branches = user_permission.branches.all()
+    except UserPermission.DoesNotExist:
+        assigned_branches = Branch.objects.none()
+    
+    if request.method == "POST":
+        user_form = CustomUserChangeForm(request.POST, request.FILES, instance=user_to_edit)
+        permission_form = UserPermissionForm(request.POST, instance=user_permission if 'user_permission' in locals() else None)
+        
+        if user_form.is_valid() and permission_form.is_valid():
+            try:
+                with transaction.atomic():
+                    user = user_form.save()
+                    
+                    # Handle business assignments
+                    selected_businesses = request.POST.getlist('businesses')
+                    if selected_businesses:
+                        businesses = Business.objects.filter(id__in=selected_businesses)
+                        user.businesses.set(businesses)
+                    
+                    # Save or create user permissions
+                    if hasattr(user_permission, 'id'):
+                        permission = permission_form.save(commit=False)
+                        permission.user = user
+                        permission.save()
+                    else:
+                        permission = permission_form.save(commit=False)
+                        permission.user = user
+                        permission.save()
+                    
+                    # Handle branch assignments
+                    selected_branches = request.POST.getlist('branches')
+                    if selected_branches:
+                        branches = Branch.objects.filter(id__in=selected_branches)
+                        permission.branches.set(branches)
+                    
+                    messages.success(request, f"User {user.username} updated successfully!")
+                    return redirect("superadmin:user_list")
+            except Exception as e:
+                messages.error(request, f"An error occurred while updating the user: {str(e)}")
+        else:
+            if user_form.errors:
+                for field, errors in user_form.errors.items():
+                    for error in errors:
+                        messages.error(request, f"User form - {field}: {error}")
+            if permission_form.errors:
+                for field, errors in permission_form.errors.items():
+                    for error in errors:
+                        messages.error(request, f"Permission form - {field}: {error}")
+    else:
+        user_form = CustomUserChangeForm(instance=user_to_edit)
+        permission_form = UserPermissionForm(instance=user_permission if 'user_permission' in locals() else None)
+    
+    context = {
+        "user_form": user_form,
+        "permission_form": permission_form,
+        "user_to_edit": user_to_edit,
+        "all_businesses": all_businesses,
+        "assigned_businesses": assigned_businesses,
+        "all_branches": all_branches,
+        "assigned_branches": assigned_branches,
+    }
+    return render(request, "superadmin/users/form.html", context)
+
+
+@method_decorator(
+    [staff_member_required, user_passes_test(lambda u: u.is_superuser)], name="dispatch"
+)
+class UserListView(TemplateView):
+    template_name = "superadmin/users/list.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Get all users across all businesses
+        context["users"] = User.objects.all().order_by('-date_joined')
+        return context
