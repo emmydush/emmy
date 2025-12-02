@@ -88,7 +88,6 @@ TEMPLATES = [
                 "settings.context_processors.notifications",
                 "settings.context_processors.media_settings",  # Add this line
                 "superadmin.context_processors.current_business",  # Add this line for multi-tenancy
-                "authentication.context_processors.user_theme_preferences",  # Add this line for theme preferences
                 # Allauth context processors
                 "django.template.context_processors.request",
             ],

@@ -1,109 +1,114 @@
 {% extends 'base.html' %}
 
+{% load i18n static %}
+
 {% block title %}Point of Sale - {{ business_settings.business_name }}{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-12">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2><i class="fas fa-cash-register"></i> Point of Sale</h2>
-        </div>
-        <p class="text-muted">Process sales transactions quickly and efficiently.</p>
-    </div>
-</div>
-
-<div class="row">
-    <!-- Product Search and Cart -->
-    <div class="col-md-8">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5>Add Products</h5>
+<!-- Ensure page has consistent background with dashboard -->
+<div class="main-content" style="background: transparent;">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2><i class="fas fa-cash-register"></i> Point of Sale</h2>
             </div>
-            <div class="card-body">
-                <!-- Search Form -->
-                <form id="productSearchForm" class="mb-3">
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="searchInput" name="search" 
-                               placeholder="Search products by name, SKU, or barcode..." autocomplete="off">
-                        <button class="btn btn-primary" type="submit">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                </form>
-                
-                <!-- Search Results -->
-                <div id="searchResults" class="search-results-container"></div>
-                
-                <!-- Cart -->
-                <div class="cart-container mt-4">
-                    <h6>Current Cart</h6>
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Product</th>
-                                    <th>Price</th>
-                                    <th>Qty</th>
-                                    <th>Total</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="cartItems">
-                                <!-- Cart items will be added here dynamically -->
-                            </tbody>
-                        </table>
-                    </div>
+            <p class="text-muted">Process sales transactions quickly and efficiently.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Product Search and Cart -->
+        <div class="col-md-8">
+            <div class="card mb-4 table-card">
+                <div class="card-header">
+                    <h5>Add Products</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Search Form -->
+                    <form id="productSearchForm" class="mb-3">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="searchInput" name="search" 
+                                   placeholder="Search products by name, SKU, or barcode..." autocomplete="off">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
                     
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <strong>Total: <span id="cartTotal">0.00</span></strong>
-                        <button id="clearCart" class="btn btn-outline-danger btn-sm">
-                            <i class="fas fa-trash"></i> Clear Cart
-                        </button>
+                    <!-- Search Results -->
+                    <div id="searchResults" class="search-results-container"></div>
+                    
+                    <!-- Cart -->
+                    <div class="cart-container mt-4">
+                        <h6>Current Cart</h6>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Price</th>
+                                        <th>Qty</th>
+                                        <th>Total</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cartItems">
+                                    <!-- Cart items will be added here dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <strong>Total: <span id="cartTotal">0.00</span></strong>
+                            <button id="clearCart" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-trash"></i> Clear Cart
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <!-- Payment Section -->
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h5>Payment</h5>
-            </div>
-            <div class="card-body">
-                <form id="paymentForm">
-                    <div class="mb-3">
-                        <label class="form-label">Subtotal</label>
-                        <input type="text" class="form-control" id="subtotal" value="0.00" readonly>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Tax ({{ business_settings.tax_rate }}%)</label>
-                        <input type="text" class="form-control" id="taxAmount" value="0.00" readonly>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Total Amount</label>
-                        <input type="text" class="form-control" id="totalAmount" value="0.00" readonly>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Amount Paid</label>
-                        <input type="number" class="form-control" id="amountPaid" step="0.01" min="0" required>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Change</label>
-                        <input type="text" class="form-control" id="changeAmount" value="0.00" readonly>
-                    </div>
-                    
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-success btn-lg" id="processPayment">
-                            <i class="fas fa-cash-register"></i> Process Payment
-                        </button>
-                    </div>
-                </form>
+        
+        <!-- Payment Section -->
+        <div class="col-md-4">
+            <div class="card table-card">
+                <div class="card-header">
+                    <h5>Payment</h5>
+                </div>
+                <div class="card-body">
+                    <form id="paymentForm">
+                        <div class="mb-3">
+                            <label class="form-label">Subtotal</label>
+                            <input type="text" class="form-control" id="subtotal" value="0.00" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Tax ({{ business_settings.tax_rate }}%)</label>
+                            <input type="text" class="form-control" id="taxAmount" value="0.00" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Total Amount</label>
+                            <input type="text" class="form-control" id="totalAmount" value="0.00" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Amount Paid</label>
+                            <input type="number" class="form-control" id="amountPaid" step="0.01" min="0" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Change</label>
+                            <input type="text" class="form-control" id="changeAmount" value="0.00" readonly>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg" id="processPayment">
+                                <i class="fas fa-cash-register"></i> Process Payment
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -111,6 +116,8 @@
 {% endblock %}
 
 {% block extra_css %}
+<!-- Dashboard UI CSS for consistent styling -->
+<link href="{% static 'css/dashboard-ui.css' %}" rel="stylesheet">
 <style>
 .search-results-container {
     max-height: 300px;
@@ -133,6 +140,59 @@
 
 .search-result-item:last-child {
     border-bottom: none;
+}
+
+/* Ensure cards match dashboard styling */
+.table-card {
+    background: rgba(16, 42, 67, 0.7);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(2, 12, 27, 0.3);
+    border: 1px solid rgba(45, 74, 124, 0.5);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.card-header {
+    background: rgba(45, 74, 124, 0.3);
+    border-bottom: 1px solid rgba(45, 74, 124, 0.5);
+    font-weight: 600;
+    color: #ffffff;
+}
+
+/* Style form controls to match dashboard */
+.form-control {
+    background: rgba(16, 42, 67, 0.5);
+    border: 1px solid rgba(45, 74, 124, 0.5);
+    color: #ffffff;
+    border-radius: 8px;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.form-control:focus {
+    background: rgba(16, 42, 67, 0.7);
+    border-color: #00d4ff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 212, 255, 0.25);
+    color: #ffffff;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #00b3e6 0%, #0066cc 100%);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+    border: none;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #009a87 0%, #7db82d 100%);
 }
 </style>
 {% endblock %}

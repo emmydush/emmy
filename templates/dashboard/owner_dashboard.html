@@ -1,318 +1,319 @@
 {% extends 'base.html' %}
 
+{% load static %}
 {% block title %}Owner Dashboard - {{ business_settings.business_name }}{% endblock %}
 
+{% block extra_css %}
+<!-- Dashboard UI CSS -->
+<link href="{% static 'css/dashboard-ui.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
-<!-- Owner Dashboard Header -->
-<div class="dashboard-header">
-    <h1><i class="fas fa-crown me-3"></i>Platform Control Center</h1>
-    <p>Welcome back, {{ user.username }}! Manage your entire platform from this centralized dashboard.</p>
-</div>
+<div class="dashboard-container">
+    <!-- Owner Dashboard Header -->
+    <div class="dashboard-header">
+        <h1><i class="fas fa-crown me-3"></i>Platform Control Center</h1>
+        <p>Welcome back, {{ user.username }}! Manage your entire platform from this centralized dashboard.</p>
+    </div>
 
-<!-- Platform Overview Cards -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Platform Overview</h5>
+    <!-- Platform Overview Cards -->
+    <div class="stats-grid">
+        <div class="stat-card highlight-blue">
+            <div class="stat-icon blue-glow">
+                <i class="fas fa-building"></i>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3 mb-3">
-                        <div class="stat-card card-gradient-1">
-                            <div class="card-body text-center p-3">
-                                <div class="stat-icon text-white">
-                                    <i class="fas fa-building"></i>
-                                </div>
-                                <div class="stat-number text-white">{{ total_businesses }}</div>
-                                <div class="stat-title text-white">Total Businesses</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="stat-card card-gradient-2">
-                            <div class="card-body text-center p-3">
-                                <div class="stat-icon text-white">
-                                    <i class="fas fa-users"></i>
-                                </div>
-                                <div class="stat-number text-white">{{ total_users }}</div>
-                                <div class="stat-title text-white">Total Users</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="stat-card card-gradient-3">
-                            <div class="card-body text-center p-3">
-                                <div class="stat-icon text-white">
-                                    <i class="fas fa-box"></i>
-                                </div>
-                                <div class="stat-number text-white">{{ total_products }}</div>
-                                <div class="stat-title text-white">Total Products</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="stat-card card-gradient-4">
-                            <div class="card-body text-center p-3">
-                                <div class="stat-icon text-white">
-                                    <i class="fas fa-shopping-cart"></i>
-                                </div>
-                                <div class="stat-number text-white">{{ total_sales }}</div>
-                                <div class="stat-title text-white">Total Sales</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="stat-number">{{ total_businesses }}</div>
+            <div class="stat-title">Total Businesses</div>
+            <div class="stat-progress">
+                <div class="stat-progress-bar" data-width="{{ total_businesses|default:0 }}"></div>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Quick Actions Section -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+        <div class="stat-card highlight-orange">
+            <div class="stat-icon orange-glow">
+                <i class="fas fa-users"></i>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    {% if user.is_superuser %}
-                    <div class="col-md-2 mb-3">
-                        <a href="{% url 'superadmin:business_management' %}" class="btn btn-primary w-100">
-                            <i class="fas fa-building me-2"></i>Manage Businesses
-                        </a>
-                    </div>
-                    {% endif %}
-                    <div class="col-md-2 mb-3">
-                        <a href="{% url 'authentication:user_list' %}" class="btn btn-secondary w-100">
-                            <i class="fas fa-user-friends me-2"></i>Manage Users
-                        </a>
-                    </div>
-                    <div class="col-md-2 mb-3">
-                        <a href="{% url 'products:list' %}" class="btn btn-info w-100">
-                            <i class="fas fa-boxes me-2"></i>Manage Products
-                        </a>
-                    </div>
-                    <div class="col-md-2 mb-3">
-                        <a href="{% url 'reports:list' %}" class="btn btn-warning w-100">
-                            <i class="fas fa-file-alt me-2"></i>View Reports
-                        </a>
-                    </div>
-                    <div class="col-md-2 mb-3">
-                        <a href="{% url 'settings:index' %}" class="btn btn-dark w-100">
-                            <i class="fas fa-cog me-2"></i>Settings
-                        </a>
-                    </div>
-                    {% if user.is_superuser %}
-                    <div class="col-md-2 mb-3">
-                        <a href="{% url 'superadmin:system_logs' %}" class="btn btn-danger w-100">
-                            <i class="fas fa-file-alt me-2"></i>System Logs
-                        </a>
-                    </div>
-                    {% endif %}
-                </div>
+            <div class="stat-number">{{ total_users }}</div>
+            <div class="stat-title">Total Users</div>
+            <div class="stat-progress">
+                <div class="stat-progress-bar orange" data-width="{{ total_users|default:0 }}"></div>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- System Health and Recent Activity -->
-<div class="row">
-    <!-- System Health -->
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0"><i class="fas fa-heartbeat me-2"></i>System Health</h5>
+        <div class="stat-card highlight-blue">
+            <div class="stat-icon blue-glow">
+                <i class="fas fa-chart-line"></i>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-6">
-                        <h6>Database Status</h6>
-                        <p><span class="badge bg-success">Online</span></p>
-                    </div>
-                    <div class="col-6">
-                        <h6>Server Uptime</h6>
-                        <p><span class="badge bg-success">99.9%</span></p>
-                    </div>
-                    <div class="col-6">
-                        <h6>Active Sessions</h6>
-                        <p><span class="badge bg-primary">{{ active_sessions }}</span></p>
-                    </div>
-                    <div class="col-6">
-                        <h6>Pending Tasks</h6>
-                        <p><span class="badge bg-warning">{{ pending_tasks }}</span></p>
-                    </div>
-                </div>
+            <div class="stat-number">{{ total_revenue|floatformat:2 }}</div>
+            <div class="stat-title">Total Revenue</div>
+            <div class="stat-progress">
+                <div class="stat-progress-bar" data-width="{{ total_revenue|default:0 }}"></div>
+            </div>
+        </div>
+
+        <div class="stat-card highlight-orange">
+            <div class="stat-icon orange-glow">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="stat-number">{{ total_sales }}</div>
+            <div class="stat-title">Total Sales</div>
+            <div class="stat-progress">
+                <div class="stat-progress-bar orange" data-width="{{ total_sales|default:0 }}"></div>
             </div>
         </div>
     </div>
 
-    <!-- Recent Activity -->
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header bg-warning text-dark">
-                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Activity</h5>
+    <!-- Business Management Section -->
+    <div class="charts-row">
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3 class="chart-title"><i class="fas fa-building me-2"></i>Business Status Distribution</h3>
             </div>
-            <div class="card-body">
-                <ul class="list-group">
-                    <li class="list-group-item">
-                        <div class="d-flex justify-content-between">
-                            <span>New business registered</span>
-                            <small class="text-muted">2 hours ago</small>
-                        </div>
-                        <small class="text-muted">Business: Tech Solutions Ltd</small>
-                    </li>
-                    <li class="list-group-item">
-                        <div class="d-flex justify-content-between">
-                            <span>User account created</span>
-                            <small class="text-muted">5 hours ago</small>
-                        </div>
-                        <small class="text-muted">User: john.doe@example.com</small>
-                    </li>
-                    <li class="list-group-item">
-                        <div class="d-flex justify-content-between">
-                            <span>System backup completed</span>
-                            <small class="text-muted">1 day ago</small>
-                        </div>
-                        <small class="text-muted">Status: Success</small>
-                    </li>
-                    <li class="list-group-item">
-                        <div class="d-flex justify-content-between">
-                            <span>Security audit performed</span>
-                            <small class="text-muted">2 days ago</small>
-                        </div>
-                        <small class="text-muted">No issues found</small>
-                    </li>
-                </ul>
+            <div class="chart-container">
+                <canvas id="businessStatusChart"></canvas>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Platform Management Sections -->
-<div class="row">
-    <!-- Business Management -->
-    <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="fas fa-building me-2"></i>Business Management</h5>
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3 class="chart-title"><i class="fas fa-chart-pie me-2"></i>Subscription Plans</h3>
             </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    {% if user.is_superuser %}
-                    <a href="{% url 'superadmin:business_management' %}" class="btn btn-outline-primary">
-                        <i class="fas fa-list me-2"></i>View All Businesses
-                    </a>
-                    {% endif %}
-                    <a href="{% url 'authentication:create_business' %}" class="btn btn-outline-success">
-                        <i class="fas fa-plus-circle me-2"></i>Create New Business
-                    </a>
-                    {% if user.is_superuser %}
-                    <a href="{% url 'superadmin:subscription_management' %}" class="btn btn-outline-info">
-                        <i class="fas fa-credit-card me-2"></i>Manage Subscriptions
-                    </a>
-                    {% endif %}
-                </div>
+            <div class="chart-container">
+                <canvas id="subscriptionChart"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- User Management -->
-    <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-header bg-secondary text-white">
-                <h5 class="mb-0"><i class="fas fa-user-cog me-2"></i>User Management</h5>
+    <!-- Quick Actions -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-user-plus"></i>
             </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a href="{% url 'authentication:user_list' %}" class="btn btn-outline-secondary">
-                        <i class="fas fa-list me-2"></i>View All Users
-                    </a>
-                    <a href="{% url 'authentication:create_user' %}" class="btn btn-outline-primary">
-                        <i class="fas fa-user-plus me-2"></i>Create New User
-                    </a>
-                    <a href="#" class="btn btn-outline-info">
-                        <i class="fas fa-user-tag me-2"></i>Manage Roles
-                    </a>
-                </div>
+            <div class="stat-number">{{ pending_approvals }}</div>
+            <div class="stat-title">Pending Approvals</div>
+            <div class="stat-progress">
+                <div class="stat-progress-bar" data-width="{{ pending_approvals|default:0 }}"></div>
+            </div>
+        </div>
+
+        <div class="stat-card highlight-blue">
+            <div class="stat-icon blue-glow">
+                <i class="fas fa-ticket-alt"></i>
+            </div>
+            <div class="stat-number">{{ open_tickets }}</div>
+            <div class="stat-title">Open Support Tickets</div>
+            <div class="stat-progress">
+                <div class="stat-progress-bar" data-width="{{ open_tickets|default:0 }}"></div>
+            </div>
+        </div>
+
+        <div class="stat-card highlight-orange">
+            <div class="stat-icon orange-glow">
+                <i class="fas fa-bell"></i>
+            </div>
+            <div class="stat-number">{{ recent_alerts }}</div>
+            <div class="stat-title">Recent Alerts</div>
+            <div class="stat-progress">
+                <div class="stat-progress-bar orange" data-width="{{ recent_alerts|default:0 }}"></div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-sync-alt"></i>
+            </div>
+            <div class="stat-number">{{ system_uptime }}</div>
+            <div class="stat-title">System Uptime</div>
+            <div class="stat-progress">
+                <div class="stat-progress-bar" data-width="99.9"></div>
             </div>
         </div>
     </div>
 
-    <!-- System Configuration -->
-    <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-header bg-dark text-white">
-                <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>System Configuration</h5>
+    <!-- Management Sections -->
+    <div class="charts-row">
+        <!-- Business Management -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3 class="chart-title"><i class="fas fa-building me-2"></i>Business Management</h3>
             </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a href="{% url 'settings:index' %}" class="btn btn-outline-dark">
-                        <i class="fas fa-sliders-h me-2"></i>General Settings
-                    </a>
-                    <a href="{% url 'settings:theme' %}" class="btn btn-outline-secondary">
-                        <i class="fas fa-palette me-2"></i>Theme Settings
-                    </a>
-                    {% if user.is_superuser %}
-                    <a href="{% url 'superadmin:system_logs' %}" class="btn btn-outline-warning">
-                        <i class="fas fa-database me-2"></i>System Logs
-                    </a>
-                    {% endif %}
-                </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Business</th>
+                            <th>Status</th>
+                            <th>Owner</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Tech Solutions Inc.</td>
+                            <td><span class="badge bg-success">Active</span></td>
+                            <td>John Smith</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary">View</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Retail Masters Ltd.</td>
+                            <td><span class="badge bg-warning">Pending</span></td>
+                            <td>Sarah Johnson</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-success">Approve</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Global Services Co.</td>
+                            <td><span class="badge bg-danger">Suspended</span></td>
+                            <td>Mike Williams</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-info">Review</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- System Configuration -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3 class="chart-title"><i class="fas fa-cogs me-2"></i>System Configuration</h3>
+            </div>
+            <div class="d-grid gap-2">
+                <a href="{% url 'settings:index' %}" class="btn btn-outline-dark">
+                    <i class="fas fa-sliders-h me-2"></i>General Settings
+                </a>
+                {% if user.is_superuser %}
+                <a href="{% url 'superadmin:system_logs' %}" class="btn btn-outline-warning">
+                    <i class="fas fa-database me-2"></i>System Logs
+                </a>
+                {% endif %}
             </div>
         </div>
     </div>
-</div>
 
-<!-- Advanced Platform Features -->
-<div class="row">
     <!-- Communication & Monitoring -->
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Communication & Monitoring</h5>
+    <div class="charts-row">
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3 class="chart-title"><i class="fas fa-comments me-2"></i>Communication & Monitoring</h3>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    {% if user.is_superuser %}
-                    <div class="col-md-6 mb-3">
-                        <a href="{% url 'superadmin:communication_center' %}" class="btn btn-outline-success w-100">
-                            <i class="fas fa-envelope me-2"></i>Communication Center
-                        </a>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <a href="{% url 'superadmin:api_monitoring' %}" class="btn btn-outline-primary w-100">
-                            <i class="fas fa-plug me-2"></i>API Monitoring
-                        </a>
-                    </div>
-                    {% endif %}
-                </div>
+            <div class="d-grid gap-2">
+                {% if user.is_superuser %}
+                <a href="{% url 'superadmin:communication_center' %}" class="btn btn-outline-success">
+                    <i class="fas fa-envelope me-2"></i>Communication Center
+                </a>
+                <a href="{% url 'superadmin:api_monitoring' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-plug me-2"></i>API Monitoring
+                </a>
+                {% endif %}
             </div>
         </div>
-    </div>
 
-    <!-- Reports & Analytics -->
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Reports & Analytics</h5>
+        <!-- Reports & Analytics -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3 class="chart-title"><i class="fas fa-chart-pie me-2"></i>Reports & Analytics</h3>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <a href="{% url 'reports:list' %}" class="btn btn-outline-info w-100">
-                            <i class="fas fa-file-alt me-2"></i>View Reports
-                        </a>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <a href="#" class="btn btn-outline-warning w-100">
-                            <i class="fas fa-chart-bar me-2"></i>Analytics Dashboard
-                        </a>
-                    </div>
-                </div>
+            <div class="d-grid gap-2">
+                <a href="{% url 'reports:list' %}" class="btn btn-outline-info">
+                    <i class="fas fa-file-alt me-2"></i>View Reports
+                </a>
+                <a href="#" class="btn btn-outline-warning">
+                    <i class="fas fa-chart-bar me-2"></i>Analytics Dashboard
+                </a>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Initialize progress bars
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.stat-progress-bar').forEach(bar => {
+            const width = bar.getAttribute('data-width') || 0;
+            bar.style.width = Math.min(width, 100) + '%';
+        });
+    });
+
+    // Chart initialization
+    document.addEventListener('DOMContentLoaded', function() {
+        // Business Status Distribution
+        const businessStatusCtx = document.getElementById('businessStatusChart').getContext('2d');
+        const businessStatusChart = new Chart(businessStatusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Active', 'Pending', 'Suspended'],
+                datasets: [{
+                    data: [75, 15, 10],
+                    backgroundColor: [
+                        'rgba(0, 212, 255, 0.8)',
+                        'rgba(255, 195, 0, 0.8)',
+                        'rgba(255, 126, 0, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(0, 212, 255, 1)',
+                        'rgba(255, 195, 0, 1)',
+                        'rgba(255, 126, 0, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Subscription Plans
+        const subscriptionCtx = document.getElementById('subscriptionChart').getContext('2d');
+        const subscriptionChart = new Chart(subscriptionCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Basic', 'Professional', 'Enterprise', 'Premium'],
+                datasets: [{
+                    data: [30, 25, 20, 25],
+                    backgroundColor: [
+                        'rgba(0, 212, 255, 0.8)',
+                        'rgba(255, 195, 0, 0.8)',
+                        'rgba(255, 126, 0, 0.8)',
+                        'rgba(0, 255, 255, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(0, 212, 255, 1)',
+                        'rgba(255, 195, 0, 1)',
+                        'rgba(255, 126, 0, 1)',
+                        'rgba(0, 255, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
 {% endblock %}

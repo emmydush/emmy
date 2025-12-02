@@ -74,31 +74,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Theme toggle functionality
-    const themeToggle = document.getElementById('themeToggle');
-    if (themeToggle) {
-        const themeIcon = themeToggle.querySelector('i');
-        
-        // Check for saved theme preference or respect OS preference
-        const savedTheme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
-        
-        // Apply initial theme
-        document.documentElement.setAttribute('data-theme', initialTheme);
-        themeIcon.className = initialTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-        
-        // Toggle theme on button click
-        themeToggle.addEventListener('click', function() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            themeIcon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-        });
-    }
-    
     // Add ripple effect to buttons
     const buttons = document.querySelectorAll('button, .btn');
     buttons.forEach(button => {
@@ -126,22 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Language selector functionality (placeholder for future implementation)
-    const languageSelector = document.getElementById('languageSelector');
-    if (languageSelector) {
-        languageSelector.addEventListener('change', function() {
-            const selectedLanguage = this.value;
-            // In a real implementation, this would trigger a language change
-            // For now, we'll just show an alert
-            alert(`Language changed to: ${selectedLanguage}`);
-            // Save preference to localStorage
-            localStorage.setItem('language', selectedLanguage);
-        });
-        
-        // Set initial language from localStorage
-        const savedLanguage = localStorage.getItem('language') || 'en';
-        languageSelector.value = savedLanguage;
-    }
+    // Language selector functionality removed as per user request
 });
 
 // Function to format currency

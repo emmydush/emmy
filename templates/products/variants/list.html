@@ -1,5 +1,126 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load i18n static %}
+
+{% load i18n static %}
+{% block extra_css %}
+<!-- Dashboard UI CSS for consistent styling -->
+<link href="{% static 'css/dashboard-ui.css' %}" rel="stylesheet">
+<style>
+    /* Ensure page has consistent background with dashboard */
+    .main-content {
+        background: transparent;
+    }
+    
+    /* Style tables to match dashboard table styling */
+    .table-card {
+        background: rgba(16, 42, 67, 0.7);
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(2, 12, 27, 0.3);
+        border: 1px solid rgba(45, 74, 124, 0.5);
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        backdrop-filter: blur(10px);
+    }
+    
+    .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .table-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #ffffff;
+        margin: 0;
+    }
+    
+    /* Style the table to match dashboard styling */
+    .table {
+        color: #ffffff;
+        background: rgba(16, 42, 67, 0.5);
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .table thead th {
+        background: rgba(45, 74, 124, 0.5);
+        border-color: rgba(45, 74, 124, 0.5);
+        color: #cbd5e1;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+        padding: 0.75rem;
+    }
+    
+    .table tbody td {
+        border-color: rgba(45, 74, 124, 0.2);
+        color: #cbd5e1;
+        vertical-align: middle;
+        padding: 0.75rem;
+        background: rgba(16, 42, 67, 0.3);
+    }
+    
+    .table tbody tr:nth-child(even) td {
+        background: rgba(16, 42, 67, 0.4);
+    }
+    
+    .table tbody tr:nth-child(odd) td {
+        background: rgba(16, 42, 67, 0.2);
+    }
+    
+    .table-hover tbody tr:hover {
+        background: rgba(45, 74, 124, 0.3);
+    }
+    
+    .table-hover tbody tr:hover td {
+        background: rgba(45, 74, 124, 0.3);
+    }
+    
+    /* Style form controls to match dashboard */
+    .form-control, .form-select {
+        background: rgba(16, 42, 67, 0.5);
+        border: 1px solid rgba(45, 74, 124, 0.5);
+        color: #ffffff;
+        border-radius: 8px;
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        background: rgba(16, 42, 67, 0.7);
+        border-color: #00d4ff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 212, 255, 0.25);
+        color: #ffffff;
+    }
+    
+    .input-group-text {
+        background: rgba(45, 74, 124, 0.5);
+        border: 1px solid rgba(45, 74, 124, 0.5);
+        color: #94a3b8;
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .card {
+        background: rgba(16, 42, 67, 0.5);
+        border: 1px solid rgba(45, 74, 124, 0.5);
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(2, 12, 27, 0.3);
+        backdrop-filter: blur(10px);
+    }
+    
+    .card-header {
+        background: rgba(45, 74, 124, 0.3);
+        border-bottom: 1px solid rgba(45, 74, 124, 0.5);
+        font-weight: 600;
+        color: #ffffff;
+    }
+</style>
+{% endblock %}
+
 {% load i18n %}
 
 {% block title %}{% trans "Product Variants" %}{% endblock %}

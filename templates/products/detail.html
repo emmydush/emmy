@@ -1,8 +1,12 @@
 {% extends 'base.html' %}
 
+{% load i18n static %}
+
 {% block title %}Product Details - Inventory Management System{% endblock %}
 
 {% block extra_css %}
+<!-- Dashboard UI CSS for consistent styling -->
+<link href="{% static 'css/dashboard-ui.css' %}" rel="stylesheet">
 <style>
 /* Product image continuous rotation effect with dynamic shadows */
 .product-image-container {
@@ -111,157 +115,194 @@
 .product-image-container:hover::before {
     animation-play-state: paused;
 }
+
+/* Ensure cards match dashboard styling */
+.card {
+    background: rgba(16, 42, 67, 0.7);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(2, 12, 27, 0.3);
+    border: 1px solid rgba(45, 74, 124, 0.5);
+    backdrop-filter: blur(10px);
+}
+
+.card-header {
+    background: rgba(45, 74, 124, 0.3);
+    border-bottom: 1px solid rgba(45, 74, 124, 0.5);
+    font-weight: 600;
+    color: #ffffff;
+}
+
+/* Fix text visibility issues */
+.text-muted {
+    color: #94a3b8 !important;
+}
+
+.no-image-text {
+    color: #94a3b8;
+}
+
+/* Style tables to match dashboard */
+.table-borderless th {
+    color: #cbd5e1;
+}
+
+.table-borderless td {
+    color: #ffffff;
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Product Details</h2>
-    <div>
-        <a href="{% url 'products:update' product.pk %}" class="btn btn-warning me-2">
-            <i class="fas fa-edit"></i> Edit
-        </a>
-        <a href="{% url 'products:delete' product.pk %}" class="btn btn-danger">
-            <i class="fas fa-trash"></i> Delete
-        </a>
+<!-- Ensure page has consistent background with dashboard -->
+<div class="main-content" style="background: transparent;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Product Details</h2>
+        <div>
+            <a href="{% url 'products:update' product.pk %}" class="btn btn-warning me-2">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a href="{% url 'products:delete' product.pk %}" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Delete
+            </a>
+        </div>
     </div>
-</div>
 
-<div class="row">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h5>Product Image</h5>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Product Image</h5>
+                </div>
+                <div class="card-body text-center">
+                    {% if product.image %}
+                        <div class="product-image-container">
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid product-image-3d">
+                        </div>
+                    {% else %}
+                        <div class="bg-dark p-5 rounded">
+                            <i class="fas fa-box fa-3x text-muted"></i>
+                            <p class="mt-2 no-image-text">No image available</p>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
-            <div class="card-body text-center">
-                {% if product.image %}
-                    <div class="product-image-container">
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid product-image-3d">
-                    </div>
-                {% else %}
-                    <div class="bg-light p-5 rounded">
-                        <i class="fas fa-box fa-3x text-muted"></i>
-                        <p class="mt-2 text-muted">No image available</p>
-                    </div>
-                {% endif %}
+            
+            <!-- Barcode Section -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5>Barcode</h5>
+                </div>
+                <div class="card-body text-center">
+                    {% if product.barcode %}
+                        <!-- Display barcode image if available -->
+                        <div class="mb-3">
+                            <img src="{{ MEDIA_URL }}barcodes/barcode_{{ product.pk }}.png" alt="Barcode for {{ product.name }}" class="img-fluid" style="max-height: 120px;">
+                        </div>
+                        <div class="mb-2">
+                            <strong>Barcode Number:</strong><br>
+                            <code>{{ product.barcode }}</code>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Format:</strong><br>
+                            <span class="badge bg-info">{{ product.get_barcode_format_display }}</span>
+                        </div>
+                        <div class="mt-3">
+                            <a href="{{ MEDIA_URL }}barcodes/barcode_{{ product.pk }}.png" download="barcode_{{ product.sku }}.png" class="btn btn-sm btn-primary">
+                                <i class="fas fa-download"></i> Download Barcode
+                            </a>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No barcode available for this product.</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
         
-        <!-- Barcode Section -->
-        <div class="card mt-4">
-            <div class="card-header">
-                <h5>Barcode</h5>
-            </div>
-            <div class="card-body text-center">
-                {% if product.barcode %}
-                    <!-- Display barcode image if available -->
-                    <div class="mb-3">
-                        <img src="{{ MEDIA_URL }}barcodes/barcode_{{ product.pk }}.png" alt="Barcode for {{ product.name }}" class="img-fluid" style="max-height: 120px;">
-                    </div>
-                    <div class="mb-2">
-                        <strong>Barcode Number:</strong><br>
-                        <code>{{ product.barcode }}</code>
-                    </div>
-                    <div class="mb-2">
-                        <strong>Format:</strong><br>
-                        <span class="badge bg-info">{{ product.get_barcode_format_display }}</span>
-                    </div>
-                    <div class="mt-3">
-                        <a href="{{ MEDIA_URL }}barcodes/barcode_{{ product.pk }}.png" download="barcode_{{ product.sku }}.png" class="btn btn-sm btn-primary">
-                            <i class="fas fa-download"></i> Download Barcode
-                        </a>
-                    </div>
-                {% else %}
-                    <p class="text-muted">No barcode available for this product.</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h5>Product Information</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <table class="table table-borderless">
-                            <tr>
-                                <th>Name:</th>
-                                <td>{{ product.name }}</td>
-                            </tr>
-                            <tr>
-                                <th>SKU:</th>
-                                <td>{{ product.sku }}</td>
-                            </tr>
-                            <tr>
-                                <th>Category:</th>
-                                <td>{{ product.category.name }}</td>
-                            </tr>
-                            <tr>
-                                <th>Unit:</th>
-                                <td>{{ product.unit.name }} ({{ product.unit.symbol }})</td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="col-md-6">
-                        <table class="table table-borderless">
-                            <tr>
-                                <th>Quantity:</th>
-                                <td>{{ product.quantity }}</td>
-                            </tr>
-                            <tr>
-                                <th>Cost Price:</th>
-                                <td>{{ business_settings.currency_symbol }} {{ product.cost_price }}</td>
-                            </tr>
-                            <tr>
-                                <th>Selling Price:</th>
-                                <td>{{ business_settings.currency_symbol }} {{ product.selling_price }}</td>
-                            </tr>
-                            <tr>
-                                <th>Profit Margin:</th>
-                                <td>{{ product.profit_margin|floatformat:2 }}%</td>
-                            </tr>
-                            <tr>
-                                <th>Profit Per Unit:</th>
-                                <td>{{ business_settings.currency_symbol }} {{ product.profit_per_unit|floatformat:2 }}</td>
-                            </tr>
-                            <tr>
-                                <th>Total Profit (Current Stock):</th>
-                                <td>{{ business_settings.currency_symbol }} {{ product.total_profit|floatformat:2 }}</td>
-                            </tr>
-                            <tr>
-                                <th>Expiry Date:</th>
-                                <td>{{ product.expiry_date|default:"N/A" }}</td>
-                            </tr>
-                            <tr>
-                                <th>Status:</th>
-                                <td>
-                                    {% if product.is_active %}
-                                        <span class="badge bg-success">Active</span>
-                                    {% else %}
-                                        <span class="badge bg-danger">Inactive</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Product Information</h5>
                 </div>
-                {% if product.description %}
-                <div class="mt-4">
-                    <h5>Description</h5>
-                    <p>{{ product.description }}</p>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th>Name:</th>
+                                    <td>{{ product.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>SKU:</th>
+                                    <td>{{ product.sku }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Category:</th>
+                                    <td>{{ product.category.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Unit:</th>
+                                    <td>{{ product.unit.name }} ({{ product.unit.symbol }})</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th>Quantity:</th>
+                                    <td>{{ product.quantity }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Cost Price:</th>
+                                    <td>{{ business_settings.currency_symbol }} {{ product.cost_price }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Selling Price:</th>
+                                    <td>{{ business_settings.currency_symbol }} {{ product.selling_price }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Profit Margin:</th>
+                                    <td>{{ product.profit_margin|floatformat:2 }}%</td>
+                                </tr>
+                                <tr>
+                                    <th>Profit Per Unit:</th>
+                                    <td>{{ business_settings.currency_symbol }} {{ product.profit_per_unit|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Total Profit (Current Stock):</th>
+                                    <td>{{ business_settings.currency_symbol }} {{ product.total_profit|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Expiry Date:</th>
+                                    <td>{{ product.expiry_date|default:"N/A" }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Status:</th>
+                                    <td>
+                                        {% if product.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    {% if product.description %}
+                    <div class="mt-4">
+                        <h5>Description</h5>
+                        <p class="text-white">{{ product.description }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Variants Section -->
+                    {% if product.has_variants %}
+                    <div class="mt-4">
+                        <h5>Variants</h5>
+                        <p class="text-muted">This product has variants. <a href="{% url 'products:variant_list' product.pk %}">View all variants</a></p>
+                    </div>
+                    {% endif %}
                 </div>
-                {% endif %}
-                
-                <!-- Variants Section -->
-                {% if product.has_variants %}
-                <div class="mt-4">
-                    <h5>Variants</h5>
-                    <p>This product has variants. <a href="{% url 'products:variant_list' product.pk %}">View all variants</a></p>
-                </div>
-                {% endif %}
             </div>
         </div>
     </div>

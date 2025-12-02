@@ -13,7 +13,6 @@ urlpatterns = [
     path(
         "backup/download/<str:filename>/", views.download_backup, name="download_backup"
     ),
-    path("theme/", views.theme_settings, name="theme"),
     path("email/", views.email_settings, name="email"),
     path("audit-logs/", views.audit_logs, name="audit_logs"),
     path("bulky-upload/", views.bulky_upload, name="bulky_upload"),

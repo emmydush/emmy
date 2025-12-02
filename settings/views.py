@@ -28,8 +28,7 @@ from .forms import (
     EmailSettingsForm,
     BackupSettingsForm,
 )
-from authentication.models import User, UserThemePreference
-from authentication.forms import UserThemePreferenceForm
+from authentication.models import User
 from superadmin.models import Business
 
 
@@ -416,30 +415,6 @@ def backup_settings(request):
         request,
         "settings/backup_settings.html",
         {"form": form, "backup_settings": backup_settings},
-    )
-
-
-@login_required
-@user_passes_test(can_access_settings)
-def theme_settings(request):
-    # Get or create user theme preference
-    theme_preference, created = UserThemePreference.objects.get_or_create(
-        user=request.user
-    )
-
-    if request.method == "POST":
-        form = UserThemePreferenceForm(request.POST, instance=theme_preference)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Theme settings updated successfully!")
-            return redirect("settings:theme")
-    else:
-        form = UserThemePreferenceForm(instance=theme_preference)
-
-    return render(
-        request,
-        "settings/theme.html",
-        {"form": form, "theme_preference": theme_preference},
     )
 
 

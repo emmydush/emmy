@@ -1,24 +1,28 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     {% load static %}
     {% load i18n %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Smart Solution{% endblock %}</title>
+    <title>{% block title %}Smart Solution - Inventory Management System{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'favicon.ico' %}">
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <!-- Custom Theme CSS -->
-    <link rel="stylesheet" href="{% static 'css/custom-theme.css' %}">
-    {% block extra_css %}{% endblock %}
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+    <!-- Custom CSS -->
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    
+    <!-- Responsive Enhancements CSS -->
+    <link href="{% static 'css/responsive-enhancements.css' %}" rel="stylesheet">
+    
+    {% block extra_css %}{% endblock %}
     
     <style>
         /* Dynamic theme variables */
@@ -27,17 +31,10 @@
             --theme-secondary: {{ user_theme.secondary_color|default:'#2c3e50' }};
             --theme-accent: {{ user_theme.accent_color|default:'#e74c3c' }};
             --theme-background: {{ user_theme.background_color|default:'#f8f9fa' }};
-            --theme-text: {{ user_theme.text_color|default:'#343a40' }};
-            --theme-sidebar: {{ user_theme.sidebar_color|default:'#2c3e50' }};
-            --theme-card: {{ user_theme.card_color|default:'#ffffff' }};
+
         }
         
-        /* Apply custom theme when mode is custom */
-        [data-theme="custom"] {
-            background-color: var(--theme-background);
-            color: var(--theme-text);
-        }
-        
+
         /* Fixed header and sidebar styles */
         .navbar-custom {
             position: fixed;
@@ -97,10 +94,11 @@
         
         /* Glassmorphism sidebar styles */
         .glassmorphism-sidebar {
-            background: linear-gradient(135deg, rgba(128, 0, 128, 0.7), rgba(0, 0, 255, 0.7));
+            /* Updated to match the dashboard background */
+            background: linear-gradient(135deg, rgba(10, 25, 47, 0.9) 0%, rgba(2, 12, 27, 0.95) 100%);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            border-right: 1px solid rgba(45, 74, 124, 0.5);
             border-radius: 0 15px 0 0;
         }
         
@@ -192,9 +190,9 @@
             left: 10px;
             z-index: 1000;
             display: none;
-            background: rgba(128, 0, 128, 0.7);
+            background: rgba(10, 25, 47, 0.8);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(45, 74, 124, 0.5);
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -219,7 +217,7 @@
                 transition: all 0.3s ease;
                 z-index: 999;
                 display: block !important;
-                background: linear-gradient(135deg, rgba(128, 0, 128, 0.9), rgba(0, 0, 255, 0.9));
+                background: linear-gradient(135deg, #0a192f 0%, #020c1b 100%) !important;
             }
             
             .sidebar.show {
@@ -448,6 +446,16 @@
             font-size: 16px;
         }
         
+        /* Add the spin animation for refresh buttons */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+        
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -461,9 +469,9 @@
         
     </style>
 </head>
-<body>
+<body style="background: linear-gradient(135deg, #0a192f 0%, #020c1b 100%); min-height: 100vh;">
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom" style="background: linear-gradient(135deg, #0a192f 0%, #020c1b 100%) !important;">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="{% url 'dashboard:index' %}">
                 {% if business_settings.business_logo %}
@@ -627,7 +635,7 @@
     <div class="container-fluid" style="padding-top: 56px;">
         <div class="row">
             <!-- Sidebar -->
-            <nav id="sidebar" class="col-md-3 col-lg-2 sidebar glassmorphism-sidebar">
+            <nav id="sidebar" class="col-md-3 col-lg-2 sidebar glassmorphism-sidebar" style="border-right: 1px solid rgba(45, 74, 124, 0.5);">
                 <div class="position-sticky pt-3" style="height: calc(100vh - 56px); overflow-y: auto;">
                     <!-- Profile Section -->
                     <div class="profile-section text-center mb-3 p-2"> <!-- Reduced margin and padding -->
@@ -722,11 +730,6 @@
                                 <i class="fas fa-cog" aria-hidden="true"></i> {% trans "Settings" %}
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'settings:theme' %}">
-                                <i class="fas fa-palette" aria-hidden="true"></i> {% trans "Theme" %}
-                            </a>
-                        </li>
                         
                         <!-- Branch Management -->
                         {% if user.is_superuser %}
@@ -758,7 +761,7 @@
             </nav>
 
             <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content" style="background: transparent; min-height: calc(100vh - 56px);">
                 {% block content %}
                 <!-- Content will be placed here by child templates -->
                 {% endblock %}
@@ -766,26 +769,7 @@
         </div>
     </div>
     <script>
-        // Apply user theme preferences
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get the current theme mode
-            const themeMode = '{{ user_theme.mode }}';
-            
-            // If custom theme is selected, apply it
-            if (themeMode === 'custom' && window.themeManager) {
-                const html = document.documentElement;
-                html.setAttribute('data-theme', 'custom');
-                
-                // Update theme toggle icon based on current theme
-                const themeToggle = document.getElementById('themeToggle');
-                if (themeToggle) {
-                    const icon = themeToggle.querySelector('i');
-                    icon.classList.remove('fa-moon', 'fa-sun');
-                    icon.classList.add('fa-palette');
-                }
-            }
-            
-            // Update current time
+                    // Update current time
             function updateTime() {
                 const now = new Date();
                 const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -863,7 +847,6 @@
                     });
                 });
             }
-        });
     </script>
     
     <!-- Bootstrap JS -->
@@ -874,8 +857,7 @@
     <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
     <!-- Custom JS -->
     <script src="{% static 'js/script.js' %}"></script>
-    <!-- Theme Manager JS -->
-    <script src="{% static 'js/theme-manager.js' %}"></script>
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html>

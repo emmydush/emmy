@@ -12,4 +12,5 @@ urlpatterns = [
     path("cashier/", views.dashboard_view, name="cashier"),
     path("search/", views.search_view, name="search"),  # Add search URL
     path("switch-branch/", views.switch_branch_view, name="switch_branch"),  # Add branch switching URL
+    path("owner/", views.owner_dashboard_view, name="owner"),  # Add owner dashboard URL
 ]

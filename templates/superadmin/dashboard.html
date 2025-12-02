@@ -1,612 +1,301 @@
 {% extends 'superadmin/base.html' %}
 
+{% load static %}
 {% block title %}System Dashboard - Super Admin - Smart Solution{% endblock %}
 
+{% block extra_css %}
+<!-- Dashboard UI CSS -->
+<link href="{% static 'css/dashboard-ui.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block superadmin_content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <div>
-    <h1><i class="fas fa-chart-network me-2"></i>System Overview</h1>
-    <p class="text-muted">Real-time monitoring of all system components</p>
-  </div>
-  <div>
-    <button class="btn btn-primary" onclick="location.reload()">
-      <i class="fas fa-sync-alt me-1"></i> Refresh
-    </button>
-  </div>
-</div>
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1><i class="fas fa-chart-network me-2"></i>System Overview</h1>
+        <p class="text-muted">Real-time monitoring of all system components</p>
+    </div>
 
-<!-- System Stats Cards -->
-<div class="row mb-4">
-  <div class="col-xl-3 col-md-6 mb-4">
-    <div class="card card-stats h-100 border-primary border-start-4">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h5 class="stat-number text-primary">{{ total_businesses }}</h5>
-            <p class="stat-label mb-0">Total Businesses</p>
-          </div>
-          <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle">
-            <i class="fas fa-building fa-2x"></i>
-          </div>
-        </div>
-        <div class="mt-3">
-          <div class="d-flex justify-content-between small">
-            <span>Active: {{ active_businesses }}</span>
-            <span class="text-success">
-              {% if total_businesses > 0 %}
-                {% widthratio active_businesses total_businesses 100 %}%
-              {% else %}
-                0%
-              {% endif %}
-            </span>
-          </div>
-          <div class="progress mt-1" style="height: 5px;">
-            <div class="progress-bar bg-primary" role="progressbar" 
-                 data-value-active="{{ active_businesses }}" 
-                 data-value-total="{{ total_businesses }}"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="col-xl-3 col-md-6 mb-4">
-    <div class="card card-stats h-100 border-success border-start-4">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h5 class="stat-number text-success">{{ total_users }}</h5>
-            <p class="stat-label mb-0">Total Users</p>
-          </div>
-          <div class="bg-success bg-opacity-10 text-success p-3 rounded-circle">
-            <i class="fas fa-users fa-2x"></i>
-          </div>
-        </div>
-        <div class="mt-3">
-          <div class="d-flex justify-content-between small">
-            <span>Suspended: {{ suspended_users }}</span>
-            <span class="text-danger">
-              {% if total_users > 0 %}
-                {% widthratio suspended_users total_users 100 %}%
-              {% else %}
-                0%
-              {% endif %}
-            </span>
-          </div>
-          <div class="progress mt-1" style="height: 5px;">
-            <div class="progress-bar bg-success" role="progressbar" 
-                 data-value-suspended="{{ suspended_users }}" 
-                 data-value-total="{{ total_users }}"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="col-xl-3 col-md-6 mb-4">
-    <div class="card card-stats h-100 border-info border-start-4">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h5 class="stat-number text-info">{{ total_transactions }}</h5>
-            <p class="stat-label mb-0">Total Transactions</p>
-          </div>
-          <div class="bg-info bg-opacity-10 text-info p-3 rounded-circle">
-            <i class="fas fa-exchange-alt fa-2x"></i>
-          </div>
-        </div>
-        <div class="mt-3">
-          <div class="d-flex justify-content-between small">
-            <span>Today: {{ todays_transactions }}</span>
-            <span class="text-success">
-              {% if total_transactions > 0 %}
-                {% widthratio todays_transactions total_transactions 100 %}%
-              {% else %}
-                0%
-              {% endif %}
-            </span>
-          </div>
-          <div class="progress mt-1" style="height: 5px;">
-            <div class="progress-bar bg-info" role="progressbar" 
-                 data-value-active="{{ todays_transactions }}" 
-                 data-value-total="{{ total_transactions }}"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="col-xl-3 col-md-6 mb-4">
-    <div class="card card-stats h-100 border-warning border-start-4">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h5 class="stat-number text-warning">{{ total_stock_items }}</h5>
-            <p class="stat-label mb-0">Total Stock Items</p>
-          </div>
-          <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-circle">
-            <i class="fas fa-boxes fa-2x"></i>
-          </div>
-        </div>
-        <div class="mt-3">
-          <div class="d-flex justify-content-between small">
-            <span>System Uptime: {{ system_uptime }}</span>
-          </div>
-          <div class="progress mt-1" style="height: 5px;">
-            <div class="progress-bar bg-warning" role="progressbar" 
-                 style="width: 99.9%" 
-                 aria-valuenow="99.9" 
-                 aria-valuemin="0" aria-valuemax="100"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Enhanced Analytics Row -->
-<div class="row mb-4">
-  <div class="col-xl-3 col-md-6 mb-4">
-    <div class="card card-stats h-100 border-danger border-start-4">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h5 class="stat-number text-danger">{{ active_subscriptions }}</h5>
-            <p class="stat-label mb-0">Active Subscriptions</p>
-          </div>
-          <div class="bg-danger bg-opacity-10 text-danger p-3 rounded-circle">
-            <i class="fas fa-credit-card fa-2x"></i>
-          </div>
-        </div>
-        <div class="mt-3">
-          <div class="d-flex justify-content-between small">
-            <span>Revenue: {{ business_settings.currency_symbol }}{{ total_revenue|floatformat:2 }}</span>
-          </div>
-          <div class="progress mt-1" style="height: 5px;">
-            <div class="progress-bar bg-danger" role="progressbar" 
-                 data-value-active="{{ active_subscriptions }}" 
-                 data-value-total="{{ total_subscriptions }}"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="col-xl-3 col-md-6 mb-4">
-    <div class="card card-stats h-100 border-secondary border-start-4">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h5 class="stat-number text-secondary">{{ security_events }}</h5>
-            <p class="stat-label mb-0">Security Alerts</p>
-          </div>
-          <div class="bg-secondary bg-opacity-10 text-secondary p-3 rounded-circle">
-            <i class="fas fa-shield-alt fa-2x"></i>
-          </div>
-        </div>
-        <div class="mt-3">
-          <div class="d-flex justify-content-between small">
-            <span>Open Tickets: {{ open_tickets }}</span>
-          </div>
-          <div class="progress mt-1" style="height: 5px;">
-            <div class="progress-bar bg-secondary" role="progressbar" 
-                 data-value-events="{{ security_events }}" 
-                 data-value-logs="{{ total_logs }}"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="col-xl-3 col-md-6 mb-4">
-    <div class="card card-stats h-100 border-success border-start-4">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h5 class="stat-number text-success">{{ api_clients }}</h5>
-            <p class="stat-label mb-0">API Clients</p>
-          </div>
-          <div class="bg-success bg-opacity-10 text-success p-3 rounded-circle">
-            <i class="fas fa-code fa-2x"></i>
-          </div>
-        </div>
-        <div class="mt-3">
-          <div class="d-flex justify-content-between small">
-            <span>Active: {{ active_api_clients }}</span>
-            <span class="text-success">
-              {% if api_clients > 0 %}
-                {% widthratio active_api_clients api_clients 100 %}%
-              {% else %}
-                0%
-              {% endif %}
-            </span>
-          </div>
-          <div class="progress mt-1" style="height: 5px;">
-            <div class="progress-bar bg-success" role="progressbar" 
-                 data-value-active="{{ active_api_clients }}" 
-                 data-value-total="{{ api_clients }}"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="col-xl-3 col-md-6 mb-4">
-    <div class="card card-stats h-100 border-info border-start-4">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h5 class="stat-number text-info">{{ total_logs }}</h5>
-            <p class="stat-label mb-0">System Logs</p>
-          </div>
-          <div class="bg-info bg-opacity-10 text-info p-3 rounded-circle">
-            <i class="fas fa-file-alt fa-2x"></i>
-          </div>
-        </div>
-        <div class="mt-3">
-          <div class="d-flex justify-content-between small">
-            <span>Error Rate: {{ error_rate }}</span>
-          </div>
-          <div class="progress mt-1" style="height: 5px;">
-            <div class="progress-bar bg-info" role="progressbar" 
-                 style="width: 0.5%" 
-                 aria-valuenow="0.5" 
-                 aria-valuemin="0" aria-valuemax="100"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- System Health and Activity -->
-<div class="row">
-  <div class="col-lg-8">
-    <div class="card mb-4">
-      <div class="card-header bg-white d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="fas fa-heartbeat me-2 text-danger"></i>System Health</h5>
-        <span class="badge bg-success">Operational</span>
-      </div>
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-4 mb-3">
-            <div class="text-center">
-              <div class="bg-success bg-opacity-10 text-success p-3 rounded-circle d-inline-block mb-2">
-                <i class="fas fa-database fa-2x"></i>
-              </div>
-              <h6>Database</h6>
-              <p class="text-muted small mb-0">Online</p>
+    <!-- System Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card highlight-blue">
+            <div class="stat-icon blue-glow">
+                <i class="fas fa-building fa-2x"></i>
             </div>
-          </div>
-          <div class="col-md-4 mb-3">
-            <div class="text-center">
-              <div class="bg-success bg-opacity-10 text-success p-3 rounded-circle d-inline-block mb-2">
-                <i class="fas fa-server fa-2x"></i>
-              </div>
-              <h6>Application</h6>
-              <p class="text-muted small mb-0">Running</p>
+            <div class="stat-number text-primary">{{ total_businesses }}</div>
+            <div class="stat-title">Total Businesses</div>
+            <div class="stat-progress">
+                <div class="stat-progress-bar" data-width="{% if total_businesses > 0 %}{% widthratio active_businesses total_businesses 100 %}{% else %}0{% endif %}"></div>
             </div>
-          </div>
-          <div class="col-md-4 mb-3">
-            <div class="text-center">
-              <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-circle d-inline-block mb-2">
-                <i class="fas fa-network-wired fa-2x"></i>
-              </div>
-              <h6>Network</h6>
-              <p class="text-muted small mb-0">Degraded</p>
+        </div>
+
+        <div class="stat-card highlight-orange">
+            <div class="stat-icon orange-glow">
+                <i class="fas fa-users fa-2x"></i>
             </div>
-          </div>
+            <div class="stat-number text-success">{{ total_users }}</div>
+            <div class="stat-title">Total Users</div>
+            <div class="stat-progress">
+                <div class="stat-progress-bar orange" data-width="{% if total_users > 0 %}{% widthratio active_businesses total_businesses 100 %}{% else %}0{% endif %}"></div>
+            </div>
         </div>
-      </div>
-    </div>
-    
-    <div class="card">
-      <div class="card-header bg-white d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="fas fa-chart-line me-2 text-primary"></i>Performance Metrics</h5>
-        <div class="dropdown">
-          <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="performanceDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-            Last 24 Hours
-          </button>
-          <ul class="dropdown-menu" aria-labelledby="performanceDropdown">
-            <li><a class="dropdown-item" href="#">Last Hour</a></li>
-            <li><a class="dropdown-item" href="#">Last 6 Hours</a></li>
-            <li><a class="dropdown-item" href="#">Last 12 Hours</a></li>
-            <li><a class="dropdown-item" href="#">Last 24 Hours</a></li>
-            <li><a class="dropdown-item" href="#">Last 7 Days</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="chart-container">
-          <canvas id="performanceChart"></canvas>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="col-lg-4">
-    <div class="card mb-4">
-      <div class="card-header bg-white">
-        <h5 class="mb-0"><i class="fas fa-bell me-2 text-warning"></i>Recent Alerts</h5>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead>
-            <tr>
-              <th>Type</th>
-              <th>Message</th>
-              <th>Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for event in recent_security_events %}
-            <tr>
-              <td>
-                <span class="badge bg-{% if event.is_resolved %}success{% else %}danger{% endif %}">
-                  {{ event.event_type|title }}
-                </span>
-              </td>
-              <td>{{ event.description|truncatewords:5 }}</td>
-              <td>{{ event.timestamp|date:"H:i" }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="3" class="text-center">No recent alerts</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-    
-    <div class="card">
-      <div class="card-header bg-white">
-        <h5 class="mb-0"><i class="fas fa-tasks me-2 text-info"></i>Pending Actions</h5>
-      </div>
-      <div class="card-body">
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            Pending Business Approvals
-            <span class="badge bg-warning rounded-pill">{{ pending_businesses }}</span>
-          </li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            Unresolved Security Events
-            <span class="badge bg-danger rounded-pill">{{ unresolved_security_events }}</span>
-          </li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            Open Support Tickets
-            <span class="badge bg-info rounded-pill">{{ open_tickets }}</span>
-          </li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            Expired Subscriptions
-            <span class="badge bg-secondary rounded-pill">3</span>
-          </li>
-        </ul>
-        <div class="mt-3">
-          <button class="btn btn-primary w-100">
-            <i class="fas fa-clipboard-list me-1"></i> View All Tasks
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
-<!-- Business Analytics -->
-<div class="row mt-4">
-  <div class="col-md-6">
-    <div class="card mb-4">
-      <div class="card-header bg-white">
-        <h5 class="mb-0"><i class="fas fa-fire me-2 text-danger"></i>Most Active Businesses</h5>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead>
-            <tr>
-              <th>Business</th>
-              <th>Transactions</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for business in most_active_businesses %}
-            <tr>
-              <td>{{ business.company_name }}</td>
-              <td>{{ business.transaction_count }}</td>
-              <td>
-                <span class="badge {% if business.status == 'active' %}bg-success{% elif business.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
-                  {{ business.status|title }}
-                </span>
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="3" class="text-center">No businesses found</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-  
-  <div class="col-md-6">
-    <div class="card mb-4">
-      <div class="card-header bg-white">
-        <h5 class="mb-0"><i class="fas fa-snowflake me-2 text-info"></i>Least Active Businesses</h5>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead>
-            <tr>
-              <th>Business</th>
-              <th>Transactions</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for business in least_active_businesses %}
-            <tr>
-              <td>{{ business.company_name }}</td>
-              <td>{{ business.transaction_count }}</td>
-              <td>
-                <span class="badge {% if business.status == 'active' %}bg-success{% elif business.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
-                  {{ business.status|title }}
-                </span>
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="3" class="text-center">No businesses found</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
+        <div class="stat-card highlight-blue">
+            <div class="stat-icon blue-glow">
+                <i class="fas fa-shopping-cart fa-2x"></i>
+            </div>
+            <div class="stat-number text-info">{{ total_transactions }}</div>
+            <div class="stat-title">Total Transactions</div>
+            <div class="stat-progress">
+                <div class="stat-progress-bar" data-width="{% if total_transactions > 0 %}{% widthratio todays_transactions total_transactions 100 %}{% else %}0{% endif %}"></div>
+            </div>
+        </div>
 
-<!-- Recent Activities -->
-<div class="row">
-  <div class="col-md-6">
-    <div class="card">
-      <div class="card-header bg-white">
-        <h5 class="mb-0"><i class="fas fa-building me-2 text-primary"></i>New Businesses</h5>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead>
-            <tr>
-              <th>Company</th>
-              <th>Owner</th>
-              <th>Status</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for business in recent_businesses %}
-            <tr>
-              <td>{{ business.company_name }}</td>
-              <td>{{ business.owner.username }}</td>
-              <td>
-                <span class="badge {% if business.status == 'active' %}bg-success{% elif business.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
-                  {{ business.status|title }}
-                </span>
-              </td>
-              <td>{{ business.created_at|date:"M d" }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="4" class="text-center">No businesses found</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+        <div class="stat-card highlight-orange">
+            <div class="stat-icon orange-glow">
+                <i class="fas fa-boxes fa-2x"></i>
+            </div>
+            <div class="stat-number text-warning">{{ total_stock_items }}</div>
+            <div class="stat-title">Total Stock Items</div>
+            <div class="stat-progress">
+                <div class="stat-progress-bar orange" data-width="99.9"></div>
+            </div>
+        </div>
     </div>
-  </div>
-  
-  <div class="col-md-6">
-    <div class="card">
-      <div class="card-header bg-white">
-        <h5 class="mb-0"><i class="fas fa-users me-2 text-success"></i>New Users</h5>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Businesses</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for user in recent_users %}
-            <tr>
-              <td>{{ user.username }}</td>
-              <td>{{ user.email|default:"N/A" }}</td>
-              <td>{{ user.businesses.count }}</td>
-              <td>{{ user.date_joined|date:"M d" }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="4" class="text-center">No users found</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+
+    <!-- Enhanced Analytics Row -->
+    <div class="stats-grid">
+        <div class="stat-card highlight-orange">
+            <div class="stat-icon orange-glow">
+                <i class="fas fa-credit-card fa-2x"></i>
+            </div>
+            <div class="stat-number text-danger">{{ active_subscriptions }}</div>
+            <div class="stat-title">Active Subscriptions</div>
+            <div class="stat-progress">
+                <div class="stat-progress-bar orange" data-width="{% if total_subscriptions > 0 %}{% widthratio active_subscriptions total_subscriptions 100 %}{% else %}0{% endif %}"></div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-shield-alt fa-2x"></i>
+            </div>
+            <div class="stat-number text-secondary">{{ security_events }}</div>
+            <div class="stat-title">Security Alerts</div>
+            <div class="stat-progress">
+                <div class="stat-progress-bar" data-width="{% if total_logs > 0 %}{% widthratio security_events total_logs 100 %}{% else %}0{% endif %}"></div>
+            </div>
+        </div>
+
+        <div class="stat-card highlight-blue">
+            <div class="stat-icon blue-glow">
+                <i class="fas fa-code fa-2x"></i>
+            </div>
+            <div class="stat-number text-success">{{ api_clients }}</div>
+            <div class="stat-title">API Clients</div>
+            <div class="stat-progress">
+                <div class="stat-progress-bar" data-width="{% if api_clients > 0 %}{% widthratio active_api_clients api_clients 100 %}{% else %}0{% endif %}"></div>
+            </div>
+        </div>
+
+        <div class="stat-card highlight-blue">
+            <div class="stat-icon blue-glow">
+                <i class="fas fa-file-alt fa-2x"></i>
+            </div>
+            <div class="stat-number text-info">{{ total_logs }}</div>
+            <div class="stat-title">System Logs</div>
+            <div class="stat-progress">
+                <div class="stat-progress-bar" data-width="0.5"></div>
+            </div>
+        </div>
     </div>
-  </div>
+
+    <!-- System Health and Activity -->
+    <div class="charts-row">
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3 class="chart-title"><i class="fas fa-heartbeat me-2 text-danger"></i>System Performance</h3>
+                <div class="chart-controls">
+                    <button class="btn btn-sm btn-outline-secondary chart-refresh" data-chart="performanceChart">
+                        <i class="fas fa-sync"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3 class="chart-title"><i class="fas fa-bell me-2 text-warning"></i>Recent Alerts</h3>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Message</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in recent_security_events %}
+                        <tr>
+                            <td>
+                                <span class="badge bg-{% if event.is_resolved %}success{% else %}danger{% endif %}">
+                                    {{ event.event_type|title }}
+                                </span>
+                            </td>
+                            <td>{{ event.description|truncatewords:5 }}</td>
+                            <td>{{ event.timestamp|date:"H:i" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center">No recent alerts</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Actions -->
+    <div class="table-card">
+        <div class="table-header">
+            <h3 class="table-title"><i class="fas fa-tasks me-2 text-info"></i>Pending Actions</h3>
+            <button class="btn btn-outline-primary">
+                <i class="fas fa-plus me-2"></i>Create Task
+            </button>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Priority</th>
+                        <th>Assigned To</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Review new business registration</td>
+                        <td><span class="badge bg-danger">High</span></td>
+                        <td>System Admin</td>
+                        <td>Today</td>
+                        <td><span class="badge bg-warning">Pending</span></td>
+                    </tr>
+                    <tr>
+                        <td>Update SSL certificates</td>
+                        <td><span class="badge bg-warning">Medium</span></td>
+                        <td>Security Team</td>
+                        <td>Tomorrow</td>
+                        <td><span class="badge bg-info">In Progress</span></td>
+                    </tr>
+                    <tr>
+                        <td>Database backup verification</td>
+                        <td><span class="badge bg-success">Low</span></td>
+                        <td>DevOps Team</td>
+                        <td>Dec 10, 2025</td>
+                        <td><span class="badge bg-success">Completed</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Initialize progress bars
-  const progressBars = document.querySelectorAll('.progress-bar');
-  progressBars.forEach(bar => {
-    let percentage = 0;
-    
-    if (bar.hasAttribute('data-value-active') && bar.hasAttribute('data-value-total')) {
-      const active = parseInt(bar.getAttribute('data-value-active'));
-      const total = parseInt(bar.getAttribute('data-value-total'));
-      percentage = total > 0 ? Math.round((active / total) * 100) : 0;
-    } else if (bar.hasAttribute('data-value-suspended') && bar.hasAttribute('data-value-total')) {
-      const suspended = parseInt(bar.getAttribute('data-value-suspended'));
-      const total = parseInt(bar.getAttribute('data-value-total'));
-      percentage = total > 0 ? Math.round((suspended / total) * 100) : 0;
-    } else if (bar.hasAttribute('data-value-events') && bar.hasAttribute('data-value-logs')) {
-      const events = parseInt(bar.getAttribute('data-value-events'));
-      const logs = parseInt(bar.getAttribute('data-value-logs'));
-      percentage = logs > 0 ? Math.round((events / logs) * 100) : 0;
-    }
-    
-    bar.style.width = percentage + '%';
-    bar.setAttribute('aria-valuenow', percentage);
-  });
-  
-  // Initialize performance chart
-  const ctx = document.getElementById('performanceChart').getContext('2d');
-  const performanceChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'],
-      datasets: [{
-        label: 'Response Time (ms)',
-        data: [120, 190, 150, 180, 220, 170, 130],
-        borderColor: '#4361ee',
-        backgroundColor: 'rgba(67, 97, 238, 0.1)',
-        tension: 0.4,
-        fill: true
-      }, {
-        label: 'CPU Usage (%)',
-        data: [45, 65, 55, 70, 80, 60, 50],
-        borderColor: '#f72585',
-        backgroundColor: 'rgba(247, 37, 133, 0.1)',
-        tension: 0.4,
-        fill: true
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'top',
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
-    }
-  });
-});
+    // Initialize progress bars
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.stat-progress-bar').forEach(bar => {
+            const width = bar.getAttribute('data-width') || 0;
+            bar.style.width = Math.min(width, 100) + '%';
+        });
+    });
+
+    // Performance Chart
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        const performanceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'],
+                datasets: [{
+                    label: 'CPU Usage %',
+                    data: [20, 25, 30, 28, 35, 40, 32],
+                    borderColor: 'rgba(0, 212, 255, 1)',
+                    backgroundColor: 'rgba(0, 212, 255, 0.2)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: 'Memory Usage %',
+                    data: [45, 50, 55, 60, 65, 70, 68],
+                    borderColor: 'rgba(255, 126, 0, 1)',
+                    backgroundColor: 'rgba(255, 126, 0, 0.2)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: 'Network I/O',
+                    data: [15, 20, 25, 30, 35, 40, 38],
+                    borderColor: 'rgba(0, 255, 255, 1)',
+                    backgroundColor: 'rgba(0, 255, 255, 0.2)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#cbd5e1'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#cbd5e1'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Chart refresh functionality
+        document.querySelectorAll('.chart-refresh').forEach(button => {
+            button.addEventListener('click', function() {
+                const chartId = this.getAttribute('data-chart');
+                // Add refresh animation
+                this.classList.add('spin');
+                setTimeout(() => {
+                    this.classList.remove('spin');
+                }, 1000);
+                
+                // In a real implementation, you would refresh the chart data here
+                console.log(`Refreshing chart: ${chartId}`);
+            });
+        });
+    });
 </script>
 {% endblock %}

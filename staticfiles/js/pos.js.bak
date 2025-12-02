@@ -271,23 +271,259 @@ class POSSystem {
     // Open the barcode scanner modal
     openScanner() {
         console.log('Opening scanner');
-        // Use the static scanner modal instead of creating a dynamic one
-        const scannerModal = document.getElementById('scannerModal');
-        if (scannerModal) {
-            const modal = new bootstrap.Modal(scannerModal);
-            modal.show();
-            
-            // Initialize scanner when modal is shown
-            scannerModal.addEventListener('shown.bs.modal', () => {
-                console.log('Static scanner modal shown, initializing scanner...');
-                setTimeout(() => {
-                    this.initScanner();
-                }, 100);
-            }, {once: true}); // Use once option to prevent multiple event listeners
-        } else {
-            console.error('Scanner modal not found in DOM');
-            this.showNotification('Scanner modal not found', 'error');
+        // Create and show scanner in a completely self-contained way
+        this.createAndShowScanner();
+    }
+
+    // Create and show scanner modal - SIMPLIFIED VERSION
+    createAndShowScanner() {
+        console.log('=== CREATING AND SHOWING SCANNER MODAL (SIMPLIFIED) ===');
+        
+        // Remove any existing scanner modal
+        const existingModal = document.getElementById('dynamicScannerModal');
+        if (existingModal) {
+            console.log('Removing existing scanner modal');
+            existingModal.remove();
         }
+        
+        // Create scanner modal HTML - MINIMAL VERSION
+        const scannerModalHtml = `
+            <div class="modal fade" id="dynamicScannerModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Scan Barcode</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="dynamicScannerContainer" style="position: relative; width: 100%; height: 300px;">
+                                <video id="dynamicScannerVideo" style="width: 100%; height: 100%;"></video>
+                            </div>
+                            <div id="dynamicScannerStatus" class="mt-2 alert alert-info">Initializing scanner...</div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Add modal to body
+        document.body.insertAdjacentHTML('beforeend', scannerModalHtml);
+        
+        // Get the newly created modal
+        const scannerModal = document.getElementById('dynamicScannerModal');
+        
+        // Show the modal
+        const modal = new bootstrap.Modal(scannerModal);
+        modal.show();
+        
+        // Initialize scanner when modal is shown
+        scannerModal.addEventListener('shown.bs.modal', () => {
+            console.log('Scanner modal shown');
+            setTimeout(() => {
+                this.initDynamicScanner();
+            }, 100);
+        });
+        
+        // Clean up when modal is hidden
+        scannerModal.addEventListener('hidden.bs.modal', () => {
+            console.log('Scanner modal hidden');
+            // Stop scanner
+            if (typeof Quagga !== 'undefined' && Quagga) {
+                try {
+                    Quagga.stop();
+                } catch (e) {
+                    console.error('Error stopping Quagga:', e);
+                }
+            }
+            // Remove modal
+            setTimeout(() => {
+                if (scannerModal.parentNode) {
+                    scannerModal.parentNode.removeChild(scannerModal);
+                }
+            }, 300);
+        });
+    }
+
+    // Initialize the dynamic barcode scanner - COMPLETELY REWRITTEN SIMPLIFIED VERSION
+    initDynamicScanner() {
+        console.log('=== INITIALIZING DYNAMIC SCANNER (SIMPLIFIED) ===');
+        
+        // Check if QuaggaJS is loaded
+        if (typeof Quagga === 'undefined') {
+            console.error('QuaggaJS library not loaded');
+            this.showNotification('Barcode scanner library not loaded', 'error');
+            return;
+        }
+        
+        console.log('QuaggaJS is loaded');
+
+        // Get scanner elements
+        const scannerVideo = document.getElementById('dynamicScannerVideo');
+        const scannerStatus = document.getElementById('dynamicScannerStatus');
+        
+        console.log('Scanner elements found:', {scannerVideo: !!scannerVideo, scannerStatus: !!scannerStatus});
+        
+        if (!scannerVideo || !scannerStatus) {
+            console.error('Scanner elements not found');
+            this.showNotification('Scanner failed to initialize', 'error');
+            return;
+        }
+
+        // Update status
+        scannerStatus.textContent = 'Initializing camera...';
+        scannerStatus.className = 'mt-2 alert alert-warning';
+
+        // Simple configuration like product form
+        const config = {
+            inputStream: {
+                name: "Live",
+                type: "LiveStream",
+                target: scannerVideo,
+                constraints: {
+                    facingMode: "environment",
+                    width: 640,
+                    height: 480
+                }
+            },
+            decoder: {
+                readers: [
+                    "code_128_reader",
+                    "ean_reader",
+                    "ean_8_reader",
+                    "code_39_reader",
+                    "upc_reader",
+                    "upc_e_reader"
+                ]
+            }
+        };
+
+        console.log('Quagga config:', config);
+
+        // Initialize Quagga
+        Quagga.init(config, (err) => {
+            if (err) {
+                console.error('Error initializing scanner:', err);
+                scannerStatus.textContent = 'Error: ' + (err.message || err);
+                scannerStatus.className = 'mt-2 alert alert-danger';
+                return;
+            }
+
+            console.log('Quagga initialized successfully');
+            scannerStatus.textContent = 'Scanner ready. Point camera at barcode.';
+            scannerStatus.className = 'mt-2 alert alert-success';
+
+            // Start scanning
+            Quagga.start();
+            console.log('Quagga started');
+
+            // Register callback for detected barcodes - SIMPLIFIED VERSION
+            Quagga.onDetected((result) => {
+                if (result && result.codeResult && result.codeResult.code) {
+                    const code = result.codeResult.code;
+                    console.log('=== BARCODE DETECTED ===', code);
+                    
+                    scannerStatus.textContent = 'Barcode detected: ' + code;
+                    scannerStatus.className = 'mt-2 alert alert-success';
+                    
+                    // Process immediately
+                    this.processScannedBarcodeSimple(code);
+                }
+            });
+            
+            console.log('Quagga onDetected handler registered');
+        });
+    }
+
+    // Simplified barcode processing - DIRECT APPROACH
+    processScannedBarcodeSimple(barcode) {
+        console.log('=== PROCESSING BARCODE (SIMPLIFIED) ===', barcode);
+        
+        const scannerStatus = document.getElementById('dynamicScannerStatus');
+        if (scannerStatus) {
+            scannerStatus.textContent = `Processing: ${barcode}...`;
+            scannerStatus.className = 'mt-2 alert alert-info';
+        }
+        
+        // Direct AJAX call without wrapper functions
+        fetch(`/sales/product/barcode/${barcode}/`)
+            .then(response => {
+                console.log('Server response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Server response data:', data);
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Success - add to cart directly
+                console.log('Adding product to cart:', data);
+                
+                // Check if product already exists in cart
+                const existingItemIndex = this.cart.findIndex(item => item.id == data.id && !item.is_variant);
+                
+                if (existingItemIndex !== -1) {
+                    // Update quantity
+                    this.cart[existingItemIndex].quantity += 1;
+                } else {
+                    // Add new item
+                    this.cart.push({
+                        id: data.id,
+                        name: data.name,
+                        price: data.selling_price,
+                        quantity: 1,
+                        stock: data.stock,
+                        unit: data.unit || '',
+                        is_variant: false
+                    });
+                }
+                
+                // Save and update
+                this.saveCart();
+                this.updateCartDisplay();
+                this.updateCheckoutButtonState();
+                
+                // Show success message
+                if (scannerStatus) {
+                    scannerStatus.textContent = `Added: ${data.name}`;
+                    scannerStatus.className = 'mt-2 alert alert-success';
+                }
+                
+                // Close scanner after delay
+                setTimeout(() => {
+                    const scannerModal = document.getElementById('dynamicScannerModal');
+                    if (scannerModal) {
+                        const modal = bootstrap.Modal.getInstance(scannerModal);
+                        if (modal) {
+                            modal.hide();
+                        }
+                    }
+                }, 1500);
+            })
+            .catch(error => {
+                console.error('Error processing barcode:', error);
+                if (scannerStatus) {
+                    scannerStatus.textContent = `Error: ${error.message}`;
+                    scannerStatus.className = 'mt-2 alert alert-danger';
+                }
+                
+                // Close scanner after delay even on error
+                setTimeout(() => {
+                    const scannerModal = document.getElementById('dynamicScannerModal');
+                    if (scannerModal) {
+                        const modal = bootstrap.Modal.getInstance(scannerModal);
+                        if (modal) {
+                            modal.hide();
+                        }
+                    }
+                }, 2000);
+            });
     }
 
     // Initialize the barcode scanner
@@ -308,27 +544,16 @@ class POSSystem {
             console.warn('Camera requires HTTPS or localhost for production use');
             this.showNotification('Camera access requires HTTPS or localhost. Current context: ' + (window.isSecureContext ? 'Secure' : 'Not Secure'), 'warning');
             // Continue anyway for development
-        } else {
-            console.log('Running in secure context - good for camera access');
         }
         
-        // Try to get scanner elements from both static and dynamic modals
-        let scannerVideo = document.getElementById('scannerVideo') || document.getElementById('dynamicScannerVideo');
-        let scannerStatus = document.getElementById('scannerStatus') || document.getElementById('dynamicScannerStatus');
-        let scannerContainer = document.getElementById('scannerContainer') || document.getElementById('dynamicScannerContainer');
+        // Get scanner elements
+        const scannerVideo = document.getElementById('scannerVideo');
+        const scannerStatus = document.getElementById('scannerStatus');
         
-        console.log('Scanner elements found:', {scannerVideo: !!scannerVideo, scannerStatus: !!scannerStatus, scannerContainer: !!scannerContainer});
+        console.log('Scanner elements found:', {scannerVideo: !!scannerVideo, scannerStatus: !!scannerStatus});
         
         if (!scannerVideo || !scannerStatus) {
             console.error('Scanner elements not found');
-            console.log('Available elements:', {
-                scannerVideo: document.getElementById('scannerVideo'),
-                dynamicScannerVideo: document.getElementById('dynamicScannerVideo'),
-                scannerStatus: document.getElementById('scannerStatus'),
-                dynamicScannerStatus: document.getElementById('dynamicScannerStatus'),
-                scannerContainer: document.getElementById('scannerContainer'),
-                dynamicScannerContainer: document.getElementById('dynamicScannerContainer')
-            });
             this.showNotification('Scanner failed to initialize - missing elements', 'error');
             return;
         }
@@ -345,8 +570,8 @@ class POSSystem {
                 target: scannerVideo,
                 constraints: {
                     facingMode: "environment",
-                    width: { min: 640 },
-                    height: { min: 480 }
+                    width: 640,
+                    height: 480
                 }
             },
             decoder: {
@@ -361,7 +586,7 @@ class POSSystem {
             },
             locate: true,
             locator: {
-                halfSample: false,
+                halfSample: true,
                 patchSize: "medium"
             }
         };
@@ -379,35 +604,24 @@ class POSSystem {
                 // Additional diagnostic info
                 if (err.name === 'NotAllowedError') {
                     this.showNotification('Camera access denied. Please allow camera access when prompted.', 'error');
-                    console.log('Camera access denied - user may have blocked permissions or not granted access');
                 } else if (err.name === 'NotFoundError' || err.name === 'OverconstrainedError') {
                     this.showNotification('No suitable camera found. Please check your device has a working camera.', 'error');
-                    console.log('No camera found - check if device has camera or if it is already in use');
                 } else if (err.name === 'NotReadableError') {
                     this.showNotification('Camera is already in use by another application.', 'error');
-                    console.log('Camera in use by another application - close other apps using camera');
-                } else if (err.name === 'SecurityError') {
-                    this.showNotification('Camera access blocked by security settings. Please check browser permissions and ensure you are using HTTPS or localhost.', 'error');
-                    console.log('Security error - make sure you are using HTTPS or localhost for camera access');
-                } else {
-                    this.showNotification('Camera initialization failed: ' + (err.message || err.name || 'Unknown error'), 'error');
-                    console.log('Unknown error during camera initialization:', err);
                 }
-                
-                // Additional debugging
-                console.log('Browser info:', {
-                    userAgent: navigator.userAgent,
-                    platform: navigator.platform,
-                    isSecureContext: window.isSecureContext,
-                    mediaDevices: !!navigator.mediaDevices
-                });
-                
                 return;
             }
 
             console.log('Quagga initialized successfully');
-            
-            // Register callback for detected barcodes BEFORE starting
+            scannerStatus.textContent = 'Scanner ready. Point camera at barcode.';
+            scannerStatus.className = 'mt-2 alert alert-success';
+
+            // Start scanning
+            Quagga.start();
+            this.scannerActive = true;
+            console.log('Quagga started');
+
+            // Register callback for detected barcodes
             Quagga.onDetected((result) => {
                 if (this.scannerActive && result && result.codeResult && result.codeResult.code) {
                     const code = result.codeResult.code;
@@ -434,16 +648,9 @@ class POSSystem {
                     if (this.autoStopScanner) {
                         setTimeout(() => {
                             this.stopScanner();
-                            // Try to hide both static and dynamic modals
                             const scannerModal = document.getElementById('scannerModal');
-                            const dynamicScannerModal = document.getElementById('dynamicScannerModal');
                             if (scannerModal) {
                                 const modal = bootstrap.Modal.getInstance(scannerModal);
-                                if (modal) {
-                                    modal.hide();
-                                }
-                            } else if (dynamicScannerModal) {
-                                const modal = bootstrap.Modal.getInstance(dynamicScannerModal);
                                 if (modal) {
                                     modal.hide();
                                 }
@@ -476,13 +683,6 @@ class POSSystem {
                 }
             });
             
-            // Start scanning AFTER registering callbacks
-            Quagga.start();
-            this.scannerActive = true;
-            console.log('Quagga started');
-            scannerStatus.textContent = 'Scanner ready. Point camera at barcode.';
-            scannerStatus.className = 'mt-2 alert alert-success';
-            
             console.log('Quagga onDetected handler registered');
         });
     }
@@ -505,13 +705,13 @@ class POSSystem {
     processScannedBarcode(barcode) {
         console.log('Processing barcode:', barcode);
         
-        // Show loading indicator - try both static and dynamic scanner status elements
-        let scannerStatus = document.getElementById('scannerStatus') || document.getElementById('dynamicScannerStatus');
+        // Show loading indicator
+        const scannerStatus = document.getElementById('dynamicScannerStatus');
         if (scannerStatus) {
             scannerStatus.textContent = `Scanned: ${barcode}. Processing...`;
             scannerStatus.className = 'mt-2 alert alert-info';
         }
-        
+
         // Search for product by barcode
         this.searchProductByBarcode(barcode);
     }
@@ -556,55 +756,26 @@ class POSSystem {
     addProductToCartFromData(productData) {
         console.log('Adding product to cart:', productData);
         
-        // Check if this is a variant product
-        if (productData.is_variant) {
-            // Handle variant product
-            // Check if variant already exists in cart
-            const existingItemIndex = this.cart.findIndex(item => 
-                item.id == productData.id && item.is_variant);
-            
-            if (existingItemIndex !== -1) {
-                // Update quantity of existing variant
-                this.cart[existingItemIndex].quantity += 1;
-                console.log('Updated existing variant quantity');
-            } else {
-                // Add new variant to cart
-                this.cart.push({
-                    id: productData.id,
-                    name: productData.name,
-                    price: productData.selling_price,
-                    quantity: 1,
-                    stock: productData.stock,
-                    unit: productData.unit,
-                    is_variant: true,
-                    parent_product_id: productData.parent_product_id,
-                    parent_product_name: productData.parent_product_name
-                });
-                console.log('Added new variant to cart');
-            }
+        // Check if product already exists in cart
+        const existingItemIndex = this.cart.findIndex(item => 
+            item.id == productData.id && !item.is_variant);
+        
+        if (existingItemIndex !== -1) {
+            // Update quantity of existing item
+            this.cart[existingItemIndex].quantity += 1;
+            console.log('Updated existing item quantity');
         } else {
-            // Handle regular product
-            // Check if product already exists in cart
-            const existingItemIndex = this.cart.findIndex(item => 
-                item.id == productData.id && !item.is_variant);
-            
-            if (existingItemIndex !== -1) {
-                // Update quantity of existing item
-                this.cart[existingItemIndex].quantity += 1;
-                console.log('Updated existing item quantity');
-            } else {
-                // Add new item to cart
-                this.cart.push({
-                    id: productData.id,
-                    name: productData.name,
-                    price: productData.selling_price,
-                    quantity: 1,
-                    stock: productData.stock,
-                    unit: productData.unit,
-                    is_variant: false
-                });
-                console.log('Added new item to cart');
-            }
+            // Add new item to cart
+            this.cart.push({
+                id: productData.id,
+                name: productData.name,
+                price: productData.selling_price,
+                quantity: 1,
+                stock: productData.stock,
+                unit: productData.unit,
+                is_variant: false
+            });
+            console.log('Added new item to cart');
         }
         
         // Save cart and update display
@@ -1274,17 +1445,9 @@ class POSSystem {
         this.lastScannedBarcode = null; // Clear last scanned barcode
         this.stopScanner();
         
-        // Try to hide both static and dynamic scanner modals
-        const scannerModal = document.getElementById('scannerModal');
-        const dynamicScannerModal = document.getElementById('dynamicScannerModal');
-        
+        const scannerModal = document.getElementById('dynamicScannerModal');
         if (scannerModal) {
             const modal = bootstrap.Modal.getInstance(scannerModal);
-            if (modal) {
-                modal.hide();
-            }
-        } else if (dynamicScannerModal) {
-            const modal = bootstrap.Modal.getInstance(dynamicScannerModal);
             if (modal) {
                 modal.hide();
             }
@@ -1294,140 +1457,10 @@ class POSSystem {
         this.showNotification('Barcode scanner stopped manually', 'info');
     }
 
-    // New method to test camera access directly
-    testCameraAccess() {
-        console.log('=== TESTING CAMERA ACCESS ===');
-        
-        // Check if we're in a secure context
-        console.log('Secure context:', window.isSecureContext);
-        if (!window.isSecureContext) {
-            console.warn('Not in secure context - camera access may be restricted');
-            this.showNotification('Camera requires HTTPS or localhost for access', 'warning');
-        }
-        
-        // Check if mediaDevices API is available
-        if (!navigator.mediaDevices) {
-            console.error('MediaDevices API not available');
-            this.showNotification('Camera API not available in this browser', 'error');
-            return;
-        }
-        
-        console.log('MediaDevices API available');
-        
-        // Try to enumerate devices
-        navigator.mediaDevices.enumerateDevices()
-            .then(devices => {
-                console.log('Available media devices:', devices);
-                const videoDevices = devices.filter(device => device.kind === 'videoinput');
-                console.log('Video devices:', videoDevices);
-                
-                if (videoDevices.length === 0) {
-                    console.warn('No video devices found');
-                    this.showNotification('No camera found on this device', 'warning');
-                    return;
-                }
-                
-                // Try to access the camera
-                return navigator.mediaDevices.getUserMedia({ 
-                    video: { 
-                        facingMode: "environment",
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
-                    } 
-                });
-            })
-            .then(stream => {
-                if (stream) {
-                    console.log('Camera access successful');
-                    this.showNotification('Camera access test successful', 'success');
-                    
-                    // Stop the stream to release the camera
-                    stream.getTracks().forEach(track => track.stop());
-                }
-            })
-            .catch(err => {
-                console.error('Camera access failed:', err);
-                this.showNotification('Camera access failed: ' + (err.message || err.name), 'error');
-                
-                if (err.name === 'NotAllowedError') {
-                    this.showNotification('Camera access denied. Please check browser permissions.', 'error');
-                } else if (err.name === 'NotFoundError') {
-                    this.showNotification('No camera found on this device', 'error');
-                } else if (err.name === 'NotReadableError') {
-                    this.showNotification('Camera is already in use', 'error');
-                } else if (err.name === 'SecurityError') {
-                    this.showNotification('Security error. Make sure you are using HTTPS or localhost.', 'error');
-                }
-            });
-    }
-
     // New method to toggle auto-stop behavior
     toggleAutoStop() {
         this.autoStopScanner = !this.autoStopScanner;
         const status = this.autoStopScanner ? 'enabled' : 'disabled';
         this.showNotification(`Auto-stop scanner ${status}`, 'info');
-    }
-    
-    // New method to run diagnostics on the scanner setup
-    runScannerDiagnostics() {
-        console.log('=== RUNNING SCANNER DIAGNOSTICS ===');
-        
-        // Check if QuaggaJS is loaded
-        console.log('QuaggaJS loaded:', typeof Quagga !== 'undefined');
-        if (typeof Quagga !== 'undefined') {
-            console.log('QuaggaJS version:', Quagga.VERSION);
-        }
-        
-        // Check secure context
-        console.log('Secure context:', window.isSecureContext);
-        
-        // Check media devices API
-        console.log('MediaDevices API available:', !!navigator.mediaDevices);
-        
-        // Check required DOM elements
-        const elements = {
-            scannerModal: document.getElementById('scannerModal'),
-            scannerVideo: document.getElementById('scannerVideo'),
-            scannerStatus: document.getElementById('scannerStatus'),
-            scannerContainer: document.getElementById('scannerContainer'),
-            scanButton: document.getElementById('scanButton')
-        };
-        
-        console.log('DOM elements:', elements);
-        
-        // Check if scan button exists and is clickable
-        if (elements.scanButton) {
-            console.log('Scan button found and clickable');
-        } else {
-            console.error('Scan button not found');
-        }
-        
-        // Show diagnostic results
-        let message = 'Scanner diagnostics completed. Check console for details.';
-        let hasErrors = false;
-        
-        if (!elements.scannerModal) {
-            message += ' Scanner modal not found.';
-            hasErrors = true;
-        }
-        
-        if (!elements.scannerVideo) {
-            message += ' Scanner video element not found.';
-            hasErrors = true;
-        }
-        
-        if (!elements.scannerStatus) {
-            message += ' Scanner status element not found.';
-            hasErrors = true;
-        }
-        
-        this.showNotification(message, hasErrors ? 'error' : 'success');
-        
-        // If all elements are present, try to initialize
-        if (elements.scannerModal && elements.scannerVideo && elements.scannerStatus) {
-            console.log('All required elements found. Ready to initialize scanner.');
-        } else {
-            console.error('Missing required elements for scanner initialization');
-        }
     }
 }

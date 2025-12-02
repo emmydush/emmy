@@ -64,11 +64,15 @@ def test_business_settings_view():
         request.user = business_owner
         
         # Add middleware to handle messages
-        middleware = SessionMiddleware()
+        # Define a dummy get_response function for testing
+        def dummy_get_response(request):
+            return None
+            
+        middleware = SessionMiddleware(get_response=dummy_get_response)
         middleware.process_request(request)
         request.session.save()
         
-        message_middleware = MessageMiddleware()
+        message_middleware = MessageMiddleware(get_response=dummy_get_response)
         message_middleware.process_request(request)
         
         # Call the view function

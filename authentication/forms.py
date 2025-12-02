@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AuthenticationForm
-from .models import User, UserThemePreference, UserPermission
+from .models import User, UserPermission
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -245,42 +245,3 @@ class UserPermissionForm(forms.ModelForm):
         cleaned_data = super().clean()
         # Add any cross-field validation if needed
         return cleaned_data
-
-
-class UserThemePreferenceForm(forms.ModelForm):
-    class Meta:
-        model = UserThemePreference
-        fields = [
-            "theme_mode",
-            "primary_color",
-            "secondary_color",
-            "accent_color",
-            "background_color",
-            "text_color",
-            "sidebar_color",
-            "card_color",
-        ]
-        widgets = {
-            "primary_color": forms.TextInput(
-                attrs={"type": "color", "class": "form-control form-control-color"}
-            ),
-            "secondary_color": forms.TextInput(
-                attrs={"type": "color", "class": "form-control form-control-color"}
-            ),
-            "accent_color": forms.TextInput(
-                attrs={"type": "color", "class": "form-control form-control-color"}
-            ),
-            "background_color": forms.TextInput(
-                attrs={"type": "color", "class": "form-control form-control-color"}
-            ),
-            "text_color": forms.TextInput(
-                attrs={"type": "color", "class": "form-control form-control-color"}
-            ),
-            "sidebar_color": forms.TextInput(
-                attrs={"type": "color", "class": "form-control form-control-color"}
-            ),
-            "card_color": forms.TextInput(
-                attrs={"type": "color", "class": "form-control form-control-color"}
-            ),
-            "theme_mode": forms.Select(attrs={"class": "form-select"}),
-        }
