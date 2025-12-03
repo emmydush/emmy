@@ -26,10 +26,10 @@ class BusinessRegistrationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["company_name"].widget.attrs.update({"class": "form-control"})
-        self.fields["email"].widget.attrs.update({"class": "form-control"})
-        self.fields["business_type"].widget.attrs.update({"class": "form-select"})
-        self.fields["owner_email"].widget.attrs.update({"class": "form-control"})
+        self.fields["company_name"].widget.attrs.update({"class": "form-control bg-dark text-white"})
+        self.fields["email"].widget.attrs.update({"class": "form-control bg-dark text-white"})
+        self.fields["business_type"].widget.attrs.update({"class": "form-select bg-dark text-white"})
+        self.fields["owner_email"].widget.attrs.update({"class": "form-control bg-dark text-white"})
 
     def clean_owner_email(self):
         owner_email = self.cleaned_data.get("owner_email")
@@ -69,9 +69,9 @@ class BusinessDetailsForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["company_name"].widget.attrs.update({"class": "form-control"})
-        self.fields["email"].widget.attrs.update({"class": "form-control"})
-        self.fields["business_type"].widget.attrs.update({"class": "form-select"})
+        self.fields["company_name"].widget.attrs.update({"class": "form-control bg-dark text-white"})
+        self.fields["email"].widget.attrs.update({"class": "form-control bg-dark text-white"})
+        self.fields["business_type"].widget.attrs.update({"class": "form-select bg-dark text-white"})
 
 
 class BranchForm(forms.ModelForm):
@@ -101,10 +101,10 @@ class BranchForm(forms.ModelForm):
         # Extract the business from kwargs if provided
         self.business = kwargs.pop("business", None)
         super().__init__(*args, **kwargs)
-        self.fields["name"].widget.attrs.update({"class": "form-control"})
-        self.fields["address"].widget.attrs.update({"class": "form-control"})
-        self.fields["phone"].widget.attrs.update({"class": "form-control"})
-        self.fields["email"].widget.attrs.update({"class": "form-control"})
+        self.fields["name"].widget.attrs.update({"class": "form-control bg-dark text-white"})
+        self.fields["address"].widget.attrs.update({"class": "form-control bg-dark text-white"})
+        self.fields["phone"].widget.attrs.update({"class": "form-control bg-dark text-white"})
+        self.fields["email"].widget.attrs.update({"class": "form-control bg-dark text-white"})
         self.fields["is_main"].widget.attrs.update({"class": "form-check-input"})
         self.fields["is_active"].widget.attrs.update({"class": "form-check-input"})
 
@@ -173,10 +173,10 @@ class BranchRequestForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.business = kwargs.pop("business", None)
         super().__init__(*args, **kwargs)
-        self.fields["name"].widget.attrs.update({"class": "form-control"})
-        self.fields["address"].widget.attrs.update({"class": "form-control"})
-        self.fields["phone"].widget.attrs.update({"class": "form-control"})
-        self.fields["email"].widget.attrs.update({"class": "form-control"})
+        self.fields["name"].widget.attrs.update({"class": "form-control bg-dark text-white"})
+        self.fields["address"].widget.attrs.update({"class": "form-control bg-dark text-white"})
+        self.fields["phone"].widget.attrs.update({"class": "form-control bg-dark text-white"})
+        self.fields["email"].widget.attrs.update({"class": "form-control bg-dark text-white"})
         self.fields["is_main"].widget.attrs.update({"class": "form-check-input"})
     
     def clean_name(self):
@@ -229,8 +229,6 @@ class BranchRequestApprovalForm(forms.ModelForm):
         model = BranchRequest
         fields = ["status", "approval_notes"]
         widgets = {
-            "status": forms.Select(attrs={"class": "form-control"}),
-            "approval_notes": forms.Textarea(attrs={"rows": 3, "class": "form-control"}),
+            "status": forms.Select(attrs={"class": "form-control bg-dark text-white"}),
+            "approval_notes": forms.Textarea(attrs={"rows": 3, "class": "form-control bg-dark text-white"}),
         }
-
-

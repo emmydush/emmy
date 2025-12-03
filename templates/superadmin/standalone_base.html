@@ -32,6 +32,8 @@
             background: linear-gradient(135deg, #0a192f 0%, #020c1b 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
+            color: #e0e0e0; /* Added for better text visibility */
+            overflow-x: hidden;
         }
 
         .superadmin-container {
@@ -79,12 +81,48 @@
           margin-left: var(--sidebar-width);
           width: calc(100% - var(--sidebar-width));
           margin-top: 70px;
+          color: #e0e0e0; /* Added for better text visibility */
+          min-height: calc(100vh - 70px);
+        }
+
+        .card {
+          background-color: rgba(255, 255, 255, 0.05); /* Light background for cards */
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: #e0e0e0; /* Added for better text visibility */
+          box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+          background-color: rgba(0, 0, 0, 0.2);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .table {
+          color: #e0e0e0; /* Table text color */
+          background-color: transparent;
+        }
+
+        .table th {
+          color: #ffffff; /* Table header color */
+          border-color: rgba(255, 255, 255, 0.1);
+          font-weight: 600;
+        }
+
+        .table td {
+          border-color: rgba(255, 255, 255, 0.1);
+          vertical-align: middle;
+        }
+
+        .table-hover tbody tr:hover {
+          background-color: rgba(255, 255, 255, 0.075);
         }
 
         .card-stats {
           border-radius: 0.5rem;
           box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
           transition: transform 0.2s ease;
+          background-color: rgba(255, 255, 255, 0.05); /* Consistent card background */
         }
 
         .card-stats:hover {
@@ -95,11 +133,12 @@
           font-size: 2rem;
           font-weight: 700;
           margin-bottom: 0.5rem;
+          color: #ffffff; /* Stat number color */
         }
 
         .stat-label {
           font-size: 0.875rem;
-          color: #6c757d;
+          color: #a0a0a0; /* Slightly lighter stat label color */
         }
 
         .badge-sm {
@@ -109,6 +148,7 @@
         .table-responsive {
           border-radius: 0.5rem;
           overflow: hidden;
+          box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
         }
 
         .btn-icon {
@@ -178,10 +218,15 @@
           .superadmin-main {
             margin-left: 70px;
             width: calc(100% - 70px);
+            padding: 1rem;
           }
           
           .sidebar-brand h4, .sidebar-user {
             display: none;
+          }
+          
+          .superadmin-header {
+            padding: 0.5rem 0;
           }
         }
         
@@ -200,6 +245,19 @@
             border-top: 1px solid #dee2e6;
             padding: 1rem 0;
             margin-top: 2rem;
+        }
+        
+        /* Ensure content visibility */
+        .text-white {
+            color: #ffffff !important;
+        }
+        
+        .text-white-50 {
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
+        
+        .text-muted {
+            color: rgba(255, 255, 255, 0.3) !important;
         }
     </style>
     

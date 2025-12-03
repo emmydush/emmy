@@ -78,7 +78,11 @@
         </li>
         <li class="nav-item">
           <a class="nav-link {% if request.resolver_match.url_name == 'branch_list' %}active{% endif %}" 
-             href="{% url 'superadmin:branch_list' business_pk=1 %}">
+             {% if current_business %}
+             href="{% url 'superadmin:branch_list' business_pk=current_business.pk %}"
+             {% else %}
+             href="{% url 'superadmin:business_management' %}"
+             {% endif %}>
             <i class="fas fa-code-branch me-2"></i> <span>Branch Management</span>
           </a>
         </li>

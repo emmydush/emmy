@@ -2,31 +2,31 @@
 
 {% block business_owner_content %}
 <!-- Branch List -->
-<div class="card">
-  <div class="card-header">
-    <h5 class="mb-0">All Branches</h5>
+<div class="card shadow-lg">
+  <div class="card-header bg-dark">
+    <h5 class="mb-0 text-white">All Branches</h5>
   </div>
   <div class="table-responsive">
     <table class="table table-hover mb-0">
-      <thead>
+      <thead class="table-dark">
         <tr>
-          <th>Name</th>
-          <th>Address</th>
-          <th>Contact</th>
-          <th>Main Branch</th>
-          <th>Status</th>
-          <th>Created</th>
-          <th>Actions</th>
+          <th class="text-white">Name</th>
+          <th class="text-white">Address</th>
+          <th class="text-white">Contact</th>
+          <th class="text-white">Main Branch</th>
+          <th class="text-white">Status</th>
+          <th class="text-white">Created</th>
+          <th class="text-white">Actions</th>
         </tr>
       </thead>
       <tbody>
         {% for branch in branches %}
         <tr>
-          <td>{{ branch.name }}</td>
-          <td>{{ branch.address|truncatewords:10 }}</td>
+          <td class="text-white fw-medium">{{ branch.name }}</td>
+          <td class="text-white">{{ branch.address|truncatewords:10 }}</td>
           <td>
-            {% if branch.phone %}<div><i class="fas fa-phone me-1"></i> {{ branch.phone }}</div>{% endif %}
-            {% if branch.email %}<div><i class="fas fa-envelope me-1"></i> {{ branch.email }}</div>{% endif %}
+            {% if branch.phone %}<div class="text-white mb-1"><i class="fas fa-phone me-1"></i> {{ branch.phone }}</div>{% endif %}
+            {% if branch.email %}<div class="text-white"><i class="fas fa-envelope me-1"></i> {{ branch.email }}</div>{% endif %}
           </td>
           <td>
             {% if branch.is_main %}
@@ -42,7 +42,7 @@
               <span class="badge bg-danger">Inactive</span>
             {% endif %}
           </td>
-          <td>{{ branch.created_at|date:"M d, Y" }}</td>
+          <td class="text-white">{{ branch.created_at|date:"M d, Y" }}</td>
           <td>
             <div class="btn-group btn-group-sm" role="group">
               <a href="{% url 'superadmin:branch_update' business.pk branch.pk %}" class="btn btn-outline-warning" title="Edit">
@@ -56,7 +56,13 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="7" class="text-center">No branches found</td>
+          <td colspan="7" class="text-center text-white py-5">
+            <div class="mb-3">
+              <i class="fas fa-code-branch fa-3x text-muted"></i>
+            </div>
+            <h4 class="text-white">No branches found</h4>
+            <p class="text-muted">There are no branches created for this business yet.</p>
+          </td>
         </tr>
         {% endfor %}
       </tbody>
@@ -66,35 +72,35 @@
 
 <!-- Branch Statistics -->
 <div class="row mt-4">
-  <div class="col-md-4">
-    <div class="card">
+  <div class="col-md-4 mb-3">
+    <div class="card shadow-lg bg-dark border-light">
       <div class="card-body text-center">
-        <h5 class="card-title">{{ branches|length }}</h5>
-        <p class="card-text">Total Branches</p>
+        <h5 class="card-title text-white display-4 fw-bold" style="text-shadow: 0 0 3px rgba(255,255,255,0.3);">{{ branches|length }}</h5>
+        <p class="card-text text-white-50 fw-medium">Total Branches</p>
       </div>
     </div>
   </div>
-  <div class="col-md-4">
-    <div class="card">
+  <div class="col-md-4 mb-3">
+    <div class="card shadow-lg bg-dark border-light">
       <div class="card-body text-center">
-        <h5 class="card-title">
+        <h5 class="card-title text-white fw-bold" style="text-shadow: 0 0 3px rgba(255,255,255,0.3);">
           {% for branch in branches %}
             {% if branch.is_main %}
               {{ branch.name }}
             {% endif %}
           {% empty %}
-            None
+            <span class="text-muted">None</span>
           {% endfor %}
         </h5>
-        <p class="card-text">Main Branch</p>
+        <p class="card-text text-white-50 fw-medium">Main Branch</p>
       </div>
     </div>
   </div>
-  <div class="col-md-4">
-    <div class="card">
+  <div class="col-md-4 mb-3">
+    <div class="card shadow-lg bg-dark border-light">
       <div class="card-body text-center">
-        <h5 class="card-title">{{ active_branches_count }}</h5>
-        <p class="card-text">Active Branches</p>
+        <h5 class="card-title text-white display-4 fw-bold" style="text-shadow: 0 0 3px rgba(255,255,255,0.3);">{{ active_branches_count }}</h5>
+        <p class="card-text text-white-50 fw-medium">Active Branches</p>
       </div>
     </div>
   </div>

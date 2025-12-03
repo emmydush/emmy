@@ -1,0 +1,39 @@
+{% extends "account/base.html" %}
+
+{% block extra_head %}
+<style>
+    /* Additional styling for entrance pages */
+    .entrance-card {
+        max-width: 800px;
+        margin: 2rem auto;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+    
+    .entrance-header {
+        background: linear-gradient(135deg, #0a192f 0%, #020c1b 100%) !important;
+        border-bottom: 1px solid rgba(45, 74, 124, 0.5);
+        padding: 1.5rem;
+    }
+    
+    .entrance-form-section {
+        padding: 2rem;
+    }
+    
+    .entrance-welcome-section {
+        background: linear-gradient(135deg, rgba(10, 25, 47, 0.9) 0%, rgba(2, 12, 27, 0.95) 100%) !important;
+        border-left: 1px solid rgba(45, 74, 124, 0.5);
+        padding: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    @media (max-width: 768px) {
+        .entrance-welcome-section {
+            border-left: none;
+            border-top: 1px solid rgba(45, 74, 124, 0.5);
+        }
+    }
+</style>
+{% endblock %}

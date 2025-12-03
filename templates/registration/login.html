@@ -5,7 +5,7 @@
 
 {% block content %}
 <!-- Beautiful Header -->
-<div class="container-fluid bg-success text-white py-3 mb-0">
+<div class="container-fluid py-3 mb-0" style="background: linear-gradient(135deg, #0a192f 0%, #020c1b 100%) !important; border-bottom: 1px solid rgba(45, 74, 124, 0.5);">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-md-6">
@@ -14,10 +14,10 @@
                         <img src="{{ business_settings.business_logo.url }}" alt="{{ business_settings.business_name }} Logo" class="me-3" style="max-height: 40px; width: auto;">
                     {% endif %}
                     <div>
-                        <h1 class="h3 fw-bold mb-1">
+                        <h1 class="h3 fw-bold mb-1" style="background: linear-gradient(90deg, #00ffff, #ffb347); -webkit-background-clip: text; background-clip: text; color: transparent; letter-spacing: -0.5px;">
                             {{ business_settings.business_name }}
                         </h1>
-                        <p class="mb-0 small">{% trans "Intelligent. Efficient. Simplified." %}</p>
+                        <p class="mb-0 small" style="color: #cbd5e1;">{% trans "Intelligent. Efficient. Simplified." %}</p>
                     </div>
                 </div>
             </div>
@@ -71,8 +71,8 @@
 {% endif %}
 
 <!-- Single container for login and welcome -->
-<div class="container d-flex align-items-center justify-content-center" style="min-height: calc(100vh - 120px); background-color: #f8f9fa;">
-    <div class="card shadow-lg rounded-4 border-0" style="width: 100%; max-width: 800px;">
+<div class="container d-flex align-items-center justify-content-center" style="min-height: calc(100vh - 120px); background: linear-gradient(135deg, #0a192f 0%, #020c1b 100%);">
+    <div class="card shadow-lg rounded-4 border-0" style="width: 100%; max-width: 800px; background: rgba(16, 42, 67, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(45, 74, 124, 0.5);">
         <div class="row g-0">
             <!-- Login Form Section -->
             <div class="col-md-6">
@@ -92,14 +92,14 @@
                         {% endfor %}
                     {% endif %}
                     
-                    <h2 class="fw-bold mb-3 h4">{% trans "Signin" %}</h2>
+                    <h2 class="fw-bold mb-3 h4" style="color: #ffffff;">{% trans "Signin" %}</h2>
                     
                     <form method="post">
                         {% csrf_token %}
                         <div class="mb-3">
-                            <label for="{{ form.username.id_for_label }}" class="form-label small">{% trans "Username" %}</label>
+                            <label for="{{ form.username.id_for_label }}" class="form-label small" style="color: #cbd5e1;">{% trans "Username" %}</label>
                             <div class="input-group">
-                                <span class="input-group-text">
+                                <span class="input-group-text" style="background: rgba(16, 42, 67, 0.5); border: 1px solid rgba(45, 74, 124, 0.5); color: #ffffff;">
                                     <i class="fas fa-user"></i>
                                 </span>
                                 {{ form.username }}
@@ -112,13 +112,13 @@
                         </div>
                         
                         <div class="mb-3">
-                            <label for="{{ form.password.id_for_label }}" class="form-label small">{% trans "Password" %}</label>
+                            <label for="{{ form.password.id_for_label }}" class="form-label small" style="color: #cbd5e1;">{% trans "Password" %}</label>
                             <div class="input-group">
-                                <span class="input-group-text">
+                                <span class="input-group-text" style="background: rgba(16, 42, 67, 0.5); border: 1px solid rgba(45, 74, 124, 0.5); color: #ffffff;">
                                     <i class="fas fa-lock"></i>
                                 </span>
                                 {{ form.password }}
-                                <button class="btn btn-outline-secondary password-toggle" type="button" id="togglePassword">
+                                <button class="btn btn-outline-secondary password-toggle" type="button" id="togglePassword" style="background: rgba(16, 42, 67, 0.5); border: 1px solid rgba(45, 74, 124, 0.5); color: #ffffff;">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
@@ -131,18 +131,18 @@
                         
                         <div class="mb-3 form-check">
                             {{ form.remember_me }}
-                            <label for="{{ form.remember_me.id_for_label }}" class="form-check-label small">
+                            <label for="{{ form.remember_me.id_for_label }}" class="form-check-label small" style="color: #cbd5e1;">
                                 {% trans "Remember me" %}
                             </label>
                         </div>
                         
-                        <button type="submit" class="btn btn-success w-100 py-2 fw-bold rounded-pill mb-3">
+                        <button type="submit" class="btn w-100 py-2 fw-bold rounded-pill mb-3" style="background: linear-gradient(90deg, #00d4ff, #00ffff); color: #020c1b; border: none; box-shadow: 0 4px 10px rgba(0, 212, 255, 0.3);">
                             <i class="fas fa-sign-in-alt me-2"></i>{% trans "Signin" %}
                         </button>
                         
                         <div class="text-center">
                             <p class="mb-0 small">
-                                <a href="{% url 'password_reset' %}" class="text-decoration-none">
+                                <a href="{% url 'password_reset' %}" class="text-decoration-none" style="color: #00d4ff;">
                                     <i class="fas fa-key me-1"></i>{% trans "Forgot password?" %}
                                 </a>
                             </p>
@@ -153,7 +153,7 @@
             
             <!-- Welcome Message Section -->
             <div class="col-md-6 d-flex align-items-center justify-content-center p-4" 
-                 style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                 style="background: linear-gradient(135deg, rgba(10, 25, 47, 0.9) 0%, rgba(2, 12, 27, 0.95) 100%); border-left: 1px solid rgba(45, 74, 124, 0.5);">
                 <div class="text-center text-white">
                     <div class="mb-3">
                         <i class="fas fa-sign-in-alt fa-3x"></i>
@@ -172,19 +172,38 @@
 <style>
     /* Style for input group icons */
     .input-group-text {
-        background-color: #f8f9fa;
-        border-color: #ced4da;
+        background-color: rgba(16, 42, 67, 0.5);
+        border-color: rgba(45, 74, 124, 0.5);
+        color: #ffffff;
     }
     
     /* Style for form inputs */
     .form-control {
+        background: rgba(16, 42, 67, 0.5);
+        border: 1px solid rgba(45, 74, 124, 0.5);
+        color: #ffffff;
         border-left: none;
     }
     
-    /* Remove border radius on the left side of input */
     .form-control:focus {
-        box-shadow: none;
-        border-color: #ced4da;
+        background: rgba(16, 42, 67, 0.7);
+        border-color: #00d4ff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 212, 255, 0.25);
+        color: #ffffff;
+    }
+    
+    .form-check-input {
+        background-color: rgba(16, 42, 67, 0.5);
+        border: 1px solid rgba(45, 74, 124, 0.5);
+    }
+    
+    .form-check-input:checked {
+        background-color: #00d4ff;
+        border-color: #00d4ff;
+    }
+    
+    .form-check-input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(0, 212, 255, 0.25);
     }
 </style>
 
