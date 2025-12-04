@@ -315,23 +315,27 @@
         });
     });
 
-    // Chart initialization
+    // Chart initialization with real data from database
     document.addEventListener('DOMContentLoaded', function() {
-        // Neon-blue and orange bar graphs
+        // Parse real data from context
+        const fastSlowProductsData = JSON.parse('{{ fast_slow_products_json|escapejs }}');
+        const categoryStockData = JSON.parse('{{ category_stock_json|escapejs }}');
+
+        // Neon-blue and orange bar graphs with real data
         const fastSlowCtx = document.getElementById('fastSlowChart').getContext('2d');
         const fastSlowChart = new Chart(fastSlowCtx, {
             type: 'bar',
             data: {
-                labels: ['Electronics', 'Clothing', 'Home Goods', 'Books', 'Sports'],
+                labels: fastSlowProductsData.labels,
                 datasets: [{
                     label: 'Fast Moving',
-                    data: [65, 59, 80, 81, 56],
+                    data: fastSlowProductsData.fast_moving,
                     backgroundColor: 'rgba(0, 212, 255, 0.7)',
                     borderColor: 'rgba(0, 212, 255, 1)',
                     borderWidth: 1
                 }, {
                     label: 'Slow Moving',
-                    data: [28, 48, 40, 19, 86],
+                    data: fastSlowProductsData.slow_moving,
                     backgroundColor: 'rgba(255, 126, 0, 0.7)',
                     borderColor: 'rgba(255, 126, 0, 1)',
                     borderWidth: 1
@@ -369,27 +373,36 @@
             }
         });
 
-        // Category-wise Stock Distribution
+        // Category-wise Stock Distribution with real data
         const categoryStockCtx = document.getElementById('categoryStockChart').getContext('2d');
+        const categoryStockLabels = categoryStockData.map(item => item.name);
+        const categoryStockQuantities = categoryStockData.map(item => item.quantity);
+
         const categoryStockChart = new Chart(categoryStockCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Electronics', 'Clothing', 'Home Goods', 'Books', 'Sports'],
+                labels: categoryStockLabels.length > 0 ? categoryStockLabels : ['No Data'],
                 datasets: [{
-                    data: [35, 25, 20, 12, 8],
+                    data: categoryStockQuantities.length > 0 ? categoryStockQuantities : [1],
                     backgroundColor: [
                         'rgba(0, 212, 255, 0.8)',
                         'rgba(255, 195, 0, 0.8)',
                         'rgba(0, 212, 255, 0.6)',
                         'rgba(255, 126, 0, 0.8)',
-                        'rgba(0, 212, 255, 0.4)'
+                        'rgba(0, 212, 255, 0.4)',
+                        'rgba(46, 204, 113, 0.8)',
+                        'rgba(155, 89, 182, 0.8)',
+                        'rgba(26, 188, 156, 0.8)'
                     ],
                     borderColor: [
                         'rgba(0, 212, 255, 1)',
                         'rgba(255, 195, 0, 1)',
                         'rgba(0, 212, 255, 1)',
                         'rgba(255, 126, 0, 1)',
-                        'rgba(0, 212, 255, 1)'
+                        'rgba(0, 212, 255, 1)',
+                        'rgba(46, 204, 113, 1)',
+                        'rgba(155, 89, 182, 1)',
+                        'rgba(26, 188, 156, 1)'
                     ],
                     borderWidth: 1
                 }]

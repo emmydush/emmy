@@ -340,54 +340,99 @@ def owner_dashboard_view(request):
     if not hasattr(request.user, 'owned_businesses'):
         messages.error(request, "You don't have access to the owner dashboard.")
         return redirect('dashboard:index')
-    
+
     # Get user's businesses
     user_businesses = request.user.owned_businesses.all()
-    
+
     if not user_businesses.exists():
         messages.info(request, "You don't own any businesses yet.")
         return redirect('dashboard:index')
-    
+
     # Calculate aggregate metrics
     total_businesses = user_businesses.count()
     total_users = 0
     total_revenue = Decimal('0')
     total_sales = 0
-    
+
     # For pending approvals, open tickets, and recent alerts, we need to calculate real data
     pending_approvals = 0
     open_tickets = 0
     recent_alerts = 0
-    
+
+    # Business status distribution counts
+    active_count = 0
+    pending_count = 0
+    suspended_count = 0
+
+    # Subscription plan distribution
+    subscription_counts = {}
+
     for business in user_businesses:
         # Set current business context
         set_current_business(business)
-        
+
         # Count users in this business
         total_users += business.staff.count() + business.managers.count() + 1  # +1 for owner
-        
+
         # Calculate revenue for this business
         business_sales = Sale.objects.business_specific()
         total_sales += business_sales.count()
-        
+
         # Calculate revenue
         for sale in business_sales:
             for item in sale.items.all():
                 total_revenue += item.unit_price * item.quantity
-        
+
         # Count pending approvals (purchase orders that need approval)
         from purchases.models import PurchaseOrder
         pending_approvals += PurchaseOrder.objects.business_specific().filter(status='pending').count()
-        
+
         # Count open tickets (support tickets that are open)
         # Assuming there's a support ticket model, we'll use a placeholder for now
         # In a real implementation, this would connect to a support ticket system
         open_tickets += 0  # Placeholder - would connect to actual ticket system
-        
+
         # Count recent alerts (stock alerts, etc.)
         from products.models import StockAlert
         recent_alerts += StockAlert.objects.business_specific().filter(is_resolved=False).count()
-    
+
+        # Count business status
+        if business.status == 'active':
+            active_count += 1
+        elif business.status == 'pending':
+            pending_count += 1
+        elif business.status == 'suspended':
+            suspended_count += 1
+
+        # Count subscription plans
+        if business.subscription_plan:
+            plan_name = business.subscription_plan.name
+            subscription_counts[plan_name] = subscription_counts.get(plan_name, 0) + 1
+        else:
+            subscription_counts['Free'] = subscription_counts.get('Free', 0) + 1
+
+    # Prepare business status data for chart
+    business_status_labels = []
+    business_status_data = []
+    if active_count > 0:
+        business_status_labels.append('Active')
+        business_status_data.append(active_count)
+    if pending_count > 0:
+        business_status_labels.append('Pending')
+        business_status_data.append(pending_count)
+    if suspended_count > 0:
+        business_status_labels.append('Suspended')
+        business_status_data.append(suspended_count)
+
+    # If no business status data, add at least one placeholder
+    if not business_status_data:
+        business_status_labels = ['No Data']
+        business_status_data = [1]
+
+    # Prepare subscription plan data for chart
+    subscription_labels = list(subscription_counts.keys()) if subscription_counts else ['No Plans']
+    subscription_data = list(subscription_counts.values()) if subscription_counts else [1]
+
     context = {
         "total_businesses": total_businesses,
         "total_users": total_users,
@@ -396,9 +441,17 @@ def owner_dashboard_view(request):
         "pending_approvals": pending_approvals,
         "open_tickets": open_tickets,
         "recent_alerts": recent_alerts,
-        "system_uptime": "99.9%"  # This is still a placeholder as it would require system monitoring
+        "system_uptime": "99.9%",  # This is still a placeholder as it would require system monitoring
+        # Business status chart data
+        "business_status_labels": json.dumps(business_status_labels),
+        "business_status_data": json.dumps(business_status_data),
+        # Subscription plan chart data
+        "subscription_labels": json.dumps(subscription_labels),
+        "subscription_data": json.dumps(subscription_data),
+        # Business list for table
+        "user_businesses": user_businesses,
     }
-    
+
     return render(request, "dashboard/owner_dashboard.html", context)
 
 

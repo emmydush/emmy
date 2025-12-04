@@ -90,6 +90,8 @@
             z-index: 100;
             overflow-y: auto;
             box-shadow: 2px 0 4px rgba(0,0,0,.1);
+            width: 250px;
+            display: block;
         }
         
         /* Glassmorphism sidebar styles */
@@ -215,20 +217,20 @@
         /* Collapsible sidebar for mobile */
         @media (max-width: 767.98px) {
             .sidebar {
-                position: fixed;
-                top: 56px;
-                left: -250px;
-                width: 250px;
-                height: calc(100% - 56px);
-                transition: all 0.3s ease;
-                z-index: 999;
+                position: fixed !important;
+                top: 56px !important;
+                left: -250px !important;
+                width: 250px !important;
+                height: calc(100% - 56px) !important;
+                transition: left 0.3s ease !important;
+                z-index: 999 !important;
                 display: block !important;
                 background: linear-gradient(135deg, #0a192f 0%, #020c1b 100%) !important;
-                box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
+                box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3) !important;
             }
-            
+
             .sidebar.show {
-                left: 0;
+                left: 0 !important;
             }
             
             /* Ensure sidebar is hidden by default on mobile - important for page loads */
@@ -327,6 +329,22 @@
         /* Adjust container to account for fixed sidebar */
         .container-fluid {
             padding-left: 0;
+        }
+
+        /* Desktop sidebar layout */
+        @media (min-width: 768px) {
+            .main-content {
+                margin-left: 250px !important;
+                width: calc(100% - 250px) !important;
+            }
+        }
+
+        /* Mobile main content - full width */
+        @media (max-width: 767.98px) {
+            .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
         }
         
         .success-message-bar {
@@ -646,8 +664,8 @@
     <div class="container-fluid" style="padding-top: 56px;">
         <div class="row">
             <!-- Sidebar -->
-            <nav id="sidebar" class="col-md-3 col-lg-2 sidebar glassmorphism-sidebar" style="border-right: 1px solid rgba(45, 74, 124, 0.5);">
-                <div class="position-sticky pt-3" style="height: calc(100vh - 56px); overflow-y: auto;">
+            <nav id="sidebar" class="sidebar glassmorphism-sidebar" style="border-right: 1px solid rgba(45, 74, 124, 0.5); width: 250px; padding: 0 !important; margin: 0 !important;">
+                <div style="height: calc(100vh - 56px); overflow-y: auto; padding-top: 1rem; padding-left: 0.75rem; padding-right: 0.75rem;">
                     <!-- Profile Section -->
                     <div class="profile-section text-center mb-3 p-2"> <!-- Reduced margin and padding -->
                         <a href="{% url 'authentication:profile' %}" class="profile-link">
@@ -772,7 +790,7 @@
             </nav>
 
             <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content" style="background: transparent; min-height: calc(100vh - 56px);">
+            <main class="main-content" style="background: transparent; min-height: calc(100vh - 56px); margin-left: 250px; width: calc(100% - 250px);">
                 {% block content %}
                 <!-- Content will be placed here by child templates -->
                 {% endblock %}
@@ -792,131 +810,37 @@
             updateTime();
             setInterval(updateTime, 60000);
             
-            // Sidebar toggle functionality - PAGE-LOAD SAFE VERSION
+            // Simple, direct sidebar toggle functionality
             const sidebarToggle = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('sidebar');
-            
-            // Helper function to update sidebar icon
-            function updateSidebarIcon() {
-                const icon = sidebarToggle ? sidebarToggle.querySelector('i') : null;
-                if (!icon) return;
-                
-                if (sidebar && sidebar.classList.contains('show')) {
-                    icon.classList.remove('fa-bars');
-                    icon.classList.add('fa-times');
-                } else {
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                }
-            }
-            
-            // Helper function to show sidebar
-            function showSidebar() {
-                if (sidebar && window.innerWidth < 768) {
-                    sidebar.classList.add('show');
-                    updateSidebarIcon();
-                }
-            }
-            
-            // Helper function to hide sidebar
-            function hideSidebar() {
-                if (sidebar && window.innerWidth < 768) {
-                    sidebar.classList.remove('show');
-                    updateSidebarIcon();
-                }
-            }
-            
-            // Helper function to toggle sidebar
-            function toggleSidebar() {
-                if (sidebar && window.innerWidth < 768) {
-                    if (sidebar.classList.contains('show')) {
-                        hideSidebar();
-                    } else {
-                        showSidebar();
-                    }
-                }
-            }
-            
-            // Initialize sidebar state on page load
-            function initializeSidebar() {
-                if (sidebar && window.innerWidth < 768) {
-                    // Always hide sidebar on mobile page load for consistent experience
-                    hideSidebar();
-                } else if (sidebar) {
-                    // On desktop, ensure sidebar is in default state
-                    sidebar.classList.remove('show');
-                }
-                
-                // Ensure icon is in correct state
-                updateSidebarIcon();
-            }
-            
+
             if (sidebarToggle && sidebar) {
-                // Initialize sidebar state when page loads
-                document.addEventListener('DOMContentLoaded', function() {
-                    initializeSidebar();
-                });
-                
-                // Also initialize after page is fully loaded
-                window.addEventListener('load', function() {
-                    initializeSidebar();
-                });
-                
-                // Click event for toggle button - WITH ERROR HANDLING
+                // Toggle sidebar on click
                 sidebarToggle.addEventListener('click', function(e) {
-                    e.stopPropagation();
                     e.preventDefault();
-                    try {
-                        toggleSidebar();
-                    } catch (error) {
-                        console.error('Error toggling sidebar:', error);
-                        // Fallback: force the sidebar state
-                        if (window.innerWidth < 768) {
-                            sidebar.classList.toggle('show');
-                            updateSidebarIcon();
-                        }
-                    }
+                    e.stopPropagation();
+                    sidebar.classList.toggle('show');
+                    console.log('Sidebar toggled. Show class present:', sidebar.classList.contains('show'));
                 });
-                
-                // Close sidebar when clicking outside on mobile
+
+                // Close sidebar when clicking outside
                 document.addEventListener('click', function(event) {
-                    if (sidebar && sidebar.classList.contains('show') && 
-                        window.innerWidth < 768) {
-                        // Check if click is outside sidebar and toggle button
-                        if (!sidebar.contains(event.target) && 
-                            sidebarToggle && !sidebarToggle.contains(event.target)) {
-                            hideSidebar();
-                        }
+                    if (window.innerWidth < 768 &&
+                        sidebar.classList.contains('show') &&
+                        !sidebar.contains(event.target) &&
+                        !sidebarToggle.contains(event.target)) {
+                        sidebar.classList.remove('show');
                     }
                 });
-                
-                // Also close sidebar when a nav link is clicked on mobile
-                const navLinks = sidebar.querySelectorAll('.nav-link');
-                navLinks.forEach(link => {
+
+                // Close sidebar when a link is clicked (on mobile)
+                sidebar.querySelectorAll('.nav-link').forEach(link => {
                     link.addEventListener('click', function() {
                         if (window.innerWidth < 768) {
-                            hideSidebar();
+                            sidebar.classList.remove('show');
                         }
                     });
                 });
-                
-                // Handle window resize events
-                window.addEventListener('resize', function() {
-                    if (window.innerWidth >= 768) {
-                        // On desktop, ensure sidebar is visible
-                        hideSidebar();
-                    } else {
-                        // On mobile, ensure proper icon state
-                        updateSidebarIcon();
-                    }
-                });
-                
-                // Additional safety check - periodically verify state
-                setInterval(function() {
-                    if (window.innerWidth < 768) {
-                        updateSidebarIcon();
-                    }
-                }, 1000);
             }
             
             // Language switcher functionality

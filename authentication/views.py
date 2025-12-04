@@ -68,18 +68,18 @@ def profile(request):
 
 
 @login_required
-@require_POST
+@require_http_methods(["POST"])
 def set_user_language(request):
     """
-    Set the user's preferred language and update the session language
+    Set the user's preferred language.
     """
     user = request.user
     language = request.POST.get('language')
     next_url = request.POST.get('next', '/')
     
     # Validate language is in supported languages
-    supported_languages = [lang[0] for lang in translation.get_language_info_list()]
-    if language and language in dict(translation.get_languages()).keys():
+    supported_languages = [lang[0] for lang in settings.LANGUAGES]
+    if language and language in supported_languages:
         # Update user's language preference
         user.language = language
         user.save(update_fields=['language'])

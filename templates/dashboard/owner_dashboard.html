@@ -149,30 +149,32 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {% for business in user_businesses %}
                         <tr>
-                            <td>Tech Solutions Inc.</td>
-                            <td><span class="badge bg-success">Active</span></td>
-                            <td>John Smith</td>
+                            <td>{{ business.business_name }}</td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary">View</button>
+                                {% if business.status == 'active' %}
+                                    <span class="badge bg-success">Active</span>
+                                {% elif business.status == 'pending' %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% elif business.status == 'suspended' %}
+                                    <span class="badge bg-danger">Suspended</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ business.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ business.owner.get_full_name|default:business.owner.username }}</td>
+                            <td>
+                                <a href="{% url 'dashboard:index' %}?business_id={{ business.id }}" class="btn btn-sm btn-outline-primary">
+                                    View
+                                </a>
                             </td>
                         </tr>
+                        {% empty %}
                         <tr>
-                            <td>Retail Masters Ltd.</td>
-                            <td><span class="badge bg-warning">Pending</span></td>
-                            <td>Sarah Johnson</td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-success">Approve</button>
-                            </td>
+                            <td colspan="4" class="text-center text-muted">No businesses found</td>
                         </tr>
-                        <tr>
-                            <td>Global Services Co.</td>
-                            <td><span class="badge bg-danger">Suspended</span></td>
-                            <td>Mike Williams</td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-info">Review</button>
-                            </td>
-                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -243,25 +245,33 @@
         });
     });
 
-    // Chart initialization
+    // Chart initialization with real data from database
     document.addEventListener('DOMContentLoaded', function() {
+        // Parse real data from context
+        const businessStatusLabels = {{ business_status_labels|safe }};
+        const businessStatusData = {{ business_status_data|safe }};
+        const subscriptionLabels = {{ subscription_labels|safe }};
+        const subscriptionData = {{ subscription_data|safe }};
+
         // Business Status Distribution
         const businessStatusCtx = document.getElementById('businessStatusChart').getContext('2d');
         const businessStatusChart = new Chart(businessStatusCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Active', 'Pending', 'Suspended'],
+                labels: businessStatusLabels,
                 datasets: [{
-                    data: [75, 15, 10],
+                    data: businessStatusData,
                     backgroundColor: [
                         'rgba(0, 212, 255, 0.8)',
                         'rgba(255, 195, 0, 0.8)',
-                        'rgba(255, 126, 0, 0.8)'
+                        'rgba(255, 126, 0, 0.8)',
+                        'rgba(46, 204, 113, 0.8)'
                     ],
                     borderColor: [
                         'rgba(0, 212, 255, 1)',
                         'rgba(255, 195, 0, 1)',
-                        'rgba(255, 126, 0, 1)'
+                        'rgba(255, 126, 0, 1)',
+                        'rgba(46, 204, 113, 1)'
                     ],
                     borderWidth: 1
                 }]
@@ -284,20 +294,24 @@
         const subscriptionChart = new Chart(subscriptionCtx, {
             type: 'pie',
             data: {
-                labels: ['Basic', 'Professional', 'Enterprise', 'Premium'],
+                labels: subscriptionLabels,
                 datasets: [{
-                    data: [30, 25, 20, 25],
+                    data: subscriptionData,
                     backgroundColor: [
                         'rgba(0, 212, 255, 0.8)',
                         'rgba(255, 195, 0, 0.8)',
                         'rgba(255, 126, 0, 0.8)',
-                        'rgba(0, 255, 255, 0.8)'
+                        'rgba(0, 255, 255, 0.8)',
+                        'rgba(46, 204, 113, 0.8)',
+                        'rgba(155, 89, 182, 0.8)'
                     ],
                     borderColor: [
                         'rgba(0, 212, 255, 1)',
                         'rgba(255, 195, 0, 1)',
                         'rgba(255, 126, 0, 1)',
-                        'rgba(0, 255, 255, 1)'
+                        'rgba(0, 255, 255, 1)',
+                        'rgba(46, 204, 113, 1)',
+                        'rgba(155, 89, 182, 1)'
                     ],
                     borderWidth: 1
                 }]
