@@ -6,6 +6,38 @@
 {% block extra_css %}
 <!-- Dashboard UI CSS -->
 <link href="{% static 'css/dashboard-ui.css' %}" rel="stylesheet">
+<style>
+    /* Mobile-specific improvements for superadmin dashboard */
+    @media (max-width: 767.98px) {
+        .dashboard-header h1 {
+            font-size: 1.75rem;
+            text-align: center;
+        }
+        
+        .dashboard-header p {
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        
+        .stats-grid {
+            margin-bottom: 1rem;
+        }
+        
+        .charts-row {
+            margin-bottom: 1.5rem;
+        }
+    }
+    
+    @media (max-width: 575.98px) {
+        .dashboard-header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .dashboard-header p {
+            font-size: 0.85rem;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block superadmin_content %}
