@@ -15,6 +15,12 @@ python manage.py collectstatic --noinput
 echo "Creating test users..."
 python manage.py create_test_users || true
 
+# Load backup data if available
+echo "Loading backup data if available..."
+if [ -f "/app/db_backup.json" ]; then
+    python manage.py loaddata db_backup.json || echo "Warning: Failed to load backup data"
+fi
+
 # Ensure media directory exists and has proper permissions
 echo "Setting up media directory..."
 mkdir -p /app/media
