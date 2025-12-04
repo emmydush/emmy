@@ -231,6 +231,11 @@
                 left: 0;
             }
             
+            /* Ensure sidebar is hidden by default on mobile - important for page loads */
+            .sidebar:not(.show) {
+                left: -250px !important;
+            }
+            
             .sidebar-toggle {
                 display: flex;
             }
@@ -787,7 +792,7 @@
             updateTime();
             setInterval(updateTime, 60000);
             
-            // Sidebar toggle functionality - ULTRA-RELIABLE VERSION
+            // Sidebar toggle functionality - PAGE-LOAD SAFE VERSION
             const sidebarToggle = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('sidebar');
             
@@ -832,11 +837,30 @@
                 }
             }
             
-            if (sidebarToggle && sidebar) {
-                // Ensure sidebar is hidden by default on mobile
-                if (window.innerWidth < 768) {
-                    hideSidebar(); // Use helper function for consistency
+            // Initialize sidebar state on page load
+            function initializeSidebar() {
+                if (sidebar && window.innerWidth < 768) {
+                    // Always hide sidebar on mobile page load for consistent experience
+                    hideSidebar();
+                } else if (sidebar) {
+                    // On desktop, ensure sidebar is in default state
+                    sidebar.classList.remove('show');
                 }
+                
+                // Ensure icon is in correct state
+                updateSidebarIcon();
+            }
+            
+            if (sidebarToggle && sidebar) {
+                // Initialize sidebar state when page loads
+                document.addEventListener('DOMContentLoaded', function() {
+                    initializeSidebar();
+                });
+                
+                // Also initialize after page is fully loaded
+                window.addEventListener('load', function() {
+                    initializeSidebar();
+                });
                 
                 // Click event for toggle button - WITH ERROR HANDLING
                 sidebarToggle.addEventListener('click', function(e) {
