@@ -45,8 +45,29 @@ DATABASES = {
 }
 ```
 
+#### For Render Deployment:
+Render deployments should use the DATABASE_URL environment variable which is automatically provided by Render.
+No additional configuration is needed in `local_settings.py` for database configuration.
+
 #### For Development (SQLite):
-The system will automatically use SQLite if no local_settings.py is found.
+The system will automatically use SQLite if no local_settings.py is found and no DATABASE_URL environment variable is set.
+
+### Environment Variables
+
+For Render and other cloud deployments, the following environment variables can be used:
+
+- `DATABASE_URL`: PostgreSQL database connection string (automatically provided by Render)
+- `SECRET_KEY`: Django secret key for production
+- `DEBUG`: Set to False for production
+- `ALLOWED_HOSTS`: Comma-separated list of allowed hosts
+
+Example .env file for local development with Render-like configuration:
+```
+DATABASE_URL=postgresql://user:password@localhost:5432/database_name
+SECRET_KEY=your-secret-key-here
+DEBUG=False
+ALLOWED_HOSTS=localhost,127.0.0.1,yourdomain.com
+```
 
 ### Running the Application
 
@@ -68,13 +89,14 @@ The system will automatically use SQLite if no local_settings.py is found.
 ### Deployment
 
 For production deployment, ensure you:
-1. Set `DEBUG = False` in your local_settings.py
-2. Use a proper PostgreSQL database
+1. Set `DEBUG = False` in your local_settings.py or environment variables
+2. Use a proper PostgreSQL database (via DATABASE_URL environment variable on Render)
 3. Configure a secure SECRET_KEY
 4. Set appropriate ALLOWED_HOSTS
 5. Configure email settings for production
 
 ### Common Issues
 
-1. **Missing local_settings.py**: The application will fall back to SQLite for development.
+1. **Missing local_settings.py**: The application will fall back to SQLite for development or use DATABASE_URL if available.
 2. **Database connection errors**: Check your database credentials and ensure the database server is running.
+3. **Environment variables not loading**: Ensure the .env file is in the project root directory.

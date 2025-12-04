@@ -107,15 +107,29 @@ WSGI_APPLICATION = "inventory_management.wsgi.application"
 try:
     from .local_settings import DATABASES
 except ImportError:
-    # If local_settings.py is not available, use a default SQLite configuration for development
-    # NOTE: This is NOT recommended for production use
+    # If local_settings.py is not available, try to use DATABASE_URL from environment variables
+    # This is commonly used in platforms like Render
     import os
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    import dj_database_url
+    
+    # Try to get DATABASE_URL from environment variables
+    DATABASE_URL = os.environ.get('DATABASE_URL')
+    
+    if DATABASE_URL:
+        # Parse the DATABASE_URL and configure the database
+        DATABASES = {
+            'default': dj_database_url.parse(DATABASE_URL)
         }
-    }
+    else:
+        # Fallback to SQLite for development if no DATABASE_URL is provided
+        # NOTE: This is NOT recommended for production use
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+            }
+        }
+    
     # Also set default settings for development
     SECRET_KEY = 'django-insecure-default-key-for-development-only-change-in-production'
     DEBUG = True
