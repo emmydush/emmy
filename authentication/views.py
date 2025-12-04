@@ -5,11 +5,13 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash, authenticate, login
 from django.contrib.auth.forms import PasswordChangeForm, AuthenticationForm
 from django.db import transaction
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 from django.utils import translation
 from django.http import HttpResponseRedirect
+from django.conf import settings
 from .forms import CustomUserCreationForm, CustomUserChangeForm, UserPermissionForm, UserProfileForm
 from .models import User, UserPermission
+from .utils import check_user_permission
 from superadmin.models import Branch, Business
 from superadmin.middleware import get_current_business
 
