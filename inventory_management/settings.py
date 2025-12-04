@@ -107,12 +107,20 @@ WSGI_APPLICATION = "inventory_management.wsgi.application"
 try:
     from .local_settings import DATABASES
 except ImportError:
-    # If local_settings.py is not available, raise an error
-    # PostgreSQL configuration is required
-    raise ImportError(
-        "local_settings.py is missing. Please create a local_settings.py file "
-        "in the inventory_management directory with your PostgreSQL configuration."
-    )
+    # If local_settings.py is not available, use a default SQLite configuration for development
+    # NOTE: This is NOT recommended for production use
+    import os
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
+    # Also set default settings for development
+    SECRET_KEY = 'django-insecure-default-key-for-development-only-change-in-production'
+    DEBUG = True
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
