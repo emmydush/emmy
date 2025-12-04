@@ -258,6 +258,24 @@
             }
         }
         
+        /* Improved mobile sidebar overlay */
+        @media (max-width: 767.98px) {
+            .sidebar-overlay {
+                position: fixed;
+                top: 56px;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 998;
+                display: none;
+            }
+            
+            .sidebar-overlay.show {
+                display: block;
+            }
+        }
+        
         /* Adjust main content when sidebar is collapsed on desktop */
         @media (min-width: 768px) {
             .sidebar.collapsed {
@@ -661,6 +679,9 @@
         <i class="fas fa-bars"></i>
     </div>
     
+    <!-- Mobile sidebar overlay -->
+    <div class="sidebar-overlay d-md-none" id="sidebarOverlay"></div>
+    
     <div class="container-fluid" style="padding-top: 56px;">
         <div class="row">
             <!-- Sidebar -->
@@ -810,38 +831,92 @@
             updateTime();
             setInterval(updateTime, 60000);
             
-            // Simple, direct sidebar toggle functionality
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const sidebar = document.getElementById('sidebar');
+            // Enhanced mobile sidebar functionality
+            document.addEventListener('DOMContentLoaded', function() {
+                const sidebarToggle = document.getElementById('sidebarToggle');
+                const sidebar = document.getElementById('sidebar');
+                const sidebarOverlay = document.getElementById('sidebarOverlay');
+                const body = document.body;
 
-            if (sidebarToggle && sidebar) {
-                // Toggle sidebar on click
-                sidebarToggle.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    sidebar.classList.toggle('show');
-                    console.log('Sidebar toggled. Show class present:', sidebar.classList.contains('show'));
-                });
-
-                // Close sidebar when clicking outside
-                document.addEventListener('click', function(event) {
-                    if (window.innerWidth < 768 &&
-                        sidebar.classList.contains('show') &&
-                        !sidebar.contains(event.target) &&
-                        !sidebarToggle.contains(event.target)) {
-                        sidebar.classList.remove('show');
+                // Function to update sidebar icon
+                function updateSidebarIcon() {
+                    const icon = sidebarToggle ? sidebarToggle.querySelector('i') : null;
+                    if (!icon) return;
+                    
+                    if (sidebar && sidebar.classList.contains('show')) {
+                        icon.classList.remove('fa-bars');
+                        icon.classList.add('fa-times');
+                    } else {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
                     }
-                });
+                }
 
-                // Close sidebar when a link is clicked (on mobile)
-                sidebar.querySelectorAll('.nav-link').forEach(link => {
-                    link.addEventListener('click', function() {
+                // Initialize sidebar icon
+                updateSidebarIcon();
+
+                if (sidebarToggle && sidebar) {
+                    // Toggle sidebar on click
+                    sidebarToggle.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        sidebar.classList.toggle('show');
+                        if (sidebarOverlay) {
+                            sidebarOverlay.classList.toggle('show');
+                        }
+                        updateSidebarIcon();
+                        
+                        // Prevent body scrolling when sidebar is open on mobile
                         if (window.innerWidth < 768) {
-                            sidebar.classList.remove('show');
+                            if (sidebar.classList.contains('show')) {
+                                body.style.overflow = 'hidden';
+                            } else {
+                                body.style.overflow = '';
+                            }
                         }
                     });
-                });
-            }
+
+                    // Close sidebar when clicking outside (overlay)
+                    if (sidebarOverlay) {
+                        sidebarOverlay.addEventListener('click', function() {
+                            sidebar.classList.remove('show');
+                            sidebarOverlay.classList.remove('show');
+                            updateSidebarIcon();
+                            body.style.overflow = '';
+                        });
+                    }
+
+                    // Close sidebar when a link is clicked (on mobile)
+                    sidebar.querySelectorAll('.nav-link').forEach(link => {
+                        link.addEventListener('click', function() {
+                            if (window.innerWidth < 768) {
+                                sidebar.classList.remove('show');
+                                if (sidebarOverlay) {
+                                    sidebarOverlay.classList.remove('show');
+                                }
+                                updateSidebarIcon();
+                                body.style.overflow = '';
+                            }
+                        });
+                    });
+
+                    // Handle window resize
+                    window.addEventListener('resize', function() {
+                        if (window.innerWidth >= 768) {
+                            // On desktop, ensure sidebar is visible and reset icon
+                            sidebar.classList.remove('show');
+                            if (sidebarOverlay) {
+                                sidebarOverlay.classList.remove('show');
+                            }
+                            updateSidebarIcon();
+                            body.style.overflow = '';
+                        } else {
+                            // Update icon based on sidebar state
+                            updateSidebarIcon();
+                        }
+                    });
+                }
+            });
             
             // Language switcher functionality
             var langLinks = document.querySelectorAll('.dropdown-menu a[data-lang]');
