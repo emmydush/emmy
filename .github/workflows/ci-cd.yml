@@ -70,6 +70,12 @@ jobs:
         echo "    }" >> inventory_management/local_settings.py
         echo "}" >> inventory_management/local_settings.py
 
+    - name: Run wait-for-db script with correct environment variables
+      run: python wait-for-db.py
+      env:
+        DB_HOST: localhost
+        DB_PORT: 5432
+
     - name: Run migrations
       run: python manage.py migrate
 

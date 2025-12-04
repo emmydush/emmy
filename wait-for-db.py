@@ -30,7 +30,8 @@ def wait_for_port(port, host="localhost", timeout=30.0):
 
 if __name__ == "__main__":
     # Get database host and port from environment variables or use defaults
-    db_host = os.environ.get("DB_HOST", "db")
+    # Updated default to "localhost" to match GitHub Actions service configuration
+    db_host = os.environ.get("DB_HOST", "localhost")
     db_port = int(os.environ.get("DB_PORT", 5432))
 
     print(f"Waiting for database at {db_host}:{db_port}...")
