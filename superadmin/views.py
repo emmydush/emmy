@@ -44,7 +44,11 @@ def is_superadmin(user):
 
 
 @method_decorator(
-    [staff_member_required(login_url='/accounts/login/'), user_passes_test(is_superadmin)], name="dispatch"
+    [
+        staff_member_required(login_url="/accounts/login/"),
+        user_passes_test(is_superadmin),
+    ],
+    name="dispatch",
 )
 class SuperAdminDashboardView(TemplateView):
     template_name = "superadmin/dashboard.html"
@@ -97,7 +101,11 @@ class SuperAdminDashboardView(TemplateView):
 
 
 @method_decorator(
-    [staff_member_required(login_url='/accounts/login/'), user_passes_test(is_superadmin)], name="dispatch"
+    [
+        staff_member_required(login_url="/accounts/login/"),
+        user_passes_test(is_superadmin),
+    ],
+    name="dispatch",
 )
 class BusinessManagementView(TemplateView):
     template_name = "superadmin/business_management.html"
@@ -110,7 +118,11 @@ class BusinessManagementView(TemplateView):
 
 
 @method_decorator(
-    [staff_member_required(login_url='/accounts/login/'), user_passes_test(is_superadmin)], name="dispatch"
+    [
+        staff_member_required(login_url="/accounts/login/"),
+        user_passes_test(is_superadmin),
+    ],
+    name="dispatch",
 )
 class SubscriptionManagementView(TemplateView):
     template_name = "superadmin/subscription_management.html"
@@ -124,7 +136,11 @@ class SubscriptionManagementView(TemplateView):
 
 
 @method_decorator(
-    [staff_member_required(login_url='/accounts/login/'), user_passes_test(is_superadmin)], name="dispatch"
+    [
+        staff_member_required(login_url="/accounts/login/"),
+        user_passes_test(is_superadmin),
+    ],
+    name="dispatch",
 )
 class SystemLogsView(TemplateView):
     template_name = "superadmin/system_logs.html"
@@ -137,7 +153,11 @@ class SystemLogsView(TemplateView):
 
 
 @method_decorator(
-    [staff_member_required(login_url='/accounts/login/'), user_passes_test(is_superadmin)], name="dispatch"
+    [
+        staff_member_required(login_url="/accounts/login/"),
+        user_passes_test(is_superadmin),
+    ],
+    name="dispatch",
 )
 class CommunicationCenterView(TemplateView):
     template_name = "superadmin/communication_center.html"
@@ -150,7 +170,11 @@ class CommunicationCenterView(TemplateView):
 
 
 @method_decorator(
-    [staff_member_required(login_url='/accounts/login/'), user_passes_test(is_superadmin)], name="dispatch"
+    [
+        staff_member_required(login_url="/accounts/login/"),
+        user_passes_test(is_superadmin),
+    ],
+    name="dispatch",
 )
 class APIMonitoringView(TemplateView):
     template_name = "superadmin/api_monitoring.html"
@@ -432,7 +456,7 @@ def branch_delete_view(request, business_pk, pk):
     return render(request, template, context)
 
 
-@staff_member_required(login_url='/accounts/login/')
+@staff_member_required(login_url="/accounts/login/")
 @user_passes_test(lambda u: u.is_superuser)
 def approve_business_view(request, business_pk):
     """Approve a pending business"""
@@ -485,7 +509,7 @@ def approve_business_view(request, business_pk):
     return render(request, "superadmin/confirm_business_action.html", context)
 
 
-@staff_member_required(login_url='/accounts/login/')
+@staff_member_required(login_url="/accounts/login/")
 @user_passes_test(lambda u: u.is_superuser)
 def activate_business_view(request, business_pk):
     """Activate a suspended business"""
@@ -510,7 +534,7 @@ def activate_business_view(request, business_pk):
     return render(request, "superadmin/confirm_business_action.html", context)
 
 
-@staff_member_required(login_url='/accounts/login/')
+@staff_member_required(login_url="/accounts/login/")
 @user_passes_test(lambda u: u.is_superuser)
 def suspend_business_view(request, business_pk):
     """Suspend a business"""
@@ -535,7 +559,7 @@ def suspend_business_view(request, business_pk):
     return render(request, "superadmin/confirm_business_action.html", context)
 
 
-@staff_member_required(login_url='/accounts/login/')
+@staff_member_required(login_url="/accounts/login/")
 @user_passes_test(lambda u: u.is_superuser)
 def delete_business_view(request, business_pk):
     """Delete a business"""
@@ -834,7 +858,7 @@ def branch_request_create_view(request):
     return render(request, "superadmin/branches/request_form.html", context)
 
 
-@staff_member_required(login_url='/accounts/login/')
+@staff_member_required(login_url="/accounts/login/")
 @user_passes_test(lambda u: u.is_superuser)
 def branch_request_approval_list_view(request):
     """Display list of pending branch requests for superadmins"""
@@ -847,7 +871,7 @@ def branch_request_approval_list_view(request):
     return render(request, "superadmin/branches/approval_list.html", context)
 
 
-@staff_member_required(login_url='/accounts/login/')
+@staff_member_required(login_url="/accounts/login/")
 @user_passes_test(lambda u: u.is_superuser)
 def branch_request_approve_view(request, pk):
     """Approve or reject a branch request"""
@@ -883,7 +907,7 @@ def branch_request_approve_view(request, pk):
     return render(request, "superadmin/branches/approve_request.html", context)
 
 
-@staff_member_required(login_url='/accounts/login/')
+@staff_member_required(login_url="/accounts/login/")
 @user_passes_test(lambda u: u.is_superuser)
 def branch_request_detail_view(request, pk):
     """View details of a branch request"""
@@ -896,7 +920,11 @@ def branch_request_detail_view(request, pk):
 
 
 @method_decorator(
-    [staff_member_required(login_url='/accounts/login/'), user_passes_test(is_superadmin)], name="dispatch"
+    [
+        staff_member_required(login_url="/accounts/login/"),
+        user_passes_test(is_superadmin),
+    ],
+    name="dispatch",
 )
 class EmailSettingsView(TemplateView):
     template_name = "superadmin/email_settings.html"
