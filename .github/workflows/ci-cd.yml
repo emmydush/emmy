@@ -79,8 +79,14 @@ jobs:
     - name: Run migrations
       run: python manage.py migrate
 
-    - name: Run tests
-      run: python manage.py test --keepdb
+    - name: Run tests with automatic database handling
+      run: |
+        # Use --keepdb to reuse the test database and avoid prompts
+        # Use --debug-mode to get more detailed output
+        python manage.py test --keepdb --debug-mode
+      env:
+        DB_HOST: localhost
+        DB_PORT: 5432
 
   build-and-push:
     needs: test
