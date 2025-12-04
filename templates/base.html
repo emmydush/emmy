@@ -199,11 +199,17 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            transition: all 0.3s ease;
         }
         
         .sidebar-toggle i {
             color: white;
             font-size: 1.2rem;
+        }
+        
+        .sidebar-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
         }
         
         /* Collapsible sidebar for mobile */
@@ -218,11 +224,11 @@
                 z-index: 999;
                 display: block !important;
                 background: linear-gradient(135deg, #0a192f 0%, #020c1b 100%) !important;
+                box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
             }
             
             .sidebar.show {
                 left: 0;
-                box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
             }
             
             .sidebar-toggle {
@@ -781,11 +787,16 @@
             updateTime();
             setInterval(updateTime, 60000);
             
-            // Sidebar toggle functionality
+            // Sidebar toggle functionality - FIXED VERSION
             const sidebarToggle = document.getElementById('sidebarToggle');
             const sidebar = document.getElementById('sidebar');
             
             if (sidebarToggle && sidebar) {
+                // Ensure sidebar is hidden by default on mobile
+                if (window.innerWidth < 768) {
+                    sidebar.classList.remove('show');
+                }
+                
                 sidebarToggle.addEventListener('click', function(e) {
                     e.stopPropagation(); // Prevent event bubbling
                     // Toggle sidebar visibility on mobile
@@ -830,6 +841,29 @@
                             icon.classList.add('fa-bars');
                         }
                     });
+                });
+                
+                // Handle window resize events
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth >= 768) {
+                        // On desktop, ensure sidebar is visible
+                        sidebar.classList.remove('show');
+                        const icon = sidebarToggle.querySelector('i');
+                        if (icon) {
+                            icon.classList.remove('fa-times');
+                            icon.classList.add('fa-bars');
+                        }
+                    } else {
+                        // On mobile, ensure proper icon state
+                        const icon = sidebarToggle.querySelector('i');
+                        if (icon && sidebar.classList.contains('show')) {
+                            icon.classList.remove('fa-bars');
+                            icon.classList.add('fa-times');
+                        } else if (icon) {
+                            icon.classList.remove('fa-times');
+                            icon.classList.add('fa-bars');
+                        }
+                    }
                 });
             }
             
