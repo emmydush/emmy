@@ -93,7 +93,7 @@ def set_user_language(request):
 
         # Activate the language for the current session
         translation.activate(language)
-        request.session['_language'] = language
+        request.session["_language"] = language
 
     # Redirect to the next URL or dashboard
     return HttpResponseRedirect(next_url)

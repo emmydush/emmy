@@ -411,9 +411,7 @@ def owner_dashboard_view(request):
         set_current_business(business)
 
         # Count users in this business
-        total_users += (
-            business.users.count() + 1
-        )  # +1 for owner
+        total_users += business.users.count() + 1  # +1 for owner
 
         # Calculate revenue for this business
         business_sales = Sale.objects.business_specific()
