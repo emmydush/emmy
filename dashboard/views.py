@@ -77,7 +77,7 @@ def dashboard_view(request):
     if not current_business and request.user.is_authenticated:
         try:
             user_businesses = Business.objects.filter(
-                Q(owner=request.user) | Q(managers=request.user) | Q(staff=request.user)
+                Q(owner=request.user) | Q(users=request.user)
             ).distinct()
             if user_businesses.exists():
                 current_business = user_businesses.first()
@@ -92,7 +92,7 @@ def dashboard_view(request):
         try:
             # Check if user has any businesses
             user_businesses = Business.objects.filter(
-                Q(owner=request.user) | Q(managers=request.user) | Q(staff=request.user)
+                Q(owner=request.user) | Q(users=request.user)
             ).distinct()
 
             if not user_businesses.exists() and not request.user.is_superuser:
@@ -412,7 +412,7 @@ def owner_dashboard_view(request):
 
         # Count users in this business
         total_users += (
-            business.staff.count() + business.managers.count() + 1
+            business.users.count() + 1
         )  # +1 for owner
 
         # Calculate revenue for this business

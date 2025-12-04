@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from products.models import Product, ProductVariant
 from customers.models import Customer
 from superadmin.models import Business
@@ -16,8 +17,8 @@ class Cart(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     session_key = models.CharField(max_length=40, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         if self.user:
@@ -42,8 +43,8 @@ class CartItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)  # type: ignore
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name}"
@@ -69,7 +70,7 @@ class Sale(models.Model):
     customer = models.ForeignKey(
         Customer, on_delete=models.SET_NULL, null=True, blank=True
     )
-    sale_date = models.DateTimeField(auto_now_add=True)
+    sale_date = models.DateTimeField(default=timezone.now)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # type: ignore
     tax = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # type: ignore
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # type: ignore
@@ -79,8 +80,8 @@ class Sale(models.Model):
     )
     notes = models.TextField(null=True, blank=True)
     is_refunded = models.BooleanField(default=False)  # type: ignore
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         ordering = ["-sale_date"]
@@ -126,8 +127,8 @@ class SaleItem(models.Model):
         related_name="sale_items",
     )
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         if self.is_product_variant and self.product_variant:
@@ -145,9 +146,9 @@ class Refund(models.Model):
     sale = models.ForeignKey(Sale, on_delete=models.CASCADE)
     reason = models.TextField()
     refund_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    refund_date = models.DateTimeField(auto_now_add=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    refund_date = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"Refund for Sale #{self.sale.id}"
@@ -172,8 +173,8 @@ class CreditSale(models.Model):
     due_date = models.DateField()
     is_fully_paid = models.BooleanField(default=False)
     notes = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         ordering = ["-created_at"]
@@ -203,7 +204,7 @@ class CreditPayment(models.Model):
         CreditSale, on_delete=models.CASCADE, related_name="payments"
     )
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_date = models.DateTimeField(auto_now_add=True)
+    payment_date = models.DateTimeField(default=timezone.now)
     payment_method = models.CharField(
         max_length=20,
         choices=[
@@ -215,8 +216,8 @@ class CreditPayment(models.Model):
         default="cash",
     )
     notes = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         ordering = ["-payment_date"]
