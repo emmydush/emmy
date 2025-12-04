@@ -1,0 +1,1239 @@
+[
+{
+  "model": "sessions.session",
+  "pk": "3gkfev2u6v70vr3nr87ah930ns6i22n7",
+  "fields": {
+    "session_data": "e30:1vPPC6:Y5aevgNAdbivqk7zVhmK7-CDlGtQFJ-T_YkB3ryVpFo",
+    "expire_date": "2025-11-30T17:57:14.393Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "bva0qjgfrer83d8vuk8l3cc9mt3ffsao",
+  "fields": {
+    "session_data": "e30:1vPPDA:x_0wEzcjf3pqHSxT8oCppOVFCsc3fOhho-VYEhlk4Dc",
+    "expire_date": "2025-11-30T17:58:20.934Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "d8nkvpd859gk8vnglbriucv9n37vfv52",
+  "fields": {
+    "session_data": ".eJxVjsEOwiAQRP-FsyFAAcGjd7-B7G4XWzU0gXIy_rvW9KDXeTOT9xQJ-jql3rimeRQnEcThN0OgO5cNjDco10XSUtY6o9wqcqdNXpaRH-e9-3cwQZs-66zZ50EZR-wBB6e9xkFpa2wk4z0QUowKospBR3TBG2DKdAzZWBNhs6JeK5c1YW9z4da-vu71BoDyQH8:1vPy2Y:AmFkO5kXiM3BLoOcCAI7qple72O2cn1YzBF6pHlQljQ",
+    "expire_date": "2025-12-02T07:09:42.702Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "j4t8e1rcznvmf7noydiztbx64rpvks7q",
+  "fields": {
+    "session_data": ".eJxVj8sOwiAQRf-FddPwSKF06d5vIDwGizZgoCQa478LpgtdzOaeOyczL6R03VdVC2QVHFoQQcNvZrS9QezAXXW8pNGmuOdgxl4ZD1rGc3KwnY7un2DVZW3bHpw0UmrJOAOgzDBssZ0FYEyt1oLOzjsuiWudaRKSU8K84A5LL3mbLt3aAVVfoOkg9qBAKSFFBY97yE-04AHZmjPEXZlaQmz4-xR5fwC_p01D:1vPQ8z:LT0G2fCrOoS-QhszZUFsF479mQik2GB-4iuwzroCbFQ",
+    "expire_date": "2025-11-30T18:58:05.668Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "mk2akaahxb8x70usi014o6kmi5n4q0kr",
+  "fields": {
+    "session_data": ".eJxVjjsOwjAQRO_iGln-BbOU9JzBWu_aJIAcyY4rxN1JUApo5808zUsE7MsYeks1TCzOwovDbxaRHqlsgO9YbrOkuSx1inKryJ02eZ05PS97908wYhvXtaEITh_Zs81aETLnAZWxGhSd0ClrEBk5g2LSRAZAIcQhGQ-cvR1WKfVaU1lC7G0qqbXvX_f-ALfSQVg:1vPnp6:QxDw1hKxSkbJTdo5_CNw62AuP_10cE73oYKbCGi60-o",
+    "expire_date": "2025-12-01T20:15:08.903Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "tcu52rqnb6xnydmkdbp294ea947n59q7",
+  "fields": {
+    "session_data": ".eJxVj8sOwiAQRf-FddPwSKF06d5vIDwGizZgoCQa478LpgtdzOaeOyczL6R03VdVC2QVHFoQQcNvZrS9QezAXXW8pNGmuOdgxl4ZD1rGc3KwnY7un2DVZW3bHpw0UmrJOAOgzDBssZ0FYEyt1oLOzjsuiWudaRKSU8K84A5LL3mbLt3aAVVfoOkg9qBAKSFFBY97yE-04AHZmjPEXZlaQmz4-xR5fwC_p01D:1vPPUW:jrM3coipTwokp-k6p8-GgJ-oZtPx_1auWkz164iFaM4",
+    "expire_date": "2025-11-30T18:16:16.593Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "tmkis28doubu0dzpysuz03ply3poyalo",
+  "fields": {
+    "session_data": ".eJxVjDEOwjAMRe-SGUWp4kLMyM4ZIjt2SAElUtNOiLtDpQ6w_vfef5lI61Li2nWOk5izQXP43ZjSQ-sG5E711mxqdZkntptid9rttYk-L7v7d1Col28dgMPocwBkdSjeCxyzICF4EQojMXJS9vmUlDCjSwM4GDR4TkQq5v0BALw5Ng:1vR7Vo:3ZNED0V6vN2qys7VFq0SgruU1MhIh2DmIOr3LhV6eWU",
+    "expire_date": "2025-12-05T11:28:40.825Z"
+  }
+},
+{
+  "model": "authentication.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$PHLbXb4uC3CXtcfQcfat0q$f+BBHUDASwSUIDf6cdOhYLcH8u4Tmy9f08Co8JRFjGU=",
+    "last_login": "2025-11-30T19:09:00.765Z",
+    "is_superuser": true,
+    "username": "emmanuel",
+    "first_name": "dushimirimana",
+    "last_name": "Emmanuel",
+    "email": "emmychris915@gmil.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-11-29T17:43:22.828Z",
+    "role": "admin",
+    "phone": "0789364844",
+    "address": null,
+    "profile_picture": "",
+    "language": "en",
+    "created_at": "2025-11-29T17:43:24.163Z",
+    "updated_at": "2025-11-30T10:54:17.449Z",
+    "groups": [],
+    "user_permissions": [],
+    "businesses": [
+      1
+    ]
+  }
+},
+{
+  "model": "authentication.user",
+  "pk": 2,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$vjxoirJWzM33gvv2WQxM5m$0+NRUwhSGQc/3t5FKYQ2kGIQi7HwgNAtKHKHQze99TI=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "testuser",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-29T17:57:12.952Z",
+    "role": "cashier",
+    "phone": null,
+    "address": null,
+    "profile_picture": "",
+    "language": "en",
+    "created_at": "2025-11-29T17:57:12.953Z",
+    "updated_at": "2025-11-29T17:57:14.342Z",
+    "groups": [],
+    "user_permissions": [],
+    "businesses": []
+  }
+},
+{
+  "model": "authentication.user",
+  "pk": 3,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$bJ2ExAIpFPuwAhhuRHHEar$pqZEWYrsHl+FdOipvouGWMB7YHSEqRddTasCihX4r4U=",
+    "last_login": null,
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "admin@example.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-11-30T10:53:50.836Z",
+    "role": "cashier",
+    "phone": null,
+    "address": null,
+    "profile_picture": "",
+    "language": "en",
+    "created_at": "2025-11-30T10:53:51.440Z",
+    "updated_at": "2025-11-30T10:53:51.440Z",
+    "groups": [],
+    "user_permissions": [],
+    "businesses": []
+  }
+},
+{
+  "model": "authentication.user",
+  "pk": 4,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$Rcy5CGEv99isqxEn2ZIO6O$dcR/WKV2Aj9vPUzy6ZgWVXtVFJ80nDPUVK8nlIqerGY=",
+    "last_login": "2025-12-04T11:20:33.640Z",
+    "is_superuser": true,
+    "username": "dush",
+    "first_name": "dushimirimana",
+    "last_name": "Emmanuel",
+    "email": "bizimunguroyke@gmail.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-11-30T11:19:22.328Z",
+    "role": "cashier",
+    "phone": "0789364844",
+    "address": "kigali/gasabo",
+    "profile_picture": "profiles/WhatsApp_Image_2025-11-26_à_08_S6AU268.53.22_c690c214-removebg-preview.png",
+    "language": "en",
+    "created_at": "2025-11-30T11:19:23.976Z",
+    "updated_at": "2025-11-30T11:29:37.602Z",
+    "groups": [],
+    "user_permissions": [],
+    "businesses": []
+  }
+},
+{
+  "model": "authentication.user",
+  "pk": 5,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$JDOZwj72ttaOqQnJETzBWW$7NYxVKD6bNcwejOdJlqWqXridNXJHblEzPrEcDhux5I=",
+    "last_login": null,
+    "is_superuser": true,
+    "username": "piter",
+    "first_name": "",
+    "last_name": "",
+    "email": "piter@gmail.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-11-30T14:15:47.377Z",
+    "role": "cashier",
+    "phone": null,
+    "address": null,
+    "profile_picture": "",
+    "language": "en",
+    "created_at": "2025-11-30T14:15:47.808Z",
+    "updated_at": "2025-11-30T14:15:47.808Z",
+    "groups": [],
+    "user_permissions": [],
+    "businesses": []
+  }
+},
+{
+  "model": "authentication.user",
+  "pk": 6,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$x7ro0YucU84vou9s2XtC1L$oqkHGwRHUNXQ/q7qAISEoMlWniAKDrya9FGJmYq9XnI=",
+    "last_login": "2025-12-01T06:28:44.075Z",
+    "is_superuser": false,
+    "username": "kubwimana",
+    "first_name": "kubwimana",
+    "last_name": "Theophile",
+    "email": "kubwimanatheophile02@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-30T18:21:10.276Z",
+    "role": "",
+    "phone": "0789345672",
+    "address": "KG135ST1",
+    "profile_picture": "profiles/WhatsApp_Image_2025-11-26_à_08_FKoFr1U.53.22_c690c214-removebg-preview.png",
+    "language": "en",
+    "created_at": "2025-11-30T18:21:11.901Z",
+    "updated_at": "2025-11-30T18:21:11.901Z",
+    "groups": [],
+    "user_permissions": [],
+    "businesses": []
+  }
+},
+{
+  "model": "authentication.user",
+  "pk": 7,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$vLIuzP9upuJMDBQ0G0eaLi$ZXc6kLyH8hLUepcfrE3dCovmhrAI4hTwyMi1xOeRjQE=",
+    "last_login": "2025-12-01T06:30:06.755Z",
+    "is_superuser": false,
+    "username": "royke",
+    "first_name": "bizimungu",
+    "last_name": "royke",
+    "email": "bizimunguroyke@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-30T19:34:06.964Z",
+    "role": "",
+    "phone": "0789364844",
+    "address": "KG135ST1",
+    "profile_picture": "",
+    "language": "en",
+    "created_at": "2025-11-30T19:34:07.954Z",
+    "updated_at": "2025-11-30T19:34:07.954Z",
+    "groups": [],
+    "user_permissions": [],
+    "businesses": []
+  }
+},
+{
+  "model": "authentication.user",
+  "pk": 8,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$tY62A7SObv2Flh89OXNrej$DzQMBsw7UAoOEmqrOLJX7ScouoKNsj7qj+U0SyEZQxU=",
+    "last_login": "2025-12-01T07:09:38.270Z",
+    "is_superuser": false,
+    "username": "emmy",
+    "first_name": "dushimirimana",
+    "last_name": "Emmanuel",
+    "email": "dushimirimanaemmanuel727@gmil.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-12-01T07:03:28.295Z",
+    "role": "admin",
+    "phone": "0789364844",
+    "address": "KG135ST1",
+    "profile_picture": "profiles/WhatsApp_Image_2025-10-23_at_19_TAkTfjP.32.51_2199785e-removebg-preview.png",
+    "language": "en",
+    "created_at": "2025-12-01T07:03:30.314Z",
+    "updated_at": "2025-12-01T07:04:08.322Z",
+    "groups": [],
+    "user_permissions": [],
+    "businesses": []
+  }
+},
+{
+  "model": "authentication.user",
+  "pk": 9,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$QEeJk32SctQmPKXVlkFNHw$lfAbCJbNkhgOc3q0XZf1GoVsdw59jUMyGfB08i7Fny4=",
+    "last_login": "2025-12-04T11:28:31.341Z",
+    "is_superuser": true,
+    "username": "superadmin",
+    "first_name": "",
+    "last_name": "",
+    "email": "superadmin@smartsolution.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-12-04T11:27:33.596Z",
+    "role": "cashier",
+    "phone": null,
+    "address": null,
+    "profile_picture": "",
+    "language": "en",
+    "created_at": "2025-12-04T11:27:34.078Z",
+    "updated_at": "2025-12-04T11:27:34.078Z",
+    "groups": [],
+    "user_permissions": [],
+    "businesses": []
+  }
+},
+{
+  "model": "authentication.userpermission",
+  "pk": 1,
+  "fields": {
+    "user": 8,
+    "can_access_products": true,
+    "can_access_sales": true,
+    "can_access_purchases": true,
+    "can_access_customers": true,
+    "can_access_suppliers": true,
+    "can_access_expenses": true,
+    "can_access_reports": true,
+    "can_access_settings": true,
+    "can_manage_users": true,
+    "can_create_users": true,
+    "can_edit_users": true,
+    "can_delete_users": true,
+    "can_create": true,
+    "can_edit": true,
+    "can_delete": true,
+    "restrict_to_assigned_branches": false,
+    "created_at": "2025-12-01T07:04:08.341Z",
+    "updated_at": "2025-12-01T07:05:30.592Z",
+    "branches": []
+  }
+},
+{
+  "model": "products.category",
+  "pk": 4,
+  "fields": {
+    "business": 1,
+    "name": "Electronics",
+    "description": "Category for Electronics",
+    "created_at": "2025-11-29T18:29:45.349Z",
+    "updated_at": "2025-11-29T18:29:45.350Z"
+  }
+},
+{
+  "model": "products.category",
+  "pk": 5,
+  "fields": {
+    "business": 1,
+    "name": "Food",
+    "description": "Category for Food",
+    "created_at": "2025-11-29T18:29:45.964Z",
+    "updated_at": "2025-11-29T18:29:45.964Z"
+  }
+},
+{
+  "model": "products.unit",
+  "pk": 2,
+  "fields": {
+    "business": 1,
+    "name": "Piece",
+    "symbol": "PIE",
+    "created_at": "2025-11-29T18:29:45.371Z",
+    "updated_at": "2025-11-29T18:29:45.371Z"
+  }
+},
+{
+  "model": "products.unit",
+  "pk": 3,
+  "fields": {
+    "business": 1,
+    "name": "Kilogram",
+    "symbol": "KIL",
+    "created_at": "2025-11-29T18:29:45.976Z",
+    "updated_at": "2025-11-29T18:29:45.976Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 4,
+  "fields": {
+    "business": 1,
+    "branch": null,
+    "name": "Sample Product",
+    "sku": "SKU001",
+    "barcode": "123456789012",
+    "barcode_format": "code128",
+    "category": 4,
+    "unit": 2,
+    "description": "Sample product description",
+    "image": "",
+    "cost_price": "10.50",
+    "selling_price": "15.99",
+    "quantity": "98.00",
+    "reorder_level": "10.00",
+    "expiry_date": "2025-12-31",
+    "is_active": true,
+    "has_variants": false,
+    "created_at": "2025-11-29T18:29:45.439Z",
+    "updated_at": "2025-11-30T08:44:24.478Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 5,
+  "fields": {
+    "business": 1,
+    "branch": null,
+    "name": "Laptop",
+    "sku": "LT001",
+    "barcode": "987654321098",
+    "barcode_format": "code128",
+    "category": 4,
+    "unit": 2,
+    "description": "High-performance laptop",
+    "image": "",
+    "cost_price": "500.00",
+    "selling_price": "750.00",
+    "quantity": "24.00",
+    "reorder_level": "5.00",
+    "expiry_date": "2026-06-30",
+    "is_active": true,
+    "has_variants": false,
+    "created_at": "2025-11-29T18:29:45.925Z",
+    "updated_at": "2025-11-29T18:30:13.994Z"
+  }
+},
+{
+  "model": "products.product",
+  "pk": 6,
+  "fields": {
+    "business": 1,
+    "branch": null,
+    "name": "Coffee Beans",
+    "sku": "CB001",
+    "barcode": "001",
+    "barcode_format": "code128",
+    "category": 5,
+    "unit": 3,
+    "description": "Premium coffee beans",
+    "image": "",
+    "cost_price": "12.00",
+    "selling_price": "18.50",
+    "quantity": "49.00",
+    "reorder_level": "10.00",
+    "expiry_date": "2025-08-15",
+    "is_active": true,
+    "has_variants": true,
+    "created_at": "2025-11-29T18:29:45.990Z",
+    "updated_at": "2025-11-29T18:30:13.982Z"
+  }
+},
+{
+  "model": "products.stockmovement",
+  "pk": 1,
+  "fields": {
+    "business": 1,
+    "product": 6,
+    "movement_type": "sale",
+    "quantity": "1.00",
+    "previous_quantity": "50.00",
+    "new_quantity": "49.00",
+    "reference_id": "1",
+    "reference_model": "Sale",
+    "created_by": null,
+    "created_at": "2025-11-29T18:30:13.980Z"
+  }
+},
+{
+  "model": "products.stockmovement",
+  "pk": 2,
+  "fields": {
+    "business": 1,
+    "product": 5,
+    "movement_type": "sale",
+    "quantity": "1.00",
+    "previous_quantity": "25.00",
+    "new_quantity": "24.00",
+    "reference_id": "1",
+    "reference_model": "Sale",
+    "created_by": null,
+    "created_at": "2025-11-29T18:30:13.993Z"
+  }
+},
+{
+  "model": "products.stockmovement",
+  "pk": 3,
+  "fields": {
+    "business": 1,
+    "product": 4,
+    "movement_type": "sale",
+    "quantity": "1.00",
+    "previous_quantity": "100.00",
+    "new_quantity": "99.00",
+    "reference_id": "1",
+    "reference_model": "Sale",
+    "created_by": null,
+    "created_at": "2025-11-29T18:30:14.003Z"
+  }
+},
+{
+  "model": "products.stockmovement",
+  "pk": 4,
+  "fields": {
+    "business": 1,
+    "product": 4,
+    "movement_type": "sale",
+    "quantity": "1.00",
+    "previous_quantity": "99.00",
+    "new_quantity": "98.00",
+    "reference_id": "2",
+    "reference_model": "Sale",
+    "created_by": null,
+    "created_at": "2025-11-30T08:44:24.474Z"
+  }
+},
+{
+  "model": "products.productvariant",
+  "pk": 1,
+  "fields": {
+    "business": 1,
+    "branch": null,
+    "product": 6,
+    "name": "Test Variant",
+    "sku": "TEST-VARIANT-001",
+    "barcode": "001",
+    "barcode_format": "code128",
+    "cost_price": "5.00",
+    "selling_price": "10.00",
+    "quantity": "10.00",
+    "reorder_level": "0.00",
+    "image": "",
+    "is_active": true,
+    "created_at": "2025-11-30T09:00:34.755Z",
+    "updated_at": "2025-11-30T09:00:34.755Z"
+  }
+},
+{
+  "model": "products.productvariant",
+  "pk": 2,
+  "fields": {
+    "business": 1,
+    "branch": null,
+    "product": 6,
+    "name": "Test Variant",
+    "sku": "TEST-VARIANT-002",
+    "barcode": "002",
+    "barcode_format": "code128",
+    "cost_price": "5.00",
+    "selling_price": "10.00",
+    "quantity": "10.00",
+    "reorder_level": "0.00",
+    "image": "",
+    "is_active": true,
+    "created_at": "2025-11-30T09:01:21.066Z",
+    "updated_at": "2025-11-30T09:01:21.066Z"
+  }
+},
+{
+  "model": "sales.sale",
+  "pk": 1,
+  "fields": {
+    "business": 1,
+    "customer": null,
+    "sale_date": "2025-11-29T18:30:13.966Z",
+    "subtotal": "784.49",
+    "tax": "0.00",
+    "discount": "0.00",
+    "total_amount": "784.49",
+    "payment_method": "cash",
+    "notes": null,
+    "is_refunded": false,
+    "created_at": "2025-11-29T18:30:13.966Z",
+    "updated_at": "2025-11-29T18:30:13.966Z"
+  }
+},
+{
+  "model": "sales.sale",
+  "pk": 2,
+  "fields": {
+    "business": 1,
+    "customer": null,
+    "sale_date": "2025-11-30T08:44:24.461Z",
+    "subtotal": "15.99",
+    "tax": "0.00",
+    "discount": "0.00",
+    "total_amount": "15.99",
+    "payment_method": "cash",
+    "notes": null,
+    "is_refunded": false,
+    "created_at": "2025-11-30T08:44:24.461Z",
+    "updated_at": "2025-11-30T08:44:24.461Z"
+  }
+},
+{
+  "model": "sales.saleitem",
+  "pk": 1,
+  "fields": {
+    "business": 1,
+    "sale": 1,
+    "product": 6,
+    "quantity": "1.00",
+    "unit_price": "18.50",
+    "total_price": "18.50",
+    "is_product_variant": false,
+    "product_variant": null,
+    "created_at": "2025-11-29T18:30:13.975Z",
+    "updated_at": "2025-11-29T18:30:13.975Z"
+  }
+},
+{
+  "model": "sales.saleitem",
+  "pk": 2,
+  "fields": {
+    "business": 1,
+    "sale": 1,
+    "product": 5,
+    "quantity": "1.00",
+    "unit_price": "750.00",
+    "total_price": "750.00",
+    "is_product_variant": false,
+    "product_variant": null,
+    "created_at": "2025-11-29T18:30:13.990Z",
+    "updated_at": "2025-11-29T18:30:13.990Z"
+  }
+},
+{
+  "model": "sales.saleitem",
+  "pk": 3,
+  "fields": {
+    "business": 1,
+    "sale": 1,
+    "product": 4,
+    "quantity": "1.00",
+    "unit_price": "15.99",
+    "total_price": "15.99",
+    "is_product_variant": false,
+    "product_variant": null,
+    "created_at": "2025-11-29T18:30:14.000Z",
+    "updated_at": "2025-11-29T18:30:14.000Z"
+  }
+},
+{
+  "model": "sales.saleitem",
+  "pk": 4,
+  "fields": {
+    "business": 1,
+    "sale": 2,
+    "product": 4,
+    "quantity": "1.00",
+    "unit_price": "15.99",
+    "total_price": "15.99",
+    "is_product_variant": false,
+    "product_variant": null,
+    "created_at": "2025-11-30T08:44:24.470Z",
+    "updated_at": "2025-11-30T08:44:24.470Z"
+  }
+},
+{
+  "model": "settings.businesssettings",
+  "pk": 1,
+  "fields": {
+    "business": null,
+    "business_name": "Smart Solution",
+    "business_address": "123 Business Street, City, Country",
+    "business_email": "info@smartsolution.com",
+    "business_phone": "+1 (555) 123-4567",
+    "business_logo": "",
+    "currency": "FRW",
+    "currency_symbol": "FRW",
+    "tax_rate": "0.00",
+    "expiry_alert_days": 7,
+    "near_expiry_alert_days": 30,
+    "created_at": "2025-11-27T13:44:27.888Z",
+    "updated_at": "2025-11-27T13:44:27.888Z"
+  }
+},
+{
+  "model": "settings.businesssettings",
+  "pk": 2,
+  "fields": {
+    "business": 1,
+    "business_name": "Smart Solution",
+    "business_address": "123 Business Street, City, Country",
+    "business_email": "info@smartsolution.com",
+    "business_phone": "+1 (555) 123-4567",
+    "business_logo": "",
+    "currency": "FRW",
+    "currency_symbol": "FRW",
+    "tax_rate": "0.00",
+    "expiry_alert_days": 7,
+    "near_expiry_alert_days": 30,
+    "created_at": "2025-11-30T19:48:46.115Z",
+    "updated_at": "2025-11-30T19:48:46.115Z"
+  }
+},
+{
+  "model": "settings.emailsettings",
+  "pk": 1,
+  "fields": {
+    "email_backend": "django.core.mail.backends.smtp.EmailBackend",
+    "email_host": "smtp.gmail.com",
+    "email_port": 587,
+    "email_host_user": "emmychris915@gmail.com",
+    "email_host_password": "kyzv uzlb zmyv gglb",
+    "email_use_tls": true,
+    "email_use_ssl": false,
+    "default_from_email": "Inventory Management System <webmaster@localhost>",
+    "created_at": "2025-11-30T19:07:53.593Z",
+    "updated_at": "2025-11-30T19:29:54.095Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 1,
+  "fields": {
+    "user": 1,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User emmanuel logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-29T17:43:46.658Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 2,
+  "fields": {
+    "user": 1,
+    "business": 1,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User emmanuel logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-29T18:16:06.841Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 3,
+  "fields": {
+    "user": 1,
+    "business": 1,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User emmanuel logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-29T18:29:12.787Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 4,
+  "fields": {
+    "user": 1,
+    "business": 1,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User emmanuel logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-30T08:01:36.832Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 5,
+  "fields": {
+    "user": 1,
+    "business": 1,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User emmanuel logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-30T08:13:51.481Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 6,
+  "fields": {
+    "user": 1,
+    "business": 1,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User emmanuel logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-30T08:27:36.400Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 7,
+  "fields": {
+    "user": 1,
+    "business": 1,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User emmanuel logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-30T10:35:19.145Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 8,
+  "fields": {
+    "user": 1,
+    "business": 1,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User emmanuel logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-30T10:40:05.359Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 9,
+  "fields": {
+    "user": 4,
+    "business": 1,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User dush logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-30T11:22:38.078Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 10,
+  "fields": {
+    "user": 4,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User dush logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-30T11:28:25.203Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 11,
+  "fields": {
+    "user": 4,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User dush logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-30T12:46:12.165Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 12,
+  "fields": {
+    "user": 1,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User emmanuel logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-30T13:34:20.138Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 13,
+  "fields": {
+    "user": 1,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User emmanuel logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-30T14:09:43.068Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 14,
+  "fields": {
+    "user": 1,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User emmanuel logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-30T18:00:35.026Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 15,
+  "fields": {
+    "user": 6,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User kubwimana logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-30T18:21:29.745Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 16,
+  "fields": {
+    "user": 6,
+    "business": null,
+    "action": "CREATE",
+    "model_name": "Product",
+    "object_id": null,
+    "object_repr": "Created new Product",
+    "change_message": "name: Fanta\ndescription: h",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-30T18:33:50.493Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 17,
+  "fields": {
+    "user": 6,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User kubwimana logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-30T18:40:35.025Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 18,
+  "fields": {
+    "user": 4,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User dush logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-30T18:47:23.738Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 19,
+  "fields": {
+    "user": 1,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User emmanuel logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-30T19:09:00.781Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 20,
+  "fields": {
+    "user": 4,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User dush logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-30T19:11:45.973Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 21,
+  "fields": {
+    "user": 7,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User royke logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-30T19:34:28.707Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 22,
+  "fields": {
+    "user": 4,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User dush logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-30T19:35:56.888Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 23,
+  "fields": {
+    "user": 7,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User royke logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-30T19:38:39.442Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 24,
+  "fields": {
+    "user": 7,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User royke logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-11-30T20:15:44.355Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 25,
+  "fields": {
+    "user": 6,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User kubwimana logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-12-01T06:28:44.083Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 26,
+  "fields": {
+    "user": 7,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User royke logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-12-01T06:30:06.762Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 27,
+  "fields": {
+    "user": 4,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User dush logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-12-01T06:59:57.975Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 28,
+  "fields": {
+    "user": 8,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User emmy logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-12-01T07:03:51.654Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 29,
+  "fields": {
+    "user": 4,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User dush logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-12-01T07:05:04.286Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 30,
+  "fields": {
+    "user": 8,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User emmy logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-12-01T07:09:38.277Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 31,
+  "fields": {
+    "user": 4,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User dush logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-12-04T11:20:33.659Z"
+  }
+},
+{
+  "model": "settings.auditlog",
+  "pk": 32,
+  "fields": {
+    "user": 9,
+    "business": null,
+    "action": "LOGIN",
+    "model_name": "Authentication",
+    "object_id": null,
+    "object_repr": "User superadmin logged in",
+    "change_message": "IP: 127.0.0.1, User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Sa",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "timestamp": "2025-12-04T11:28:31.392Z"
+  }
+},
+{
+  "model": "superadmin.business",
+  "pk": 1,
+  "fields": {
+    "company_name": "EMMY GROUP LTD",
+    "owner": 1,
+    "email": "emmychris915@gmail.com",
+    "business_type": "manufacturing",
+    "plan_type": "free",
+    "status": "active",
+    "created_at": "2025-11-29T17:43:55.725Z",
+    "updated_at": "2025-11-29T17:43:55.725Z"
+  }
+},
+{
+  "model": "superadmin.business",
+  "pk": 5,
+  "fields": {
+    "company_name": "UBUMWE LTD",
+    "owner": 8,
+    "email": "dushimirimanaemmanuel727@gmil.com",
+    "business_type": "retail",
+    "plan_type": "free",
+    "status": "active",
+    "created_at": "2025-12-01T07:04:08.307Z",
+    "updated_at": "2025-12-01T07:05:30.562Z"
+  }
+}
+]
