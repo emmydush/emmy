@@ -10,6 +10,21 @@ jobs:
   test:
     runs-on: ubuntu-latest
     
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_USER: testuser
+          POSTGRES_DB: test_fanta_db_29se
+        options: >-
+          --health-cmd "pg_isready -U testuser"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432/tcp
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -27,6 +42,18 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    - name: Wait for PostgreSQL to be ready
+      run: |
+        until pg_isready -h localhost -p 5432 -U testuser; do
+          echo "Waiting for PostgreSQL..."
+          sleep 2
+        done
+      env:
+        PGHOST: localhost
+        PGPORT: 5432
+        PGUSER: testuser
+        PGPASSWORD: testpassword
+
     - name: Create local_settings.py for tests
       run: |
         echo "from pathlib import Path" > inventory_management/local_settings.py
@@ -35,10 +62,10 @@ jobs:
         echo "DATABASES = {" >> inventory_management/local_settings.py
         echo "    'default': {" >> inventory_management/local_settings.py
         echo "        'ENGINE': 'django.db.backends.postgresql'," >> inventory_management/local_settings.py
-        echo "        'NAME': 'fanta_db_29se'," >> inventory_management/local_settings.py
-        echo "        'USER': 'fanta_db_29se_user'," >> inventory_management/local_settings.py
-        echo "        'PASSWORD': 'WWIzPDclz6eCqMYPTQ4xn6mokMMyF6Xr'," >> inventory_management/local_settings.py
-        echo "        'HOST': 'dpg-d4olefnpm1nc73eac8n0-a.frankfurt-postgres.render.com'," >> inventory_management/local_settings.py
+        echo "        'NAME': 'test_fanta_db_29se'," >> inventory_management/local_settings.py
+        echo "        'USER': 'testuser'," >> inventory_management/local_settings.py
+        echo "        'PASSWORD': 'testpassword'," >> inventory_management/local_settings.py
+        echo "        'HOST': 'localhost'," >> inventory_management/local_settings.py
         echo "        'PORT': 5432," >> inventory_management/local_settings.py
         echo "    }" >> inventory_management/local_settings.py
         echo "}" >> inventory_management/local_settings.py
@@ -47,7 +74,7 @@ jobs:
       run: python manage.py migrate
 
     - name: Run tests
-      run: python manage.py test
+      run: python manage.py test --keepdb
 
   build-and-push:
     needs: test
