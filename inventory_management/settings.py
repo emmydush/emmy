@@ -105,7 +105,7 @@ WSGI_APPLICATION = "inventory_management.wsgi.application"
 # PostgreSQL is the only supported database for this application
 # SQLite fallback has been removed to ensure consistent database behavior
 try:
-    from .local_settings import DATABASES
+    from .local_settings import *
 except ImportError:
     # If local_settings.py is not available, try to use DATABASE_URL from environment variables
     # This is commonly used in platforms like Render
