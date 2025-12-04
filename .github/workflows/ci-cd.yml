@@ -102,21 +102,25 @@ jobs:
     steps:
     - name: Deploy to production
       env:
-        RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
-        RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        RENDER_DEPLOY_KEY: ${{ secrets.RENDER_DEPLOY_KEY }}
       run: |
         echo "Deploying to Render..."
-        # Use Authorization header (safer than query param) and capture response
+        if [ -z "$RENDER_DEPLOY_KEY" ]; then
+          echo "RENDER_DEPLOY_KEY is not set. Please configure it in GitHub Secrets." >&2
+          exit 1
+        fi
+        
+        # Use the simpler deploy key method
         RESPONSE_FILE=$(mktemp)
-        HTTP_CODE=$(curl -sS -o "$RESPONSE_FILE" -w "%{http_code}" -X POST \
-          -H "Authorization: Bearer $RENDER_API_KEY" \
-          -H "Content-Type: application/json" \
-          "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
-          -d '{}') || true
+        HTTP_CODE=$(curl -sS -o "$RESPONSE_FILE" -w "%{http_code}" \
+          "https://api.render.com/deploy/${RENDER_DEPLOY_KEY}" || true)
+        
         echo "Render HTTP code: $HTTP_CODE"
         cat "$RESPONSE_FILE" || true
-        # Treat any 2xx response as success (Render may return 202 Accepted)
+        
+        # Treat any 2xx response as success
         if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
           echo "Render deploy failed (HTTP $HTTP_CODE)" >&2
           exit 1
         fi
+        echo "Deployment successful!"
