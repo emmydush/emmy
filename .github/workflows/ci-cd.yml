@@ -42,17 +42,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Wait for PostgreSQL to be ready
-      run: |
-        until pg_isready -h localhost -p 5432 -U testuser; do
-          echo "Waiting for PostgreSQL..."
-          sleep 2
-        done
+    - name: Wait for PostgreSQL using custom script with timeout
+      run: python wait-for-db.py
       env:
-        PGHOST: localhost
-        PGPORT: 5432
-        PGUSER: testuser
-        PGPASSWORD: testpassword
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_TIMEOUT: 60.0
 
     - name: Create local_settings.py for tests
       run: |
@@ -70,12 +65,6 @@ jobs:
         echo "    }" >> inventory_management/local_settings.py
         echo "}" >> inventory_management/local_settings.py
 
-    - name: Run wait-for-db script with correct environment variables
-      run: python wait-for-db.py
-      env:
-        DB_HOST: localhost
-        DB_PORT: 5432
-
     - name: Run migrations
       run: python manage.py migrate
 
@@ -84,9 +73,6 @@ jobs:
         # Use --keepdb to reuse the test database and avoid prompts
         # Use --debug-mode to get more detailed output
         python manage.py test --keepdb --debug-mode
-      env:
-        DB_HOST: localhost
-        DB_PORT: 5432
 
   build-and-push:
     needs: test

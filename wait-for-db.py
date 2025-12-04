@@ -33,7 +33,13 @@ if __name__ == "__main__":
     # Updated default to "localhost" to match GitHub Actions service configuration
     db_host = os.environ.get("DB_HOST", "localhost")
     db_port = int(os.environ.get("DB_PORT", 5432))
+    # Add a timeout for the database connection check
+    db_timeout = float(os.environ.get("DB_TIMEOUT", 60.0))
 
-    print(f"Waiting for database at {db_host}:{db_port}...")
-    wait_for_port(db_port, db_host)
-    print("Database is ready!")
+    print(f"Waiting for database at {db_host}:{db_port} (timeout: {db_timeout}s)...")
+    try:
+        wait_for_port(db_port, db_host, db_timeout)
+        print("Database is ready!")
+    except TimeoutError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
