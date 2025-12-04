@@ -9,7 +9,12 @@ from django.views.decorators.http import require_POST
 from django.utils import translation
 from django.http import HttpResponseRedirect
 from django.conf import settings
-from .forms import CustomUserCreationForm, CustomUserChangeForm, UserPermissionForm, UserProfileForm
+from .forms import (
+    CustomUserCreationForm,
+    CustomUserChangeForm,
+    UserPermissionForm,
+    UserProfileForm,
+)
 from .models import User, UserPermission
 from .utils import check_user_permission
 from superadmin.models import Branch, Business
@@ -20,26 +25,26 @@ def custom_login_view(request):
     """
     Handle user login
     """
-    if request.method == 'POST':
+    if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
+            username = form.cleaned_data.get("username")
+            password = form.cleaned_data.get("password")
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request, f'Welcome back, {username}!')
+                messages.success(request, f"Welcome back, {username}!")
                 # Redirect to dashboard or next URL
-                next_url = request.GET.get('next', '/dashboard/')
+                next_url = request.GET.get("next", "/dashboard/")
                 return redirect(next_url)
             else:
-                messages.error(request, 'Invalid username or password.')
+                messages.error(request, "Invalid username or password.")
         else:
-            messages.error(request, 'Invalid username or password.')
+            messages.error(request, "Invalid username or password.")
     else:
         form = AuthenticationForm()
-    
-    return render(request, 'authentication/login.html', {'form': form})
+
+    return render(request, "authentication/login.html", {"form": form})
 
 
 @login_required
@@ -47,26 +52,26 @@ def profile(request):
     """
     Display and update user profile
     """
-    if request.method == 'POST':
+    if request.method == "POST":
         form = UserProfileForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Profile updated successfully!')
+            messages.success(request, "Profile updated successfully!")
             # Redirect to appropriate profile based on user type
             if request.user.is_superuser:
-                return redirect('superadmin:dashboard')
+                return redirect("superadmin:dashboard")
             else:
-                return redirect('authentication:profile')
+                return redirect("authentication:profile")
         else:
-            messages.error(request, 'Please correct the errors below.')
+            messages.error(request, "Please correct the errors below.")
     else:
         form = UserProfileForm(instance=request.user)
-    
+
     # Render appropriate template based on user type
     if request.user.is_superuser:
-        return render(request, 'superadmin/profile.html', {'form': form})
+        return render(request, "superadmin/profile.html", {"form": form})
     else:
-        return render(request, 'authentication/profile.html', {'form': form})
+        return render(request, "authentication/profile.html", {"form": form})
 
 
 @login_required
@@ -76,20 +81,20 @@ def set_user_language(request):
     Set the user's preferred language.
     """
     user = request.user
-    language = request.POST.get('language')
-    next_url = request.POST.get('next', '/')
-    
+    language = request.POST.get("language")
+    next_url = request.POST.get("next", "/")
+
     # Validate language is in supported languages
     supported_languages = [lang[0] for lang in settings.LANGUAGES]
     if language and language in supported_languages:
         # Update user's language preference
         user.language = language
-        user.save(update_fields=['language'])
-        
+        user.save(update_fields=["language"])
+
         # Activate the language for the current session
         translation.activate(language)
         request.session[translation.LANGUAGE_SESSION_KEY] = language
-    
+
     # Redirect to the next URL or dashboard
     return HttpResponseRedirect(next_url)
 
@@ -135,31 +140,34 @@ def create_user(request):
     if request.method == "POST":
         user_form = CustomUserCreationForm(request.POST)
         permission_form = UserPermissionForm(request.POST)
-        
+
         if user_form.is_valid() and permission_form.is_valid():
             try:
                 with transaction.atomic():
                     # Save the user
                     user = user_form.save(current_business)
-                    
+
                     # Save the permissions
                     permission = permission_form.save(commit=False)
                     permission.user = user
                     permission.save()
-                    
+
                     # Handle branch assignments
-                    selected_branches = request.POST.getlist('branches')
+                    selected_branches = request.POST.getlist("branches")
                     if selected_branches:
                         branches = Branch.objects.filter(
-                            id__in=selected_branches, 
-                            business=current_business
+                            id__in=selected_branches, business=current_business
                         )
                         permission.branches.set(branches)
-                    
-                    messages.success(request, f"User {user.username} created successfully!")
+
+                    messages.success(
+                        request, f"User {user.username} created successfully!"
+                    )
                     return redirect("authentication:user_list")
             except Exception as e:
-                messages.error(request, f"An error occurred while creating the user: {str(e)}")
+                messages.error(
+                    request, f"An error occurred while creating the user: {str(e)}"
+                )
         else:
             if user_form.errors:
                 for field, errors in user_form.errors.items():
@@ -191,13 +199,17 @@ def edit_user(request, user_id):
         return redirect("dashboard:index")
 
     user_to_edit = get_object_or_404(User, id=user_id)
-    
+
     # Get current business
     current_business = get_current_business()
-    
+
     # Get all branches for this business
-    all_branches = Branch.objects.filter(business=current_business) if current_business else Branch.objects.none()
-    
+    all_branches = (
+        Branch.objects.filter(business=current_business)
+        if current_business
+        else Branch.objects.none()
+    )
+
     # Get user's assigned branches
     try:
         user_permission = UserPermission.objects.get(user=user_to_edit)
@@ -206,16 +218,21 @@ def edit_user(request, user_id):
         assigned_branches = Branch.objects.none()
 
     if request.method == "POST":
-        user_form = CustomUserChangeForm(request.POST, request.FILES, instance=user_to_edit)
-        permission_form = UserPermissionForm(request.POST, instance=user_permission if 'user_permission' in locals() else None)
-        
+        user_form = CustomUserChangeForm(
+            request.POST, request.FILES, instance=user_to_edit
+        )
+        permission_form = UserPermissionForm(
+            request.POST,
+            instance=user_permission if "user_permission" in locals() else None,
+        )
+
         if user_form.is_valid() and permission_form.is_valid():
             try:
                 with transaction.atomic():
                     user = user_form.save()
-                    
+
                     # Save or create user permissions
-                    if hasattr(user_permission, 'id'):
+                    if hasattr(user_permission, "id"):
                         permission = permission_form.save(commit=False)
                         permission.user = user
                         permission.save()
@@ -225,16 +242,20 @@ def edit_user(request, user_id):
                         permission.user = user
                         permission.save()
                         permission_form.save_m2m()  # Save many-to-many relationships
-                    
+
                     # Handle branch assignments
-                    if 'branches' in request.POST:
-                        selected_branches = request.POST.getlist('branches')
+                    if "branches" in request.POST:
+                        selected_branches = request.POST.getlist("branches")
                         permission.branches.set(selected_branches)
-                    
-                    messages.success(request, f"User {user.username} updated successfully!")
+
+                    messages.success(
+                        request, f"User {user.username} updated successfully!"
+                    )
                     return redirect("authentication:user_list")
             except Exception as e:
-                messages.error(request, f"An error occurred while updating the user: {str(e)}")
+                messages.error(
+                    request, f"An error occurred while updating the user: {str(e)}"
+                )
         else:
             if user_form.errors:
                 for field, errors in user_form.errors.items():
@@ -246,7 +267,9 @@ def edit_user(request, user_id):
                         messages.error(request, f"Permission form - {field}: {error}")
     else:
         user_form = CustomUserChangeForm(instance=user_to_edit)
-        permission_form = UserPermissionForm(instance=user_permission if 'user_permission' in locals() else None)
+        permission_form = UserPermissionForm(
+            instance=user_permission if "user_permission" in locals() else None
+        )
 
     context = {
         "user_form": user_form,
@@ -268,13 +291,17 @@ def edit_user_styled(request, user_id):
         return redirect("dashboard:index")
 
     user_to_edit = get_object_or_404(User, id=user_id)
-    
+
     # Get current business
     current_business = get_current_business()
-    
+
     # Get all branches for this business
-    all_branches = Branch.objects.filter(business=current_business) if current_business else Branch.objects.none()
-    
+    all_branches = (
+        Branch.objects.filter(business=current_business)
+        if current_business
+        else Branch.objects.none()
+    )
+
     # Get user's assigned branches
     try:
         user_permission = UserPermission.objects.get(user=user_to_edit)
@@ -283,16 +310,21 @@ def edit_user_styled(request, user_id):
         assigned_branches = Branch.objects.none()
 
     if request.method == "POST":
-        user_form = CustomUserChangeForm(request.POST, request.FILES, instance=user_to_edit)
-        permission_form = UserPermissionForm(request.POST, instance=user_permission if 'user_permission' in locals() else None)
-        
+        user_form = CustomUserChangeForm(
+            request.POST, request.FILES, instance=user_to_edit
+        )
+        permission_form = UserPermissionForm(
+            request.POST,
+            instance=user_permission if "user_permission" in locals() else None,
+        )
+
         if user_form.is_valid() and permission_form.is_valid():
             try:
                 with transaction.atomic():
                     user = user_form.save()
-                    
+
                     # Save or create user permissions
-                    if hasattr(user_permission, 'id'):
+                    if hasattr(user_permission, "id"):
                         permission = permission_form.save(commit=False)
                         permission.user = user
                         permission.save()
@@ -302,16 +334,20 @@ def edit_user_styled(request, user_id):
                         permission.user = user
                         permission.save()
                         permission_form.save_m2m()  # Save many-to-many relationships
-                    
+
                     # Handle branch assignments
-                    if 'branches' in request.POST:
-                        selected_branches = request.POST.getlist('branches')
+                    if "branches" in request.POST:
+                        selected_branches = request.POST.getlist("branches")
                         permission.branches.set(selected_branches)
-                    
-                    messages.success(request, f"User {user.username} updated successfully!")
+
+                    messages.success(
+                        request, f"User {user.username} updated successfully!"
+                    )
                     return redirect("authentication:user_list")
             except Exception as e:
-                messages.error(request, f"An error occurred while updating the user: {str(e)}")
+                messages.error(
+                    request, f"An error occurred while updating the user: {str(e)}"
+                )
         else:
             if user_form.errors:
                 for field, errors in user_form.errors.items():
@@ -323,7 +359,9 @@ def edit_user_styled(request, user_id):
                         messages.error(request, f"Permission form - {field}: {error}")
     else:
         user_form = CustomUserChangeForm(instance=user_to_edit)
-        permission_form = UserPermissionForm(instance=user_permission if 'user_permission' in locals() else None)
+        permission_form = UserPermissionForm(
+            instance=user_permission if "user_permission" in locals() else None
+        )
 
     context = {
         "user_form": user_form,
@@ -421,11 +459,11 @@ def create_business_view(request):
     if request.user.owned_businesses.exists():
         messages.info(request, "You already have a business registered.")
         return redirect("dashboard:index")
-    
+
     if request.method == "POST":
         company_name = request.POST.get("company_name")
         email = request.POST.get("email")
-        
+
         if company_name and email:
             try:
                 # Create business with pending status
@@ -434,19 +472,22 @@ def create_business_view(request):
                     email=email,
                     owner=request.user,
                     plan_type="free",
-                    status="pending"  # Set to pending by default
+                    status="pending",  # Set to pending by default
                 )
-                
+
                 # Send email notification to business owner
                 send_business_creation_email(request, business)
-                
-                messages.success(request, "Business created successfully! Your business is pending approval by an administrator.")
+
+                messages.success(
+                    request,
+                    "Business created successfully! Your business is pending approval by an administrator.",
+                )
                 return redirect("dashboard:index")
             except Exception as e:
                 messages.error(request, f"Error creating business: {str(e)}")
         else:
             messages.error(request, "Please fill in all required fields.")
-    
+
     return render(request, "authentication/create_business.html")
 
 
@@ -459,7 +500,7 @@ def send_business_creation_email(request, business):
         from django.conf import settings
         from django.utils import timezone
         from settings.models import BusinessSettings
-        
+
         # Get business-specific settings for email context
         try:
             business_settings = BusinessSettings.objects.get(business=business)
@@ -478,11 +519,11 @@ def send_business_creation_email(request, business):
                     currency_symbol="FRW",
                     tax_rate=0,
                 )
-        
+
         # Check if business owner has an email
         if not business.owner or not business.owner.email:
             return  # No email to send to
-            
+
         # Prepare email context
         context = {
             "business": business,
@@ -491,12 +532,12 @@ def send_business_creation_email(request, business):
             "login_url": request.build_absolute_uri("/accounts/login/"),
             "current_year": timezone.now().year,
         }
-        
+
         # Render email templates
         subject = f"[{business_settings.business_name}] Business Creation Confirmation"
         html_message = render_to_string("emails/business_registration.html", context)
         plain_message = render_to_string("emails/business_registration.txt", context)
-        
+
         # Send email
         send_mail(
             subject,
@@ -509,19 +550,20 @@ def send_business_creation_email(request, business):
     except Exception as e:
         # Log the error but don't crash the main flow
         import logging
+
         logger = logging.getLogger(__name__)
         logger.error(f"Failed to send business creation email: {str(e)}")
 
+
 def register_view(request):
     """Handle user registration"""
-    if request.method == 'POST':
+    if request.method == "POST":
         form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
             user = form.save()
-            messages.success(request, 'Registration successful. You can now log in.')
-            return redirect('authentication:login')
+            messages.success(request, "Registration successful. You can now log in.")
+            return redirect("authentication:login")
     else:
         form = CustomUserCreationForm()
-    
-    return render(request, 'authentication/register.html', {'form': form})
 
+    return render(request, "authentication/register.html", {"form": form})

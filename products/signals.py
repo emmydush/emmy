@@ -52,7 +52,7 @@ def update_product_stock_on_sale(sender, instance, created, **kwargs):
                     logger.info(
                         f"Updating stock for product {product.name} (ID: {product.id})"
                     )
-                
+
                 logger.info(
                     f"Current stock: {product.quantity}, Quantity sold: {instance.quantity}"
                 )
@@ -129,7 +129,12 @@ def update_product_stock_on_purchase_receive(sender, instance, created, **kwargs
             if quantity_difference > 0:
                 with transaction.atomic():  # type: ignore
                     # Handle product variants
-                    if hasattr(instance, 'is_product_variant') and instance.is_product_variant and hasattr(instance, 'product_variant') and instance.product_variant:
+                    if (
+                        hasattr(instance, "is_product_variant")
+                        and instance.is_product_variant
+                        and hasattr(instance, "product_variant")
+                        and instance.product_variant
+                    ):
                         product = instance.product_variant
                         product_parent = instance.product_variant.product
                     else:

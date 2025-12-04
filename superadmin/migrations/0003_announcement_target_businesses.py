@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('superadmin', '0002_branchrequest'),
+        ("superadmin", "0002_branchrequest"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='announcement',
-            name='target_businesses',
-            field=models.ManyToManyField(blank=True, related_name='targeted_announcements', to='superadmin.business'),
+            model_name="announcement",
+            name="target_businesses",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="targeted_announcements",
+                to="superadmin.business",
+            ),
         ),
     ]

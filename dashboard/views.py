@@ -65,9 +65,7 @@ def dashboard_view(request):
             user_businesses = Business.objects.filter(owner=request.user)
             if user_businesses.exists():
                 current_business = user_businesses.first()
-                logger.info(
-                    f"Found business from user ownership: {current_business}"
-                )
+                logger.info(f"Found business from user ownership: {current_business}")
                 # Set it in session for future requests
                 request.session["current_business_id"] = current_business.id
             else:
@@ -96,7 +94,7 @@ def dashboard_view(request):
             user_businesses = Business.objects.filter(
                 Q(owner=request.user) | Q(managers=request.user) | Q(staff=request.user)
             ).distinct()
-            
+
             if not user_businesses.exists() and not request.user.is_superuser:
                 logger.warning(
                     "No businesses found for user, redirecting to create business"
@@ -110,9 +108,14 @@ def dashboard_view(request):
     # Check if the business is pending approval
     if current_business and current_business.status == "pending":
         # Show a message that the business is pending approval
-        messages.info(request, "Your business registration is pending approval by an administrator. You will have full access once it's approved.")
+        messages.info(
+            request,
+            "Your business registration is pending approval by an administrator. You will have full access once it's approved.",
+        )
         # Render a special template for pending businesses
-        return render(request, "dashboard/pending_business.html", {"business": current_business})
+        return render(
+            request, "dashboard/pending_business.html", {"business": current_business}
+        )
 
     # IMPORTANT: Set the current business in middleware thread-local storage
     # This is required for business_specific() manager method to work properly
@@ -122,7 +125,7 @@ def dashboard_view(request):
 
     # Get business-specific data using business_specific() manager
     logger.info(f"Fetching business-specific data for business: {current_business}")
-    
+
     if current_business:
         products = Product.objects.business_specific()
         categories = Category.objects.business_specific()
@@ -147,42 +150,45 @@ def dashboard_view(request):
     total_sales = sales.count()
     total_customers = customers.count()
     total_purchases = purchases.count()
-    
+
     # Today's sales
     today = timezone.now().date()
     today_sales = sales.filter(sale_date__date=today).count()
-    
+
     # Today's sales amount
     today_sales_amount = sales.filter(sale_date__date=today).aggregate(
-        total_amount=Sum('total_amount')
-    )['total_amount'] or Decimal('0')
+        total_amount=Sum("total_amount")
+    )["total_amount"] or Decimal("0")
 
     # Low stock products
-    low_stock_products = products.filter(quantity__lte=F('reorder_level'))
+    low_stock_products = products.filter(quantity__lte=F("reorder_level"))
     low_stock_count = low_stock_products.count()
-    
+
     # Out of stock products
     out_of_stock_count = products.filter(quantity=0).count()
-    
+
     # Product value in stock
-    product_value_in_stock = products.aggregate(
-        total_value=Sum(F('quantity') * F('cost_price'))
-    )['total_value'] or 0
-    
+    product_value_in_stock = (
+        products.aggregate(total_value=Sum(F("quantity") * F("cost_price")))[
+            "total_value"
+        ]
+        or 0
+    )
+
     # Profit calculations
-    today_profit = Decimal('0')
-    total_profit = Decimal('0')
-    
+    today_profit = Decimal("0")
+    total_profit = Decimal("0")
+
     # Calculate today's profit
-    today_sales_objects = sales.filter(sale_date__date=today).prefetch_related('items')
+    today_sales_objects = sales.filter(sale_date__date=today).prefetch_related("items")
     for sale in today_sales_objects:
         for item in sale.items.all():
             # Use unit_price instead of selling_price
             profit_per_item = item.unit_price - item.product.cost_price
             today_profit += profit_per_item * item.quantity
-    
+
     # Calculate total profit
-    all_sales_objects = sales.prefetch_related('items')
+    all_sales_objects = sales.prefetch_related("items")
     for sale in all_sales_objects:
         for item in sale.items.all():
             # Use unit_price instead of selling_price
@@ -191,59 +197,75 @@ def dashboard_view(request):
 
     # Calculate metrics for circular charts
     # Profit Margin = (Total Profit / Total Revenue) * 100
-    total_revenue = Decimal('0')
+    total_revenue = Decimal("0")
     for sale in all_sales_objects:
         for item in sale.items.all():
             total_revenue += item.unit_price * item.quantity
-    
+
     profit_margin = 0
     if total_revenue > 0:
         profit_margin = float((total_profit / total_revenue) * 100)
-    
+
     # Inventory Turnover = Cost of Goods Sold / Average Inventory Value
     # For simplicity, we'll calculate it as number of sales / total products
     inventory_turnover = 0
     if total_products > 0:
-        inventory_turnover = float(total_sales) / float(total_products) * 10  # Scale for display
-    
+        inventory_turnover = (
+            float(total_sales) / float(total_products) * 10
+        )  # Scale for display
+
     # Customer Retention Rate = Returning Customers / Total Customers * 100
     # For simplicity, we'll estimate based on sales frequency
     customer_retention = 0
     if total_customers > 0:
         # Estimate based on ratio of sales to customers
-        customer_retention = min(float(total_sales) / float(total_customers) * 20, 100)  # Scale and cap at 100
-    
+        customer_retention = min(
+            float(total_sales) / float(total_customers) * 20, 100
+        )  # Scale and cap at 100
+
     # Order Fulfillment Rate = Completed Orders / Total Orders * 100
     # For simplicity, we'll assume all sales are completed
-    order_fulfillment = min(float(total_sales) / float(total_sales + 1) * 100, 95)  # Assume 95% for display
+    order_fulfillment = min(
+        float(total_sales) / float(total_sales + 1) * 100, 95
+    )  # Assume 95% for display
 
     # Chart data preparation
     # Fast vs Slow moving products (based on actual sales data)
     # Calculate product sales frequency over the last 30 days
     thirty_days_ago = today - timedelta(days=30)
     recent_sales = sales.filter(sale_date__gte=thirty_days_ago)
-    
+
     # Get product sales counts
-    product_sales_data = list(SaleItem.objects.filter(
-        sale__in=recent_sales
-    ).values(
-        'product__name'
-    ).annotate(
-        total_sales=Count('product'),
-        total_quantity=Sum('quantity')
-    ).order_by('-total_sales'))
-    
+    product_sales_data = list(
+        SaleItem.objects.filter(sale__in=recent_sales)
+        .values("product__name")
+        .annotate(total_sales=Count("product"), total_quantity=Sum("quantity"))
+        .order_by("-total_sales")
+    )
+
     # Separate fast and slow moving products
-    fast_moving_products = product_sales_data[:5] if len(product_sales_data) >= 5 else product_sales_data
-    slow_moving_products = product_sales_data[-5:] if len(product_sales_data) >= 5 else product_sales_data
-    
+    fast_moving_products = (
+        product_sales_data[:5] if len(product_sales_data) >= 5 else product_sales_data
+    )
+    slow_moving_products = (
+        product_sales_data[-5:] if len(product_sales_data) >= 5 else product_sales_data
+    )
+
     # Create labels from fast moving products (use slow moving if fast moving is empty)
-    labels = [item['product__name'] for item in fast_moving_products] if fast_moving_products else [item['product__name'] for item in slow_moving_products]
-    
+    labels = (
+        [item["product__name"] for item in fast_moving_products]
+        if fast_moving_products
+        else [item["product__name"] for item in slow_moving_products]
+    )
+
     fast_slow_products_data = {
-        'labels': labels[:5],
-        'fast_moving': [item['total_sales'] for item in fast_moving_products[:5]],
-        'slow_moving': [item['total_sales'] for item in slow_moving_products[-5:]] if len(slow_moving_products) >= 5 else [item['total_sales'] for item in slow_moving_products]
+        "labels": labels[:5],
+        "fast_moving": [item["total_sales"] for item in fast_moving_products[:5]],
+        "slow_moving": (
+            [item["total_sales"] for item in slow_moving_products[-5:]]
+            if len(slow_moving_products) >= 5
+            else [item["total_sales"] for item in slow_moving_products]
+        ),
     }
 
     # Category-wise stock distribution
@@ -251,54 +273,63 @@ def dashboard_view(request):
     for category in categories[:5]:  # Top 5 categories
         category_products = products.filter(category=category)
         total_quantity = sum([p.quantity for p in category_products])
-        category_stock_data.append({
-            'name': category.name,
-            'quantity': float(total_quantity)  # Convert Decimal to float for JSON serialization
-        })
+        category_stock_data.append(
+            {
+                "name": category.name,
+                "quantity": float(
+                    total_quantity
+                ),  # Convert Decimal to float for JSON serialization
+            }
+        )
 
     # Daily sales data (last 7 days)
     daily_sales_data = []
     for i in range(6, -1, -1):  # Last 7 days including today
         date_point = today - timedelta(days=i)
         day_sales = sales.filter(sale_date__date=date_point).count()
-        daily_sales_data.append({
-            'date': date_point.strftime('%a'),  # Day name (Mon, Tue, etc.)
-            'sales': day_sales,  # Number of sales
-            'value': float(sales.filter(sale_date__date=date_point).aggregate(
-                total_value=Sum('total_amount')
-            )['total_value'] or 0)  # Actual sales value
-        })
+        daily_sales_data.append(
+            {
+                "date": date_point.strftime("%a"),  # Day name (Mon, Tue, etc.)
+                "sales": day_sales,  # Number of sales
+                "value": float(
+                    sales.filter(sale_date__date=date_point).aggregate(
+                        total_value=Sum("total_amount")
+                    )["total_value"]
+                    or 0
+                ),  # Actual sales value
+            }
+        )
 
     # Top selling products (based on actual sales data)
     top_selling_products_real = []
     for item in product_sales_data[:5]:
-        top_selling_products_real.append({
-            'name': item['product__name'],
-            'sales': item['total_sales']
-        })
-    
+        top_selling_products_real.append(
+            {"name": item["product__name"], "sales": item["total_sales"]}
+        )
+
     # If we don't have enough real data, pad with empty entries
     while len(top_selling_products_real) < 5:
-        top_selling_products_real.append({
-            'name': 'No data',
-            'sales': 0
-        })
+        top_selling_products_real.append({"name": "No data", "sales": 0})
 
     # Convert data to JSON for JavaScript
     fast_slow_products_json = json.dumps(fast_slow_products_data)
 
-    category_stock_json = json.dumps([
-        {'name': item['name'], 'quantity': item['quantity']} 
-        for item in category_stock_data
-    ])
-    
+    category_stock_json = json.dumps(
+        [
+            {"name": item["name"], "quantity": item["quantity"]}
+            for item in category_stock_data
+        ]
+    )
+
     daily_sales_json = json.dumps(daily_sales_data)
     top_selling_json = json.dumps(top_selling_products_real)
 
     # Get recent activities (audit logs) for the current business
-    recent_activities = AuditLog.objects.filter(
-        business=current_business
-    ).select_related('user').order_by('-timestamp')[:5]
+    recent_activities = (
+        AuditLog.objects.filter(business=current_business)
+        .select_related("user")
+        .order_by("-timestamp")[:5]
+    )
 
     context = {
         "total_products": total_products,
@@ -310,13 +341,21 @@ def dashboard_view(request):
         "todays_sales_amount": float(today_sales_amount),  # Add today's sales amount
         "low_stock_count": low_stock_count,
         "out_of_stock_count": out_of_stock_count,
-        "product_value_in_stock": float(product_value_in_stock),  # Convert Decimal to float
+        "product_value_in_stock": float(
+            product_value_in_stock
+        ),  # Convert Decimal to float
         "today_profit": float(today_profit),  # Convert Decimal to float
         "total_profit": float(total_profit),  # Convert Decimal to float
         "profit_margin": round(profit_margin, 1),  # Add profit margin to context
-        "inventory_turnover": round(inventory_turnover, 1),  # Add inventory turnover to context
-        "customer_retention": round(customer_retention, 1),  # Add customer retention to context
-        "order_fulfillment": round(order_fulfillment, 1),  # Add order fulfillment to context
+        "inventory_turnover": round(
+            inventory_turnover, 1
+        ),  # Add inventory turnover to context
+        "customer_retention": round(
+            customer_retention, 1
+        ),  # Add customer retention to context
+        "order_fulfillment": round(
+            order_fulfillment, 1
+        ),  # Add order fulfillment to context
         "low_stock_products": low_stock_products[:5],  # Limit to 5 for display
         "current_business": current_business,
         "recent_activities": recent_activities,  # Add recent activities to context
@@ -337,21 +376,21 @@ def dashboard_view(request):
 def owner_dashboard_view(request):
     """Owner dashboard view for business owners with multiple businesses"""
     # Check if user is a business owner
-    if not hasattr(request.user, 'owned_businesses'):
+    if not hasattr(request.user, "owned_businesses"):
         messages.error(request, "You don't have access to the owner dashboard.")
-        return redirect('dashboard:index')
+        return redirect("dashboard:index")
 
     # Get user's businesses
     user_businesses = request.user.owned_businesses.all()
 
     if not user_businesses.exists():
         messages.info(request, "You don't own any businesses yet.")
-        return redirect('dashboard:index')
+        return redirect("dashboard:index")
 
     # Calculate aggregate metrics
     total_businesses = user_businesses.count()
     total_users = 0
-    total_revenue = Decimal('0')
+    total_revenue = Decimal("0")
     total_sales = 0
 
     # For pending approvals, open tickets, and recent alerts, we need to calculate real data
@@ -372,7 +411,9 @@ def owner_dashboard_view(request):
         set_current_business(business)
 
         # Count users in this business
-        total_users += business.staff.count() + business.managers.count() + 1  # +1 for owner
+        total_users += (
+            business.staff.count() + business.managers.count() + 1
+        )  # +1 for owner
 
         # Calculate revenue for this business
         business_sales = Sale.objects.business_specific()
@@ -385,7 +426,10 @@ def owner_dashboard_view(request):
 
         # Count pending approvals (purchase orders that need approval)
         from purchases.models import PurchaseOrder
-        pending_approvals += PurchaseOrder.objects.business_specific().filter(status='pending').count()
+
+        pending_approvals += (
+            PurchaseOrder.objects.business_specific().filter(status="pending").count()
+        )
 
         # Count open tickets (support tickets that are open)
         # Assuming there's a support ticket model, we'll use a placeholder for now
@@ -394,14 +438,17 @@ def owner_dashboard_view(request):
 
         # Count recent alerts (stock alerts, etc.)
         from products.models import StockAlert
-        recent_alerts += StockAlert.objects.business_specific().filter(is_resolved=False).count()
+
+        recent_alerts += (
+            StockAlert.objects.business_specific().filter(is_resolved=False).count()
+        )
 
         # Count business status
-        if business.status == 'active':
+        if business.status == "active":
             active_count += 1
-        elif business.status == 'pending':
+        elif business.status == "pending":
             pending_count += 1
-        elif business.status == 'suspended':
+        elif business.status == "suspended":
             suspended_count += 1
 
         # Count subscription plans
@@ -409,34 +456,40 @@ def owner_dashboard_view(request):
             plan_name = business.subscription_plan.name
             subscription_counts[plan_name] = subscription_counts.get(plan_name, 0) + 1
         else:
-            subscription_counts['Free'] = subscription_counts.get('Free', 0) + 1
+            subscription_counts["Free"] = subscription_counts.get("Free", 0) + 1
 
     # Prepare business status data for chart
     business_status_labels = []
     business_status_data = []
     if active_count > 0:
-        business_status_labels.append('Active')
+        business_status_labels.append("Active")
         business_status_data.append(active_count)
     if pending_count > 0:
-        business_status_labels.append('Pending')
+        business_status_labels.append("Pending")
         business_status_data.append(pending_count)
     if suspended_count > 0:
-        business_status_labels.append('Suspended')
+        business_status_labels.append("Suspended")
         business_status_data.append(suspended_count)
 
     # If no business status data, add at least one placeholder
     if not business_status_data:
-        business_status_labels = ['No Data']
+        business_status_labels = ["No Data"]
         business_status_data = [1]
 
     # Prepare subscription plan data for chart
-    subscription_labels = list(subscription_counts.keys()) if subscription_counts else ['No Plans']
-    subscription_data = list(subscription_counts.values()) if subscription_counts else [1]
+    subscription_labels = (
+        list(subscription_counts.keys()) if subscription_counts else ["No Plans"]
+    )
+    subscription_data = (
+        list(subscription_counts.values()) if subscription_counts else [1]
+    )
 
     context = {
         "total_businesses": total_businesses,
         "total_users": total_users,
-        "total_revenue": float(total_revenue),  # Convert Decimal to float for JSON serialization
+        "total_revenue": float(
+            total_revenue
+        ),  # Convert Decimal to float for JSON serialization
         "total_sales": total_sales,
         "pending_approvals": pending_approvals,
         "open_tickets": open_tickets,
@@ -541,7 +594,7 @@ def switch_branch_view(request):
     """
     if request.method == "POST":
         branch_id = request.POST.get("branch_id")
-        
+
         if branch_id:
             try:
                 if branch_id == "main":
@@ -552,6 +605,7 @@ def switch_branch_view(request):
                 else:
                     # Set specific branch
                     from superadmin.models import Branch
+
                     branch = Branch.objects.get(id=branch_id)
                     request.session["current_branch_id"] = branch.id
                     messages.success(request, f"Switched to branch: {branch.name}")
@@ -559,5 +613,5 @@ def switch_branch_view(request):
                 messages.error(request, f"Error switching branch: {str(e)}")
         else:
             messages.error(request, "Invalid branch selection")
-    
+
     return redirect("dashboard:index")

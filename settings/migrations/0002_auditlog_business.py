@@ -7,14 +7,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('settings', '0001_initial'),
-        ('superadmin', '0001_initial'),
+        ("settings", "0001_initial"),
+        ("superadmin", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='auditlog',
-            name='business',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='superadmin.business'),
+            model_name="auditlog",
+            name="business",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="superadmin.business",
+            ),
         ),
     ]

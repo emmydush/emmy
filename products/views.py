@@ -16,7 +16,19 @@ import datetime
 import qrcode
 import csv
 import io
-from .models import Product, Category, Unit, StockAdjustment, StockAlert, StockMovement, ProductVariant, VariantAttribute, VariantAttributeValue, ProductVariantAttribute, InventoryTransfer
+from .models import (
+    Product,
+    Category,
+    Unit,
+    StockAdjustment,
+    StockAlert,
+    StockMovement,
+    ProductVariant,
+    VariantAttribute,
+    VariantAttributeValue,
+    ProductVariantAttribute,
+    InventoryTransfer,
+)
 from .forms import (
     ProductForm,
     CategoryForm,
@@ -524,25 +536,35 @@ def bulk_upload(request):
                         # Handle empty values
                         barcode = barcode if barcode else None
                         description = description if description else ""
-                        
+
                         # Parse numeric values
                         try:
-                            cost_price = Decimal(cost_price) if cost_price else Decimal("0")
+                            cost_price = (
+                                Decimal(cost_price) if cost_price else Decimal("0")
+                            )
                         except:
                             cost_price = Decimal("0")
-                            
+
                         try:
-                            selling_price = Decimal(selling_price) if selling_price else Decimal("0")
+                            selling_price = (
+                                Decimal(selling_price)
+                                if selling_price
+                                else Decimal("0")
+                            )
                         except:
                             selling_price = Decimal("0")
-                            
+
                         try:
                             quantity = Decimal(quantity) if quantity else Decimal("0")
                         except:
                             quantity = Decimal("0")
-                            
+
                         try:
-                            reorder_level = Decimal(reorder_level) if reorder_level else Decimal("0")
+                            reorder_level = (
+                                Decimal(reorder_level)
+                                if reorder_level
+                                else Decimal("0")
+                            )
                         except:
                             reorder_level = Decimal("0")
 
@@ -550,14 +572,20 @@ def bulk_upload(request):
                         parsed_expiry_date = None
                         if expiry_date:
                             try:
-                                parsed_expiry_date = datetime.datetime.strptime(expiry_date, "%Y-%m-%d").date()
+                                parsed_expiry_date = datetime.datetime.strptime(
+                                    expiry_date, "%Y-%m-%d"
+                                ).date()
                             except ValueError:
                                 # Try other common date formats
                                 try:
-                                    parsed_expiry_date = datetime.datetime.strptime(expiry_date, "%d/%m/%Y").date()
+                                    parsed_expiry_date = datetime.datetime.strptime(
+                                        expiry_date, "%d/%m/%Y"
+                                    ).date()
                                 except ValueError:
                                     try:
-                                        parsed_expiry_date = datetime.datetime.strptime(expiry_date, "%m/%d/%Y").date()
+                                        parsed_expiry_date = datetime.datetime.strptime(
+                                            expiry_date, "%m/%d/%Y"
+                                        ).date()
                                     except ValueError:
                                         parsed_expiry_date = None
 
@@ -605,17 +633,21 @@ def bulk_upload(request):
                 # Prepare success message
                 success_message = ""
                 if success_count > 0:
-                    success_message += f"Successfully imported {success_count} new products."
+                    success_message += (
+                        f"Successfully imported {success_count} new products."
+                    )
                 if update_count > 0:
                     success_message += f" Updated {update_count} existing products."
-                
+
                 if success_message:
                     messages.success(request, success_message.strip())
-                    
+
                 if error_count > 0:
                     error_message = f"Failed to process {error_count} rows."
                     if errors:
-                        error_message += " Errors: " + "; ".join(errors[:5])  # Show first 5 errors
+                        error_message += " Errors: " + "; ".join(
+                            errors[:5]
+                        )  # Show first 5 errors
                         if len(errors) > 5:
                             error_message += f" ... and {len(errors) - 5} more."
                     messages.error(request, error_message)
@@ -686,19 +718,21 @@ def download_template(request):
     writer = csv.writer(response)
 
     # Write header row
-    writer.writerow([
-        "Name",
-        "SKU",
-        "Barcode",
-        "Category",
-        "Unit",
-        "Description",
-        "Cost Price",
-        "Selling Price",
-        "Quantity",
-        "Reorder Level",
-        "Expiry Date"
-    ])
+    writer.writerow(
+        [
+            "Name",
+            "SKU",
+            "Barcode",
+            "Category",
+            "Unit",
+            "Description",
+            "Cost Price",
+            "Selling Price",
+            "Quantity",
+            "Reorder Level",
+            "Expiry Date",
+        ]
+    )
 
     # Write sample data rows
     sample_data = [
@@ -713,7 +747,7 @@ def download_template(request):
             "1099.99",
             "25",
             "5",
-            "2026-12-31"
+            "2026-12-31",
         ],
         [
             "Samsung Galaxy Tab S9",
@@ -726,7 +760,7 @@ def download_template(request):
             "749.99",
             "15",
             "3",
-            "2026-11-30"
+            "2026-11-30",
         ],
         [
             "Office Chair",
@@ -739,8 +773,8 @@ def download_template(request):
             "199.99",
             "8",
             "2",
-            ""
-        ]
+            "",
+        ],
     ]
 
     # Write sample data rows
@@ -830,9 +864,14 @@ def approve_stock_adjustment(request, pk):
 
     # Check if user has permission to approve stock adjustments
     # Only admin, manager, and stock_manager roles can approve/reject
-    allowed_roles = ['admin', 'manager', 'stock_manager']
-    if request.user.role.lower() not in allowed_roles and not check_user_permission(request.user, 'can_edit'):
-        messages.error(request, "You do not have permission to approve or reject stock adjustment requests.")
+    allowed_roles = ["admin", "manager", "stock_manager"]
+    if request.user.role.lower() not in allowed_roles and not check_user_permission(
+        request.user, "can_edit"
+    ):
+        messages.error(
+            request,
+            "You do not have permission to approve or reject stock adjustment requests.",
+        )
         return redirect("products:stock_adjustment_list")
 
     current_business = get_current_business()
@@ -973,6 +1012,7 @@ def resolve_stock_alert(request, pk):
 
 # Variant Management Views
 
+
 @login_required
 def product_variant_list(request, product_pk):
     """Display list of variants for a specific product"""
@@ -982,15 +1022,15 @@ def product_variant_list(request, product_pk):
     ):
         messages.error(request, "You do not have permission to view product variants.")
         return redirect("products:list")
-    
+
     product = get_object_or_404(Product.objects.business_specific(), pk=product_pk)
     variants = product.variants.all()
-    
+
     context = {
         "product": product,
         "variants": variants,
     }
-    
+
     return render(request, "products/variants/list.html", context)
 
 
@@ -1001,17 +1041,22 @@ def product_variant_create(request, product_pk):
     if request.user.role != "admin" and not check_user_permission(
         request.user, "can_create"
     ):
-        messages.error(request, "You do not have permission to create product variants.")
+        messages.error(
+            request, "You do not have permission to create product variants."
+        )
         return redirect("products:list")
-    
+
     product = get_object_or_404(Product.objects.business_specific(), pk=product_pk)
-    
+
     # Get the current business from the request
     from superadmin.middleware import get_current_business
+
     current_business = get_current_business()
-    
+
     if request.method == "POST":
-        form = ProductVariantForm(request.POST, request.FILES, business=current_business, product=product)
+        form = ProductVariantForm(
+            request.POST, request.FILES, business=current_business, product=product
+        )
         if form.is_valid():
             if current_business:
                 try:
@@ -1020,12 +1065,12 @@ def product_variant_create(request, product_pk):
                     variant.business = current_business
                     variant.product = product
                     variant.save()
-                    
+
                     # Update the product's has_variants field
                     if not product.has_variants:
                         product.has_variants = True
-                        product.save(update_fields=['has_variants'])
-                    
+                        product.save(update_fields=["has_variants"])
+
                     messages.success(request, "Product variant created successfully!")
                     return redirect("products:variant_list", product_pk=product.pk)
                 except IntegrityError as e:
@@ -1052,13 +1097,13 @@ def product_variant_create(request, product_pk):
                         messages.error(request, f"{field}: {error}")
     else:
         form = ProductVariantForm(business=current_business, product=product)
-    
+
     context = {
         "form": form,
         "product": product,
         "title": "Create Product Variant",
     }
-    
+
     return render(request, "products/variants/form.html", context)
 
 
@@ -1066,16 +1111,16 @@ def product_variant_create(request, product_pk):
 def product_variant_detail(request, pk):
     """Display details of a specific product variant"""
     variant = get_object_or_404(ProductVariant.objects.business_specific(), pk=pk)
-    
+
     # Generate QR code for the variant
     qr_buffer = generate_product_qr_code(variant)
-    
+
     context = {
         "variant": variant,
         "qr_code_data": qr_buffer.getvalue() if qr_buffer else None,
         "MEDIA_URL": settings.MEDIA_URL,
     }
-    
+
     return render(request, "products/variants/detail.html", context)
 
 
@@ -1088,15 +1133,22 @@ def product_variant_update(request, pk):
     ):
         messages.error(request, "You do not have permission to edit product variants.")
         return redirect("products:list")
-    
+
     variant = get_object_or_404(ProductVariant.objects.business_specific(), pk=pk)
-    
+
     # Get the current business from the request
     from superadmin.middleware import get_current_business
+
     current_business = get_current_business()
-    
+
     if request.method == "POST":
-        form = ProductVariantForm(request.POST, request.FILES, instance=variant, business=current_business, product=variant.product)
+        form = ProductVariantForm(
+            request.POST,
+            request.FILES,
+            instance=variant,
+            business=current_business,
+            product=variant.product,
+        )
         if form.is_valid():
             if current_business:
                 # Save the variant with business context
@@ -1117,14 +1169,16 @@ def product_variant_update(request, pk):
                     for error in errors:
                         messages.error(request, f"{field}: {error}")
     else:
-        form = ProductVariantForm(instance=variant, business=current_business, product=variant.product)
-    
+        form = ProductVariantForm(
+            instance=variant, business=current_business, product=variant.product
+        )
+
     context = {
         "form": form,
         "variant": variant,
         "title": "Update Product Variant",
     }
-    
+
     return render(request, "products/variants/form.html", context)
 
 
@@ -1135,34 +1189,40 @@ def product_variant_delete(request, pk):
     if request.user.role != "admin" and not check_user_permission(
         request.user, "can_delete"
     ):
-        messages.error(request, "You do not have permission to delete product variants.")
+        messages.error(
+            request, "You do not have permission to delete product variants."
+        )
         return redirect("products:list")
-    
+
     variant = get_object_or_404(ProductVariant.objects.business_specific(), pk=pk)
     product_pk = variant.product.pk
     product = variant.product
-    
+
     if request.method == "POST":
         variant.is_active = False
         variant.save()
-        
+
         # Check if this was the last variant for the product
         # If so, update the product's has_variants field
-        if product.has_variants and not product.variants.filter(is_active=True).exists():
+        if (
+            product.has_variants
+            and not product.variants.filter(is_active=True).exists()
+        ):
             product.has_variants = False
-            product.save(update_fields=['has_variants'])
-        
+            product.save(update_fields=["has_variants"])
+
         messages.success(request, "Product variant deleted successfully!")
         return redirect("products:variant_list", product_pk=product_pk)
-    
+
     context = {
         "variant": variant,
     }
-    
+
     return render(request, "products/variants/confirm_delete.html", context)
 
 
 # Inventory Transfer Views
+
 
 @login_required
 def inventory_transfer_list(request):
@@ -1171,21 +1231,23 @@ def inventory_transfer_list(request):
     if request.user.role != "admin" and not check_user_permission(
         request.user, "can_view"
     ):
-        messages.error(request, "You do not have permission to view inventory transfers.")
+        messages.error(
+            request, "You do not have permission to view inventory transfers."
+        )
         return redirect("products:list")
-    
+
     transfers = InventoryTransfer.objects.business_specific()
-    
+
     # Filter by status if provided
     status = request.GET.get("status")
     if status:
         transfers = transfers.filter(status=status)
-    
+
     context = {
         "transfers": transfers,
         "selected_status": status,
     }
-    
+
     return render(request, "products/transfers/list.html", context)
 
 
@@ -1196,15 +1258,20 @@ def inventory_transfer_create(request):
     if request.user.role != "admin" and not check_user_permission(
         request.user, "can_create"
     ):
-        messages.error(request, "You do not have permission to create inventory transfers.")
+        messages.error(
+            request, "You do not have permission to create inventory transfers."
+        )
         return redirect("products:list")
-    
+
     # Get the current business from the request
     from superadmin.middleware import get_current_business
+
     current_business = get_current_business()
-    
+
     if request.method == "POST":
-        form = InventoryTransferForm(request.POST, business=current_business, user=request.user)
+        form = InventoryTransferForm(
+            request.POST, business=current_business, user=request.user
+        )
         if form.is_valid():
             if current_business:
                 try:
@@ -1212,7 +1279,9 @@ def inventory_transfer_create(request):
                     transfer.business = current_business
                     transfer.created_by = request.user
                     transfer.save()
-                    messages.success(request, "Inventory transfer created successfully!")
+                    messages.success(
+                        request, "Inventory transfer created successfully!"
+                    )
                     return redirect("products:inventory_transfer_list")
                 except Exception as e:
                     messages.error(
@@ -1232,12 +1301,12 @@ def inventory_transfer_create(request):
                         messages.error(request, f"{field}: {error}")
     else:
         form = InventoryTransferForm(business=current_business, user=request.user)
-    
+
     context = {
         "form": form,
         "title": "Create Inventory Transfer",
     }
-    
+
     return render(request, "products/transfers/form.html", context)
 
 
@@ -1245,11 +1314,11 @@ def inventory_transfer_create(request):
 def inventory_transfer_detail(request, pk):
     """Display details of a specific inventory transfer"""
     transfer = get_object_or_404(InventoryTransfer.objects.business_specific(), pk=pk)
-    
+
     context = {
         "transfer": transfer,
     }
-    
+
     return render(request, "products/transfers/detail.html", context)
 
 
@@ -1260,17 +1329,25 @@ def inventory_transfer_update(request, pk):
     if request.user.role != "admin" and not check_user_permission(
         request.user, "can_edit"
     ):
-        messages.error(request, "You do not have permission to edit inventory transfers.")
+        messages.error(
+            request, "You do not have permission to edit inventory transfers."
+        )
         return redirect("products:list")
-    
+
     transfer = get_object_or_404(InventoryTransfer.objects.business_specific(), pk=pk)
-    
+
     # Get the current business from the request
     from superadmin.middleware import get_current_business
+
     current_business = get_current_business()
-    
+
     if request.method == "POST":
-        form = InventoryTransferForm(request.POST, instance=transfer, business=current_business, user=request.user)
+        form = InventoryTransferForm(
+            request.POST,
+            instance=transfer,
+            business=current_business,
+            user=request.user,
+        )
         if form.is_valid():
             if current_business:
                 try:
@@ -1278,8 +1355,12 @@ def inventory_transfer_update(request, pk):
                     transfer.business = current_business
                     transfer.created_by = request.user
                     transfer.save()
-                    messages.success(request, "Inventory transfer updated successfully!")
-                    return redirect("products:inventory_transfer_detail", pk=transfer.pk)
+                    messages.success(
+                        request, "Inventory transfer updated successfully!"
+                    )
+                    return redirect(
+                        "products:inventory_transfer_detail", pk=transfer.pk
+                    )
                 except Exception as e:
                     messages.error(
                         request,
@@ -1297,14 +1378,16 @@ def inventory_transfer_update(request, pk):
                     for error in errors:
                         messages.error(request, f"{field}: {error}")
     else:
-        form = InventoryTransferForm(instance=transfer, business=current_business, user=request.user)
-    
+        form = InventoryTransferForm(
+            instance=transfer, business=current_business, user=request.user
+        )
+
     context = {
         "form": form,
         "transfer": transfer,
         "title": "Update Inventory Transfer",
     }
-    
+
     return render(request, "products/transfers/form.html", context)
 
 
@@ -1315,26 +1398,28 @@ def inventory_transfer_complete(request, pk):
     if request.user.role != "admin" and not check_user_permission(
         request.user, "can_edit"
     ):
-        messages.error(request, "You do not have permission to complete inventory transfers.")
+        messages.error(
+            request, "You do not have permission to complete inventory transfers."
+        )
         return redirect("products:list")
-    
+
     transfer = get_object_or_404(InventoryTransfer.objects.business_specific(), pk=pk)
-    
+
     if request.method == "POST":
         # Update the transfer status to completed
         transfer.status = "completed"
         transfer.save()
-        
+
         # Process the transfer to update inventory levels
         transfer.process_transfer()
-        
+
         messages.success(request, "Inventory transfer completed successfully!")
         return redirect("products:inventory_transfer_detail", pk=transfer.pk)
-    
+
     context = {
         "transfer": transfer,
     }
-    
+
     return render(request, "products/transfers/confirm_complete.html", context)
 
 
@@ -1345,27 +1430,30 @@ def inventory_transfer_cancel(request, pk):
     if request.user.role != "admin" and not check_user_permission(
         request.user, "can_edit"
     ):
-        messages.error(request, "You do not have permission to cancel inventory transfers.")
+        messages.error(
+            request, "You do not have permission to cancel inventory transfers."
+        )
         return redirect("products:list")
-    
+
     transfer = get_object_or_404(InventoryTransfer.objects.business_specific(), pk=pk)
-    
+
     if request.method == "POST":
         # Update the transfer status to cancelled
         transfer.status = "cancelled"
         transfer.save()
-        
+
         messages.success(request, "Inventory transfer cancelled successfully!")
         return redirect("products:inventory_transfer_detail", pk=transfer.pk)
-    
+
     context = {
         "transfer": transfer,
     }
-    
+
     return render(request, "products/transfers/confirm_cancel.html", context)
 
 
 # Variant Attribute Management Views
+
 
 @login_required
 def variant_attribute_list(request):
@@ -1374,15 +1462,17 @@ def variant_attribute_list(request):
     if request.user.role != "admin" and not check_user_permission(
         request.user, "can_view"
     ):
-        messages.error(request, "You do not have permission to view variant attributes.")
+        messages.error(
+            request, "You do not have permission to view variant attributes."
+        )
         return redirect("products:list")
-    
+
     attributes = VariantAttribute.objects.business_specific().all()
-    
+
     context = {
         "attributes": attributes,
     }
-    
+
     return render(request, "products/variant_attributes/list.html", context)
 
 
@@ -1393,13 +1483,16 @@ def variant_attribute_create(request):
     if request.user.role != "admin" and not check_user_permission(
         request.user, "can_create"
     ):
-        messages.error(request, "You do not have permission to create variant attributes.")
+        messages.error(
+            request, "You do not have permission to create variant attributes."
+        )
         return redirect("products:list")
-    
+
     # Get the current business from the request
     from superadmin.middleware import get_current_business
+
     current_business = get_current_business()
-    
+
     if request.method == "POST":
         form = VariantAttributeForm(request.POST, business=current_business)
         if form.is_valid():
@@ -1429,12 +1522,12 @@ def variant_attribute_create(request):
                         messages.error(request, f"{field}: {error}")
     else:
         form = VariantAttributeForm(business=current_business)
-    
+
     context = {
         "form": form,
         "title": "Create Variant Attribute",
     }
-    
+
     return render(request, "products/variant_attributes/form.html", context)
 
 
@@ -1445,17 +1538,22 @@ def variant_attribute_update(request, pk):
     if request.user.role != "admin" and not check_user_permission(
         request.user, "can_edit"
     ):
-        messages.error(request, "You do not have permission to edit variant attributes.")
+        messages.error(
+            request, "You do not have permission to edit variant attributes."
+        )
         return redirect("products:list")
-    
+
     attribute = get_object_or_404(VariantAttribute.objects.business_specific(), pk=pk)
-    
+
     # Get the current business from the request
     from superadmin.middleware import get_current_business
+
     current_business = get_current_business()
-    
+
     if request.method == "POST":
-        form = VariantAttributeForm(request.POST, instance=attribute, business=current_business)
+        form = VariantAttributeForm(
+            request.POST, instance=attribute, business=current_business
+        )
         if form.is_valid():
             if current_business:
                 # Save the attribute with business context
@@ -1477,13 +1575,13 @@ def variant_attribute_update(request, pk):
                         messages.error(request, f"{field}: {error}")
     else:
         form = VariantAttributeForm(instance=attribute, business=current_business)
-    
+
     context = {
         "form": form,
         "attribute": attribute,
         "title": "Update Variant Attribute",
     }
-    
+
     return render(request, "products/variant_attributes/form.html", context)
 
 
@@ -1494,25 +1592,28 @@ def variant_attribute_delete(request, pk):
     if request.user.role != "admin" and not check_user_permission(
         request.user, "can_delete"
     ):
-        messages.error(request, "You do not have permission to delete variant attributes.")
+        messages.error(
+            request, "You do not have permission to delete variant attributes."
+        )
         return redirect("products:list")
-    
+
     attribute = get_object_or_404(VariantAttribute.objects.business_specific(), pk=pk)
-    
+
     if request.method == "POST":
         attribute.is_active = False
         attribute.save()
         messages.success(request, "Variant attribute deleted successfully!")
         return redirect("products:variant_attribute_list")
-    
+
     context = {
         "attribute": attribute,
     }
-    
+
     return render(request, "products/variant_attributes/confirm_delete.html", context)
 
 
 # Variant Attribute Value Management Views
+
 
 @login_required
 def variant_attribute_value_list(request):
@@ -1521,15 +1622,19 @@ def variant_attribute_value_list(request):
     if request.user.role != "admin" and not check_user_permission(
         request.user, "can_view"
     ):
-        messages.error(request, "You do not have permission to view variant attribute values.")
+        messages.error(
+            request, "You do not have permission to view variant attribute values."
+        )
         return redirect("products:list")
-    
-    values = VariantAttributeValue.objects.business_specific().select_related('attribute')
-    
+
+    values = VariantAttributeValue.objects.business_specific().select_related(
+        "attribute"
+    )
+
     context = {
         "values": values,
     }
-    
+
     return render(request, "products/variant_attribute_values/list.html", context)
 
 
@@ -1540,13 +1645,16 @@ def variant_attribute_value_create(request):
     if request.user.role != "admin" and not check_user_permission(
         request.user, "can_create"
     ):
-        messages.error(request, "You do not have permission to create variant attribute values.")
+        messages.error(
+            request, "You do not have permission to create variant attribute values."
+        )
         return redirect("products:list")
-    
+
     # Get the current business from the request
     from superadmin.middleware import get_current_business
+
     current_business = get_current_business()
-    
+
     if request.method == "POST":
         form = VariantAttributeValueForm(request.POST, business=current_business)
         if form.is_valid():
@@ -1556,7 +1664,9 @@ def variant_attribute_value_create(request):
                     attribute_value = form.save(commit=False)
                     attribute_value.business = current_business
                     attribute_value.save()
-                    messages.success(request, "Variant attribute value created successfully!")
+                    messages.success(
+                        request, "Variant attribute value created successfully!"
+                    )
                     return redirect("products:variant_attribute_value_list")
                 except IntegrityError as e:
                     messages.error(
@@ -1576,12 +1686,12 @@ def variant_attribute_value_create(request):
                         messages.error(request, f"{field}: {error}")
     else:
         form = VariantAttributeValueForm(business=current_business)
-    
+
     context = {
         "form": form,
         "title": "Create Variant Attribute Value",
     }
-    
+
     return render(request, "products/variant_attribute_values/form.html", context)
 
 
@@ -1592,24 +1702,33 @@ def variant_attribute_value_update(request, pk):
     if request.user.role != "admin" and not check_user_permission(
         request.user, "can_edit"
     ):
-        messages.error(request, "You do not have permission to edit variant attribute values.")
+        messages.error(
+            request, "You do not have permission to edit variant attribute values."
+        )
         return redirect("products:list")
-    
-    attribute_value = get_object_or_404(VariantAttributeValue.objects.business_specific(), pk=pk)
-    
+
+    attribute_value = get_object_or_404(
+        VariantAttributeValue.objects.business_specific(), pk=pk
+    )
+
     # Get the current business from the request
     from superadmin.middleware import get_current_business
+
     current_business = get_current_business()
-    
+
     if request.method == "POST":
-        form = VariantAttributeValueForm(request.POST, instance=attribute_value, business=current_business)
+        form = VariantAttributeValueForm(
+            request.POST, instance=attribute_value, business=current_business
+        )
         if form.is_valid():
             if current_business:
                 # Save the attribute value with business context
                 attribute_value = form.save(commit=False)
                 attribute_value.business = current_business
                 attribute_value.save()
-                messages.success(request, "Variant attribute value updated successfully!")
+                messages.success(
+                    request, "Variant attribute value updated successfully!"
+                )
                 return redirect("products:variant_attribute_value_list")
             else:
                 messages.error(
@@ -1623,14 +1742,16 @@ def variant_attribute_value_update(request, pk):
                     for error in errors:
                         messages.error(request, f"{field}: {error}")
     else:
-        form = VariantAttributeValueForm(instance=attribute_value, business=current_business)
-    
+        form = VariantAttributeValueForm(
+            instance=attribute_value, business=current_business
+        )
+
     context = {
         "form": form,
         "attribute_value": attribute_value,
         "title": "Update Variant Attribute Value",
     }
-    
+
     return render(request, "products/variant_attribute_values/form.html", context)
 
 
@@ -1641,19 +1762,25 @@ def variant_attribute_value_delete(request, pk):
     if request.user.role != "admin" and not check_user_permission(
         request.user, "can_delete"
     ):
-        messages.error(request, "You do not have permission to delete variant attribute values.")
+        messages.error(
+            request, "You do not have permission to delete variant attribute values."
+        )
         return redirect("products:list")
-    
-    attribute_value = get_object_or_404(VariantAttributeValue.objects.business_specific(), pk=pk)
-    
+
+    attribute_value = get_object_or_404(
+        VariantAttributeValue.objects.business_specific(), pk=pk
+    )
+
     if request.method == "POST":
         attribute_value.is_active = False
         attribute_value.save()
         messages.success(request, "Variant attribute value deleted successfully!")
         return redirect("products:variant_attribute_value_list")
-    
+
     context = {
         "attribute_value": attribute_value,
     }
-    
-    return render(request, "products/variant_attribute_values/confirm_delete.html", context)
+
+    return render(
+        request, "products/variant_attribute_values/confirm_delete.html", context
+    )

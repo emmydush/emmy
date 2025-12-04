@@ -1,6 +1,7 @@
 from django import forms
 from .models import Sale, SaleItem, CreditSale, CreditPayment
 
+
 class SaleForm(forms.ModelForm):
     class Meta:
         model = Sale

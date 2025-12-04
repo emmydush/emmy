@@ -20,7 +20,7 @@ class Command(BaseCommand):
 
         # Get all businesses that don't have settings yet
         businesses_without_settings = Business.objects.filter(settings__isnull=True)
-        
+
         if not businesses_without_settings.exists():
             self.stdout.write(
                 self.style.SUCCESS("All businesses already have their own settings.")
@@ -44,9 +44,7 @@ class Command(BaseCommand):
                 near_expiry_alert_days=global_settings.near_expiry_alert_days,
             )
             created_count += 1
-            self.stdout.write(
-                f"Created settings for business: {business.company_name}"
-            )
+            self.stdout.write(f"Created settings for business: {business.company_name}")
 
         self.stdout.write(
             self.style.SUCCESS(

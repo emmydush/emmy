@@ -26,10 +26,18 @@ class BusinessRegistrationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["company_name"].widget.attrs.update({"class": "form-control bg-dark text-white"})
-        self.fields["email"].widget.attrs.update({"class": "form-control bg-dark text-white"})
-        self.fields["business_type"].widget.attrs.update({"class": "form-select bg-dark text-white"})
-        self.fields["owner_email"].widget.attrs.update({"class": "form-control bg-dark text-white"})
+        self.fields["company_name"].widget.attrs.update(
+            {"class": "form-control bg-dark text-white"}
+        )
+        self.fields["email"].widget.attrs.update(
+            {"class": "form-control bg-dark text-white"}
+        )
+        self.fields["business_type"].widget.attrs.update(
+            {"class": "form-select bg-dark text-white"}
+        )
+        self.fields["owner_email"].widget.attrs.update(
+            {"class": "form-control bg-dark text-white"}
+        )
 
     def clean_owner_email(self):
         owner_email = self.cleaned_data.get("owner_email")
@@ -69,9 +77,15 @@ class BusinessDetailsForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["company_name"].widget.attrs.update({"class": "form-control bg-dark text-white"})
-        self.fields["email"].widget.attrs.update({"class": "form-control bg-dark text-white"})
-        self.fields["business_type"].widget.attrs.update({"class": "form-select bg-dark text-white"})
+        self.fields["company_name"].widget.attrs.update(
+            {"class": "form-control bg-dark text-white"}
+        )
+        self.fields["email"].widget.attrs.update(
+            {"class": "form-control bg-dark text-white"}
+        )
+        self.fields["business_type"].widget.attrs.update(
+            {"class": "form-select bg-dark text-white"}
+        )
 
 
 class BranchForm(forms.ModelForm):
@@ -101,10 +115,18 @@ class BranchForm(forms.ModelForm):
         # Extract the business from kwargs if provided
         self.business = kwargs.pop("business", None)
         super().__init__(*args, **kwargs)
-        self.fields["name"].widget.attrs.update({"class": "form-control bg-dark text-white"})
-        self.fields["address"].widget.attrs.update({"class": "form-control bg-dark text-white"})
-        self.fields["phone"].widget.attrs.update({"class": "form-control bg-dark text-white"})
-        self.fields["email"].widget.attrs.update({"class": "form-control bg-dark text-white"})
+        self.fields["name"].widget.attrs.update(
+            {"class": "form-control bg-dark text-white"}
+        )
+        self.fields["address"].widget.attrs.update(
+            {"class": "form-control bg-dark text-white"}
+        )
+        self.fields["phone"].widget.attrs.update(
+            {"class": "form-control bg-dark text-white"}
+        )
+        self.fields["email"].widget.attrs.update(
+            {"class": "form-control bg-dark text-white"}
+        )
         self.fields["is_main"].widget.attrs.update({"class": "form-check-input"})
         self.fields["is_active"].widget.attrs.update({"class": "form-check-input"})
 
@@ -151,7 +173,7 @@ class BranchForm(forms.ModelForm):
 
 class BranchRequestForm(forms.ModelForm):
     """Form for business admins to request new branches"""
-    
+
     class Meta:
         model = BranchRequest
         fields = ["name", "address", "phone", "email", "is_main"]
@@ -169,16 +191,24 @@ class BranchRequestForm(forms.ModelForm):
             "email": "Enter the email address for this branch",
             "is_main": "Mark this as the main branch of your business",
         }
-    
+
     def __init__(self, *args, **kwargs):
         self.business = kwargs.pop("business", None)
         super().__init__(*args, **kwargs)
-        self.fields["name"].widget.attrs.update({"class": "form-control bg-dark text-white"})
-        self.fields["address"].widget.attrs.update({"class": "form-control bg-dark text-white"})
-        self.fields["phone"].widget.attrs.update({"class": "form-control bg-dark text-white"})
-        self.fields["email"].widget.attrs.update({"class": "form-control bg-dark text-white"})
+        self.fields["name"].widget.attrs.update(
+            {"class": "form-control bg-dark text-white"}
+        )
+        self.fields["address"].widget.attrs.update(
+            {"class": "form-control bg-dark text-white"}
+        )
+        self.fields["phone"].widget.attrs.update(
+            {"class": "form-control bg-dark text-white"}
+        )
+        self.fields["email"].widget.attrs.update(
+            {"class": "form-control bg-dark text-white"}
+        )
         self.fields["is_main"].widget.attrs.update({"class": "form-check-input"})
-    
+
     def clean_name(self):
         name = self.cleaned_data["name"]
         # If we have a business context, check for duplicate branch names
@@ -189,12 +219,14 @@ class BranchRequestForm(forms.ModelForm):
                     f'A branch with name "{name}" already exists for your business. Please use a different name.'
                 )
             # Also check if there's already a pending request with this name
-            if BranchRequest.objects.filter(business=self.business, name=name, status="pending").exists():
+            if BranchRequest.objects.filter(
+                business=self.business, name=name, status="pending"
+            ).exists():
                 raise forms.ValidationError(
                     f'A request for a branch with name "{name}" is already pending approval. Please use a different name.'
                 )
         return name
-    
+
     def clean_is_main(self):
         is_main = self.cleaned_data["is_main"]
         # If this branch is being set as main, ensure no other branch is main
@@ -205,18 +237,20 @@ class BranchRequestForm(forms.ModelForm):
                     "There is already a main branch for this business. Please unset it first or choose a different branch as main."
                 )
             # Also check pending requests
-            if BranchRequest.objects.filter(business=self.business, is_main=True, status="pending").exists():
+            if BranchRequest.objects.filter(
+                business=self.business, is_main=True, status="pending"
+            ).exists():
                 raise forms.ValidationError(
                     "There is already a request for a main branch pending approval. Please unset it first or choose a different branch as main."
                 )
         return is_main
-    
+
     def save(self, commit=True):
         branch_request = super().save(commit=False)
         # Set the business and requested_by if provided
         if self.business:
             branch_request.business = self.business
-        
+
         if commit:
             branch_request.save()
         return branch_request
@@ -224,11 +258,13 @@ class BranchRequestForm(forms.ModelForm):
 
 class BranchRequestApprovalForm(forms.ModelForm):
     """Form for superadmins to approve or reject branch requests"""
-    
+
     class Meta:
         model = BranchRequest
         fields = ["status", "approval_notes"]
         widgets = {
             "status": forms.Select(attrs={"class": "form-control bg-dark text-white"}),
-            "approval_notes": forms.Textarea(attrs={"rows": 3, "class": "form-control bg-dark text-white"}),
+            "approval_notes": forms.Textarea(
+                attrs={"rows": 3, "class": "form-control bg-dark text-white"}
+            ),
         }

@@ -9,8 +9,26 @@ from django.contrib import messages
 from django.db import transaction
 from django.db.models import Sum
 from django.utils import timezone
-from superadmin.models import Business, Branch, Subscription, Payment, SystemLog, SecurityEvent, SubscriptionPlan, Announcement, SupportTicket, APIClient, APIRequestLog, BranchRequest
-from superadmin.forms import BranchForm, BusinessRegistrationForm, BranchRequestForm, BranchRequestApprovalForm
+from superadmin.models import (
+    Business,
+    Branch,
+    Subscription,
+    Payment,
+    SystemLog,
+    SecurityEvent,
+    SubscriptionPlan,
+    Announcement,
+    SupportTicket,
+    APIClient,
+    APIRequestLog,
+    BranchRequest,
+)
+from superadmin.forms import (
+    BranchForm,
+    BusinessRegistrationForm,
+    BranchRequestForm,
+    BranchRequestApprovalForm,
+)
 from settings.forms import EmailSettingsForm
 from superadmin.middleware import set_current_business
 from authentication.models import UserPermission
@@ -19,6 +37,7 @@ from settings.models import EmailSettings
 from datetime import datetime, timedelta
 
 User = get_user_model()
+
 
 def is_superadmin(user):
     return user.is_superuser
@@ -186,7 +205,7 @@ def branch_selection_view(request):
     if not business_id:
         messages.error(request, "Please select a business first.")
         return redirect("superadmin:business_selection")
-    
+
     try:
         business = Business.objects.get(id=business_id)
         # Set the business context
@@ -194,10 +213,10 @@ def branch_selection_view(request):
     except Business.DoesNotExist:
         messages.error(request, "Invalid business selection.")
         return redirect("superadmin:business_selection")
-    
+
     # Get branches for the current business
     branches = Branch.objects.filter(business=business, is_active=True)
-    
+
     # Check if user has branch restrictions
     try:
         user_permission = UserPermission.objects.get(user=request.user)
@@ -207,7 +226,7 @@ def branch_selection_view(request):
     except UserPermission.DoesNotExist:
         # If no custom permissions exist, user can access all branches
         pass
-    
+
     # If there's only one branch, automatically select it
     if branches.count() == 1:
         branch = branches.first()
@@ -215,32 +234,42 @@ def branch_selection_view(request):
         # Store the selected branch in the session
         # We'll handle the branch context in middleware
         return redirect("dashboard:index")
-    
+
     # If there's no branch, redirect to create one
     if not branches.exists():
-        messages.info(request, "No branches found for this business. Please create a branch first.")
+        messages.info(
+            request,
+            "No branches found for this business. Please create a branch first.",
+        )
         return redirect("superadmin:branch_list", business_pk=business.pk)
 
     if request.method == "POST":
         branch_id = request.POST.get("branch_id")
         if branch_id:
             try:
-                branch = Branch.objects.get(id=branch_id, business=business, is_active=True)
+                branch = Branch.objects.get(
+                    id=branch_id, business=business, is_active=True
+                )
                 # Check if user has permission to access this branch
                 try:
                     user_permission = UserPermission.objects.get(user=request.user)
                     if user_permission.restrict_to_assigned_branches:
                         if not user_permission.branches.filter(id=branch_id).exists():
-                            messages.error(request, "You do not have permission to access this branch.")
+                            messages.error(
+                                request,
+                                "You do not have permission to access this branch.",
+                            )
                             context = {
                                 "business": business,
                                 "branches": branches,
                             }
-                            return render(request, "superadmin/branch_selection.html", context)
+                            return render(
+                                request, "superadmin/branch_selection.html", context
+                            )
                 except UserPermission.DoesNotExist:
                     # If no custom permissions exist, user can access all branches
                     pass
-                
+
                 # Store the selected branch in the session
                 request.session["current_branch_id"] = branch.id
                 # Redirect to the dashboard
@@ -262,29 +291,29 @@ def branch_selection_view(request):
 def branch_list_view(request, business_pk):
     """Display list of branches for a specific business"""
     business = get_object_or_404(Business, pk=business_pk)
-    
+
     # Check if user has permission to access this business
     if request.user != business.owner and not request.user.is_superuser:
         messages.error(request, "You do not have permission to access this business.")
         return redirect("dashboard:index")
-    
+
     branches = Branch.objects.filter(business=business)
-    
+
     # Count active branches
     active_branches_count = branches.filter(is_active=True).count()
-    
+
     context = {
         "business": business,
         "branches": branches,
         "active_branches_count": active_branches_count,
     }
-    
+
     # Use different templates for superadmins vs business owners
     if request.user.is_superuser:
         template = "superadmin/branches/list.html"
     else:
         template = "business_owner/branches/list.html"
-    
+
     return render(request, template, context)
 
 
@@ -292,12 +321,12 @@ def branch_list_view(request, business_pk):
 def branch_create_view(request, business_pk):
     """Create a new branch for a specific business"""
     business = get_object_or_404(Business, pk=business_pk)
-    
+
     # Check if user has permission to access this business
     if request.user != business.owner and not request.user.is_superuser:
         messages.error(request, "You do not have permission to access this business.")
         return redirect("dashboard:index")
-    
+
     if request.method == "POST":
         form = BranchForm(request.POST, business=business)
         if form.is_valid():
@@ -314,19 +343,19 @@ def branch_create_view(request, business_pk):
                         messages.error(request, f"{field}: {error}")
     else:
         form = BranchForm(business=business)
-    
+
     context = {
         "form": form,
         "business": business,
         "title": "Create Branch",
     }
-    
+
     # Use different templates for superadmins vs business owners
     if request.user.is_superuser:
         template = "superadmin/branches/form.html"
     else:
         template = "business_owner/branches/form.html"
-    
+
     return render(request, template, context)
 
 
@@ -335,12 +364,12 @@ def branch_update_view(request, business_pk, pk):
     """Update a specific branch"""
     business = get_object_or_404(Business, pk=business_pk)
     branch = get_object_or_404(Branch, pk=pk, business=business)
-    
+
     # Check if user has permission to access this business
     if request.user != business.owner and not request.user.is_superuser:
         messages.error(request, "You do not have permission to access this business.")
         return redirect("dashboard:index")
-    
+
     if request.method == "POST":
         form = BranchForm(request.POST, instance=branch, business=business)
         if form.is_valid():
@@ -355,20 +384,20 @@ def branch_update_view(request, business_pk, pk):
                         messages.error(request, f"{field}: {error}")
     else:
         form = BranchForm(instance=branch, business=business)
-    
+
     context = {
         "form": form,
         "business": business,
         "branch": branch,
         "title": "Update Branch",
     }
-    
+
     # Use different templates for superadmins vs business owners
     if request.user.is_superuser:
         template = "superadmin/branches/form.html"
     else:
         template = "business_owner/branches/form.html"
-    
+
     return render(request, template, context)
 
 
@@ -377,29 +406,29 @@ def branch_delete_view(request, business_pk, pk):
     """Delete a specific branch"""
     business = get_object_or_404(Business, pk=business_pk)
     branch = get_object_or_404(Branch, pk=pk, business=business)
-    
+
     # Check if user has permission to access this business
     if request.user != business.owner and not request.user.is_superuser:
         messages.error(request, "You do not have permission to access this business.")
         return redirect("dashboard:index")
-    
+
     if request.method == "POST":
         branch_name = branch.name
         branch.delete()
         messages.success(request, f"Branch '{branch_name}' deleted successfully!")
         return redirect("superadmin:branch_list", business_pk=business.pk)
-    
+
     context = {
         "business": business,
         "branch": branch,
     }
-    
+
     # Use different templates for superadmins vs business owners
     if request.user.is_superuser:
         template = "superadmin/branches/confirm_delete.html"
     else:
         template = "business_owner/branches/confirm_delete.html"
-    
+
     return render(request, template, context)
 
 
@@ -408,16 +437,19 @@ def branch_delete_view(request, business_pk, pk):
 def approve_business_view(request, business_pk):
     """Approve a pending business"""
     business = get_object_or_404(Business, pk=business_pk)
-    
+
     if request.method == "POST":
         business.status = "active"
         business.save()
-        
+
         # Create or update UserPermission for the business owner
         if business.owner:
             from authentication.models import UserPermission
-            user_permission, created = UserPermission.objects.get_or_create(user=business.owner)
-            
+
+            user_permission, created = UserPermission.objects.get_or_create(
+                user=business.owner
+            )
+
             # Set default permissions for business owners
             user_permission.can_create = True
             user_permission.can_edit = True
@@ -435,14 +467,17 @@ def approve_business_view(request, business_pk):
             user_permission.can_access_reports = True
             user_permission.can_access_settings = True
             user_permission.save()
-        
-        messages.success(request, f"Business '{business.company_name}' has been approved and activated.")
-        
+
+        messages.success(
+            request,
+            f"Business '{business.company_name}' has been approved and activated.",
+        )
+
         # Send approval email
         send_business_status_email(request, business, "approved")
-        
+
         return redirect("superadmin:business_management")
-    
+
     context = {
         "business": business,
         "action": "approve",
@@ -455,17 +490,19 @@ def approve_business_view(request, business_pk):
 def activate_business_view(request, business_pk):
     """Activate a suspended business"""
     business = get_object_or_404(Business, pk=business_pk)
-    
+
     if request.method == "POST":
         business.status = "active"
         business.save()
-        messages.success(request, f"Business '{business.company_name}' has been activated.")
-        
+        messages.success(
+            request, f"Business '{business.company_name}' has been activated."
+        )
+
         # Send activation email
         send_business_status_email(request, business, "activated")
-        
+
         return redirect("superadmin:business_management")
-    
+
     context = {
         "business": business,
         "action": "activate",
@@ -478,17 +515,19 @@ def activate_business_view(request, business_pk):
 def suspend_business_view(request, business_pk):
     """Suspend a business"""
     business = get_object_or_404(Business, pk=business_pk)
-    
+
     if request.method == "POST":
         business.status = "suspended"
         business.save()
-        messages.success(request, f"Business '{business.company_name}' has been suspended.")
-        
+        messages.success(
+            request, f"Business '{business.company_name}' has been suspended."
+        )
+
         # Send suspension email
         send_business_status_email(request, business, "suspended")
-        
+
         return redirect("superadmin:business_management")
-    
+
     context = {
         "business": business,
         "action": "suspend",
@@ -501,13 +540,15 @@ def suspend_business_view(request, business_pk):
 def delete_business_view(request, business_pk):
     """Delete a business"""
     business = get_object_or_404(Business, pk=business_pk)
-    
+
     if request.method == "POST":
         business_name = business.company_name
         business.delete()
-        messages.success(request, f"Business '{business_name}' has been deleted successfully.")
+        messages.success(
+            request, f"Business '{business_name}' has been deleted successfully."
+        )
         return redirect("superadmin:business_management")
-    
+
     context = {
         "business": business,
         "action": "delete",
@@ -524,7 +565,7 @@ def send_business_status_email(request, business, status):
         from django.conf import settings
         from django.utils import timezone
         from settings.models import BusinessSettings
-        
+
         # Get business-specific settings for email context
         try:
             business_settings = BusinessSettings.objects.get(business=business)
@@ -543,11 +584,11 @@ def send_business_status_email(request, business, status):
                     currency_symbol="FRW",
                     tax_rate=0,
                 )
-        
+
         # Check if business has an owner with an email
         if not business.owner or not business.owner.email:
             return  # No email to send to
-            
+
         # Prepare email context
         context = {
             "business": business,
@@ -556,12 +597,14 @@ def send_business_status_email(request, business, status):
             "login_url": request.build_absolute_uri("/accounts/login/"),
             "current_year": timezone.now().year,
         }
-        
+
         # Render email templates
-        subject = f"[{business_settings.business_name}] Business Account {status.title()}"
+        subject = (
+            f"[{business_settings.business_name}] Business Account {status.title()}"
+        )
         html_message = render_to_string("emails/business_approval.html", context)
         plain_message = render_to_string("emails/business_approval.txt", context)
-        
+
         # Send email
         send_mail(
             subject,
@@ -574,6 +617,7 @@ def send_business_status_email(request, business, status):
     except Exception as e:
         # Log the error but don't crash the main flow
         import logging
+
         logger = logging.getLogger(__name__)
         logger.error(f"Failed to send business status email: {str(e)}")
 
@@ -587,7 +631,7 @@ def send_business_registration_email(request, business, owner):
         from django.conf import settings
         from django.utils import timezone
         from settings.models import BusinessSettings
-        
+
         # Get business-specific settings for email context
         try:
             business_settings = BusinessSettings.objects.get(business=business)
@@ -606,11 +650,11 @@ def send_business_registration_email(request, business, owner):
                     currency_symbol="FRW",
                     tax_rate=0,
                 )
-        
+
         # Check if owner has an email
         if not owner.email:
             return  # No email to send to
-            
+
         # Prepare email context
         context = {
             "business": business,
@@ -619,12 +663,14 @@ def send_business_registration_email(request, business, owner):
             "login_url": request.build_absolute_uri("/accounts/login/"),
             "current_year": timezone.now().year,
         }
-        
+
         # Render email templates
-        subject = f"[{business_settings.business_name}] Business Registration Confirmation"
+        subject = (
+            f"[{business_settings.business_name}] Business Registration Confirmation"
+        )
         html_message = render_to_string("emails/business_registration.html", context)
         plain_message = render_to_string("emails/business_registration.txt", context)
-        
+
         # Send email
         send_mail(
             subject,
@@ -637,6 +683,7 @@ def send_business_registration_email(request, business, owner):
     except Exception as e:
         # Log the error but don't crash the main flow
         import logging
+
         logger = logging.getLogger(__name__)
         logger.error(f"Failed to send business registration email: {str(e)}")
 
@@ -648,16 +695,17 @@ def business_register_view(request):
         if form.is_valid():
             # Save the business with pending status
             business = form.save()
-            
+
             # Create business settings with the company name
             from settings.models import BusinessSettings
+
             BusinessSettings.objects.create(
                 business=business,
                 business_name=business.company_name,
                 business_email=business.email,
                 # Other fields will use their default values
             )
-            
+
             # Create owner user if email is provided
             owner_email = form.cleaned_data.get("owner_email")
             if owner_email:
@@ -670,30 +718,33 @@ def business_register_view(request):
                     while User.objects.filter(username=owner_username).exists():
                         owner_username = f"{original_username}_{counter}"
                         counter += 1
-                    
+
                     owner = User.objects.create_user(
                         username=owner_username,
                         email=owner_email,
                         password=User.objects.make_random_password(),
                         is_staff=False,
-                        is_superuser=False
+                        is_superuser=False,
                     )
-                    
+
                     # Associate owner with business
                     business.owner = owner
                     business.save()
-                    
+
                     # Send email to owner with instructions to set password
                     send_business_registration_email(request, business, owner)
-                    
+
                 except Exception as e:
                     messages.error(request, f"Error creating owner account: {str(e)}")
-            
-            messages.success(request, "Business registration submitted successfully. Our team will review your application and approve it shortly.")
+
+            messages.success(
+                request,
+                "Business registration submitted successfully. Our team will review your application and approve it shortly.",
+            )
             return redirect("superadmin:business_registration_success")
     else:
         form = BusinessRegistrationForm()
-    
+
     context = {
         "form": form,
     }
@@ -713,16 +764,16 @@ def branch_request_list_view(request):
     if not business_id:
         messages.error(request, "Please select a business first.")
         return redirect("superadmin:business_selection")
-    
+
     try:
         business = Business.objects.get(id=business_id)
     except Business.DoesNotExist:
         messages.error(request, "Invalid business selection.")
         return redirect("superadmin:business_selection")
-    
+
     # Get branch requests for this business
     branch_requests = BranchRequest.objects.filter(business=business)
-    
+
     context = {
         "business": business,
         "branch_requests": branch_requests,
@@ -733,24 +784,27 @@ def branch_request_list_view(request):
 @login_required
 def branch_request_create_view(request):
     """Create a new branch request for the current business"""
-    
+
     # Get current business from session
     business_id = request.session.get("current_business_id")
     if not business_id:
         messages.error(request, "Please select a business first.")
         return redirect("superadmin:business_selection")
-    
+
     try:
         business = Business.objects.get(id=business_id)
     except Business.DoesNotExist:
         messages.error(request, "Invalid business selection.")
         return redirect("superadmin:business_selection")
-    
+
     # Check if user is business owner or admin
     if request.user != business.owner and request.user.role != "admin":
-        messages.error(request, "You do not have permission to create branch requests for this business.")
+        messages.error(
+            request,
+            "You do not have permission to create branch requests for this business.",
+        )
         return redirect("dashboard:index")
-    
+
     if request.method == "POST":
         form = BranchRequestForm(request.POST, business=business)
         if form.is_valid():
@@ -758,7 +812,10 @@ def branch_request_create_view(request):
             branch_request.business = business
             branch_request.requested_by = request.user
             branch_request.save()
-            messages.success(request, "Branch request submitted successfully! It is now pending approval by a superadmin.")
+            messages.success(
+                request,
+                "Branch request submitted successfully! It is now pending approval by a superadmin.",
+            )
             return redirect("superadmin:branch_request_list")
         else:
             # Form is not valid, display errors
@@ -768,7 +825,7 @@ def branch_request_create_view(request):
                         messages.error(request, f"{field}: {error}")
     else:
         form = BranchRequestForm(business=business)
-    
+
     context = {
         "form": form,
         "business": business,
@@ -783,7 +840,7 @@ def branch_request_approval_list_view(request):
     """Display list of pending branch requests for superadmins"""
     # Get all pending branch requests
     pending_requests = BranchRequest.objects.filter(status="pending")
-    
+
     context = {
         "pending_requests": pending_requests,
     }
@@ -795,7 +852,7 @@ def branch_request_approval_list_view(request):
 def branch_request_approve_view(request, pk):
     """Approve or reject a branch request"""
     branch_request = get_object_or_404(BranchRequest, pk=pk)
-    
+
     if request.method == "POST":
         form = BranchRequestApprovalForm(request.POST, instance=branch_request)
         if form.is_valid():
@@ -803,16 +860,22 @@ def branch_request_approve_view(request, pk):
             branch_request.approved_by = request.user
             branch_request.approved_at = timezone.now()
             branch_request.save()
-            
+
             if branch_request.status == "approved":
-                messages.success(request, f"Branch request for '{branch_request.name}' has been approved and branch created successfully!")
+                messages.success(
+                    request,
+                    f"Branch request for '{branch_request.name}' has been approved and branch created successfully!",
+                )
             elif branch_request.status == "rejected":
-                messages.success(request, f"Branch request for '{branch_request.name}' has been rejected.")
-            
+                messages.success(
+                    request,
+                    f"Branch request for '{branch_request.name}' has been rejected.",
+                )
+
             return redirect("superadmin:branch_request_approval_list")
     else:
         form = BranchRequestApprovalForm(instance=branch_request)
-    
+
     context = {
         "form": form,
         "branch_request": branch_request,
@@ -825,7 +888,7 @@ def branch_request_approve_view(request, pk):
 def branch_request_detail_view(request, pk):
     """View details of a branch request"""
     branch_request = get_object_or_404(BranchRequest, pk=pk)
-    
+
     context = {
         "branch_request": branch_request,
     }
@@ -850,7 +913,7 @@ class EmailSettingsView(TemplateView):
         # Get or create email settings
         email_settings, created = EmailSettings.objects.get_or_create(id=1)
         form = EmailSettingsForm(request.POST, instance=email_settings)
-        
+
         if form.is_valid():
             form.save()
             messages.success(request, "Email settings updated successfully!")
@@ -866,18 +929,18 @@ class EmailSettingsView(TemplateView):
 def delete_user_view(request, user_id):
     """Delete a user"""
     user_to_delete = get_object_or_404(User, id=user_id)
-    
+
     # Prevent users from deleting themselves
     if user_to_delete == request.user:
         messages.error(request, "You cannot delete your own account.")
         return redirect("superadmin:user_list")
-    
+
     if request.method == "POST":
         username = user_to_delete.username
         user_to_delete.delete()
         messages.success(request, f"User '{username}' has been deleted successfully.")
         return redirect("superadmin:user_list")
-    
+
     context = {
         "user_to_delete": user_to_delete,
     }
@@ -889,40 +952,45 @@ def delete_user_view(request, user_id):
 def edit_user_view(request, user_id):
     """Edit a user"""
     user_to_edit = get_object_or_404(User, id=user_id)
-    
+
     # Get all businesses for business assignment
     all_businesses = Business.objects.all()
-    
+
     # Get user's assigned businesses
     assigned_businesses = user_to_edit.businesses.all()
-    
+
     # Get all branches
     all_branches = Branch.objects.all()
-    
+
     # Get user's assigned branches
     try:
         user_permission = UserPermission.objects.get(user=user_to_edit)
         assigned_branches = user_permission.branches.all()
     except UserPermission.DoesNotExist:
         assigned_branches = Branch.objects.none()
-    
+
     if request.method == "POST":
-        user_form = CustomUserChangeForm(request.POST, request.FILES, instance=user_to_edit)
-        permission_form = UserPermissionForm(request.POST, instance=user_permission if 'user_permission' in locals() else None)
-        
+        user_form = CustomUserChangeForm(
+            request.POST, request.FILES, instance=user_to_edit
+        )
+        permission_form = UserPermissionForm(
+            request.POST,
+            instance=user_permission if "user_permission" in locals() else None,
+        )
+
         if user_form.is_valid() and permission_form.is_valid():
             try:
                 with transaction.atomic():
                     user = user_form.save()
-                    
+
                     # Handle business assignments
-                    selected_businesses = request.POST.getlist('businesses')
+                    selected_businesses = request.POST.getlist("businesses")
                     if selected_businesses:
                         businesses = Business.objects.filter(id__in=selected_businesses)
                         user.businesses.set(businesses)
-                    
+
                     # Save or create user permissions
-                    if hasattr(user_permission, 'id'):
+                    if hasattr(user_permission, "id"):
                         permission = permission_form.save(commit=False)
                         permission.user = user
                         permission.save()
@@ -930,17 +998,21 @@ def edit_user_view(request, user_id):
                         permission = permission_form.save(commit=False)
                         permission.user = user
                         permission.save()
-                    
+
                     # Handle branch assignments
-                    selected_branches = request.POST.getlist('branches')
+                    selected_branches = request.POST.getlist("branches")
                     if selected_branches:
                         branches = Branch.objects.filter(id__in=selected_branches)
                         permission.branches.set(branches)
-                    
-                    messages.success(request, f"User {user.username} updated successfully!")
+
+                    messages.success(
+                        request, f"User {user.username} updated successfully!"
+                    )
                     return redirect("superadmin:user_list")
             except Exception as e:
-                messages.error(request, f"An error occurred while updating the user: {str(e)}")
+                messages.error(
+                    request, f"An error occurred while updating the user: {str(e)}"
+                )
         else:
             if user_form.errors:
                 for field, errors in user_form.errors.items():
@@ -952,8 +1024,10 @@ def edit_user_view(request, user_id):
                         messages.error(request, f"Permission form - {field}: {error}")
     else:
         user_form = CustomUserChangeForm(instance=user_to_edit)
-        permission_form = UserPermissionForm(instance=user_permission if 'user_permission' in locals() else None)
-    
+        permission_form = UserPermissionForm(
+            instance=user_permission if "user_permission" in locals() else None
+        )
+
     context = {
         "user_form": user_form,
         "permission_form": permission_form,
@@ -971,9 +1045,9 @@ def edit_user_view(request, user_id):
 )
 class UserListView(TemplateView):
     template_name = "superadmin/users/list.html"
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Get all users across all businesses
-        context["users"] = User.objects.all().order_by('-date_joined')
+        context["users"] = User.objects.all().order_by("-date_joined")
         return context

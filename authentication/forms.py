@@ -1,5 +1,9 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AuthenticationForm
+from django.contrib.auth.forms import (
+    UserCreationForm,
+    UserChangeForm,
+    AuthenticationForm,
+)
 from .models import User, UserPermission
 
 
@@ -10,7 +14,11 @@ class CustomUserCreationForm(UserCreationForm):
     phone = forms.CharField(max_length=15, required=False)
     role = forms.ChoiceField(choices=User.ROLE_CHOICES, required=False)
     profile_picture = forms.ImageField(required=False)
-    address = forms.CharField(max_length=200, required=False, widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}))
+    address = forms.CharField(
+        max_length=200,
+        required=False,
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+    )
 
     class Meta:
         model = User
@@ -69,38 +77,66 @@ class CustomUserChangeForm(UserChangeForm):
         }
 
     def clean_email(self):
-        email = self.cleaned_data.get('email')
+        email = self.cleaned_data.get("email")
         # Check if this email is already used by another user
-        if email and User.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
+        if (
+            email
+            and User.objects.filter(email=email).exclude(pk=self.instance.pk).exists()
+        ):
             raise forms.ValidationError("A user with that email already exists.")
         return email
 
 
 class AdminUserCreationForm(forms.Form):
-    username = forms.CharField(max_length=150, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    email = forms.EmailField(required=False, widget=forms.EmailInput(attrs={'class': 'form-control'}))
-    first_name = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    last_name = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    phone = forms.CharField(max_length=15, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=True)
-    role = forms.ChoiceField(choices=User.ROLE_CHOICES, initial="cashier", widget=forms.Select(attrs={'class': 'form-select'}))
+    username = forms.CharField(
+        max_length=150,
+        required=True,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+    email = forms.EmailField(
+        required=False, widget=forms.EmailInput(attrs={"class": "form-control"})
+    )
+    first_name = forms.CharField(
+        max_length=30,
+        required=False,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+    last_name = forms.CharField(
+        max_length=30,
+        required=False,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+    phone = forms.CharField(
+        max_length=15,
+        required=False,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={"class": "form-control"}), required=True
+    )
+    role = forms.ChoiceField(
+        choices=User.ROLE_CHOICES,
+        initial="cashier",
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )
 
     def clean_username(self):
-        username = self.cleaned_data['username']
+        username = self.cleaned_data["username"]
         if User.objects.filter(username=username).exists():
             raise forms.ValidationError("A user with that username already exists.")
         return username
 
     def clean_email(self):
-        email = self.cleaned_data.get('email')
+        email = self.cleaned_data.get("email")
         if email and User.objects.filter(email=email).exists():
             raise forms.ValidationError("A user with that email already exists.")
         return email
 
     def clean_password(self):
-        password = self.cleaned_data['password']
+        password = self.cleaned_data["password"]
         # Validate the password using Django's password validation
         from django.contrib.auth.password_validation import validate_password
+
         try:
             validate_password(password)
         except forms.ValidationError as e:
@@ -157,11 +193,14 @@ class UserProfileForm(forms.ModelForm):
             "address": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
             "profile_picture": forms.FileInput(attrs={"class": "form-control"}),
         }
-    
+
     def clean_email(self):
-        email = self.cleaned_data.get('email')
+        email = self.cleaned_data.get("email")
         # Check if this email is already used by another user
-        if email and User.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
+        if (
+            email
+            and User.objects.filter(email=email).exclude(pk=self.instance.pk).exists()
+        ):
             raise forms.ValidationError("A user with that email already exists.")
         return email
 
@@ -226,21 +265,28 @@ class UserPermissionForm(forms.ModelForm):
             "can_create": forms.CheckboxInput(attrs={"class": "form-check-input"}),
             "can_edit": forms.CheckboxInput(attrs={"class": "form-check-input"}),
             "can_delete": forms.CheckboxInput(attrs={"class": "form-check-input"}),
-            "restrict_to_assigned_branches": forms.CheckboxInput(attrs={"class": "form-check-input"}),
-            "branches": forms.CheckboxSelectMultiple(attrs={"class": "form-check-input"}),
+            "restrict_to_assigned_branches": forms.CheckboxInput(
+                attrs={"class": "form-check-input"}
+            ),
+            "branches": forms.CheckboxSelectMultiple(
+                attrs={"class": "form-check-input"}
+            ),
         }
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Make branches field not required
         self.fields["branches"].required = False
         # Get current business from the request if available
-        if 'request' in kwargs:
-            current_business = kwargs['request'].session.get('current_business_id')
+        if "request" in kwargs:
+            current_business = kwargs["request"].session.get("current_business_id")
             if current_business:
                 from superadmin.models import Branch
-                self.fields["branches"].queryset = Branch.objects.filter(business_id=current_business)
-    
+
+                self.fields["branches"].queryset = Branch.objects.filter(
+                    business_id=current_business
+                )
+
     def clean(self):
         cleaned_data = super().clean()
         # Add any cross-field validation if needed

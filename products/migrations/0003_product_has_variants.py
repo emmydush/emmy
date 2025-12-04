@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('products', '0002_productvariant_variantattribute_and_more'),
+        ("products", "0002_productvariant_variantattribute_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='has_variants',
+            model_name="product",
+            name="has_variants",
             field=models.BooleanField(default=False),
         ),
     ]

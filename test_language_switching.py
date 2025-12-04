@@ -16,7 +16,8 @@ django.setup()
 
 # Add 'testserver' to ALLOWED_HOSTS for testing
 from django.conf import settings
-settings.ALLOWED_HOSTS.append('testserver')
+
+settings.ALLOWED_HOSTS.append("testserver")
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
@@ -26,7 +27,7 @@ from django.urls import reverse
 def test_language_switching():
     """Test that language switching works correctly"""
     User = get_user_model()
-    
+
     # Generate a unique username for each test run
     unique_id = str(uuid.uuid4())[:8]
     username = f"testuser_{unique_id}"

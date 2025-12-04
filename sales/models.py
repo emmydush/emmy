@@ -115,17 +115,17 @@ class SaleItem(models.Model):
     quantity = models.DecimalField(max_digits=10, decimal_places=2)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
-    
+
     # Fields for product variants
     is_product_variant = models.BooleanField(default=False)
     product_variant = models.ForeignKey(
-        ProductVariant, 
-        on_delete=models.CASCADE, 
-        null=True, 
+        ProductVariant,
+        on_delete=models.CASCADE,
+        null=True,
         blank=True,
-        related_name="sale_items"
+        related_name="sale_items",
     )
-    
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -159,9 +159,13 @@ class CreditSale(models.Model):
     business = models.ForeignKey(
         Business, on_delete=models.CASCADE, related_name="credit_sales", null=True
     )
-    
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="credit_sales")
-    sale = models.OneToOneField(Sale, on_delete=models.CASCADE, related_name="credit_sale")
+
+    customer = models.ForeignKey(
+        Customer, on_delete=models.CASCADE, related_name="credit_sales"
+    )
+    sale = models.OneToOneField(
+        Sale, on_delete=models.CASCADE, related_name="credit_sale"
+    )
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -170,19 +174,19 @@ class CreditSale(models.Model):
     notes = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
         ordering = ["-created_at"]
-    
+
     def __str__(self):
         return f"Credit Sale #{self.sale.id} - {self.customer.full_name}"
-    
+
     def save(self, *args, **kwargs):
         # Calculate balance automatically
         self.balance = self.total_amount - self.amount_paid
         self.is_fully_paid = self.balance <= 0
         super().save(*args, **kwargs)
-    
+
     @property
     def outstanding_balance(self):
         return self.total_amount - self.amount_paid
@@ -194,30 +198,32 @@ class CreditPayment(models.Model):
     business = models.ForeignKey(
         Business, on_delete=models.CASCADE, related_name="credit_payments", null=True
     )
-    
-    credit_sale = models.ForeignKey(CreditSale, on_delete=models.CASCADE, related_name="payments")
+
+    credit_sale = models.ForeignKey(
+        CreditSale, on_delete=models.CASCADE, related_name="payments"
+    )
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_date = models.DateTimeField(auto_now_add=True)
     payment_method = models.CharField(
-        max_length=20, 
+        max_length=20,
         choices=[
             ("cash", "Cash"),
             ("credit_card", "Credit Card"),
             ("mobile_money", "Mobile Money"),
             ("bank_transfer", "Bank Transfer"),
         ],
-        default="cash"
+        default="cash",
     )
     notes = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
         ordering = ["-payment_date"]
-    
+
     def __str__(self):
         return f"Payment of {self.amount} for Credit Sale #{self.credit_sale.sale.id}"
-    
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         # Update the credit sale balance

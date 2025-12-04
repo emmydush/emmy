@@ -7,80 +7,193 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('products', '0001_initial'),
-        ('superadmin', '0001_initial'),
+        ("products", "0001_initial"),
+        ("superadmin", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ProductVariant',
+            name="ProductVariant",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200)),
-                ('sku', models.CharField(max_length=100)),
-                ('barcode', models.CharField(blank=True, max_length=100, null=True)),
-                ('barcode_format', models.CharField(choices=[('code128', 'Code 128 (High Density)'), ('ean13', 'EAN-13 (Retail Standard)'), ('upca', 'UPC-A (Retail Standard)')], default='code128', max_length=20)),
-                ('cost_price', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('selling_price', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('quantity', models.DecimalField(decimal_places=2, default=0, max_digits=10)),
-                ('reorder_level', models.DecimalField(decimal_places=2, default=0, max_digits=10)),
-                ('image', models.ImageField(blank=True, null=True, upload_to='product_variants/')),
-                ('is_active', models.BooleanField(default=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('business', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='product_variants', to='superadmin.business')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='variants', to='products.product')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=200)),
+                ("sku", models.CharField(max_length=100)),
+                ("barcode", models.CharField(blank=True, max_length=100, null=True)),
+                (
+                    "barcode_format",
+                    models.CharField(
+                        choices=[
+                            ("code128", "Code 128 (High Density)"),
+                            ("ean13", "EAN-13 (Retail Standard)"),
+                            ("upca", "UPC-A (Retail Standard)"),
+                        ],
+                        default="code128",
+                        max_length=20,
+                    ),
+                ),
+                ("cost_price", models.DecimalField(decimal_places=2, max_digits=10)),
+                ("selling_price", models.DecimalField(decimal_places=2, max_digits=10)),
+                (
+                    "quantity",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=10),
+                ),
+                (
+                    "reorder_level",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=10),
+                ),
+                (
+                    "image",
+                    models.ImageField(
+                        blank=True, null=True, upload_to="product_variants/"
+                    ),
+                ),
+                ("is_active", models.BooleanField(default=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "business",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="product_variants",
+                        to="superadmin.business",
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="variants",
+                        to="products.product",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['name'],
-                'unique_together': {('business', 'sku')},
+                "ordering": ["name"],
+                "unique_together": {("business", "sku")},
             },
         ),
         migrations.CreateModel(
-            name='VariantAttribute',
+            name="VariantAttribute",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50)),
-                ('description', models.TextField(blank=True, null=True)),
-                ('is_active', models.BooleanField(default=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('business', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='variant_attributes', to='superadmin.business')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=50)),
+                ("description", models.TextField(blank=True, null=True)),
+                ("is_active", models.BooleanField(default=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "business",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="variant_attributes",
+                        to="superadmin.business",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['name'],
-                'unique_together': {('business', 'name')},
+                "ordering": ["name"],
+                "unique_together": {("business", "name")},
             },
         ),
         migrations.CreateModel(
-            name='VariantAttributeValue',
+            name="VariantAttributeValue",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('value', models.CharField(max_length=100)),
-                ('description', models.TextField(blank=True, null=True)),
-                ('is_active', models.BooleanField(default=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('attribute', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='values', to='products.variantattribute')),
-                ('business', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='variant_attribute_values', to='superadmin.business')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("value", models.CharField(max_length=100)),
+                ("description", models.TextField(blank=True, null=True)),
+                ("is_active", models.BooleanField(default=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "attribute",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="values",
+                        to="products.variantattribute",
+                    ),
+                ),
+                (
+                    "business",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="variant_attribute_values",
+                        to="superadmin.business",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['attribute', 'value'],
-                'unique_together': {('business', 'attribute', 'value')},
+                "ordering": ["attribute", "value"],
+                "unique_together": {("business", "attribute", "value")},
             },
         ),
         migrations.CreateModel(
-            name='ProductVariantAttribute',
+            name="ProductVariantAttribute",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('business', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='product_variant_attributes', to='superadmin.business')),
-                ('product_variant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='attributes', to='products.productvariant')),
-                ('attribute_value', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='products.variantattributevalue')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "business",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="product_variant_attributes",
+                        to="superadmin.business",
+                    ),
+                ),
+                (
+                    "product_variant",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="attributes",
+                        to="products.productvariant",
+                    ),
+                ),
+                (
+                    "attribute_value",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="products.variantattributevalue",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['product_variant', 'attribute_value__attribute'],
-                'unique_together': {('business', 'product_variant', 'attribute_value')},
+                "ordering": ["product_variant", "attribute_value__attribute"],
+                "unique_together": {("business", "product_variant", "attribute_value")},
             },
         ),
     ]

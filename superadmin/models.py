@@ -259,25 +259,25 @@ class SupportTicket(models.Model):
 
 class BranchRequest(models.Model):
     """Model for branch creation requests that require superadmin approval"""
-    
+
     STATUS_CHOICES = [
         ("pending", "Pending Approval"),
         ("approved", "Approved"),
         ("rejected", "Rejected"),
     ]
-    
+
     # Business requesting the branch
     business = models.ForeignKey(
         Business, on_delete=models.CASCADE, related_name="branch_requests"
     )
-    
+
     # Branch details
     name = models.CharField(max_length=200)
     address = models.TextField()
     phone = models.CharField(max_length=20, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     is_main = models.BooleanField(default=False)
-    
+
     # Request information
     requested_by = models.ForeignKey(
         "authentication.User",
@@ -286,7 +286,7 @@ class BranchRequest(models.Model):
         related_name="branch_requests",
     )
     requested_at = models.DateTimeField(auto_now_add=True)
-    
+
     # Approval information
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     approved_by = models.ForeignKey(
@@ -298,35 +298,36 @@ class BranchRequest(models.Model):
     )
     approved_at = models.DateTimeField(null=True, blank=True)
     approval_notes = models.TextField(blank=True, null=True)
-    
+
     # Audit fields
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
         verbose_name = "Branch Request"
         verbose_name_plural = "Branch Requests"
         ordering = ["-requested_at"]
-    
+
     def __str__(self):
         return f"Branch Request: {self.name} for {self.business.company_name} - {self.status.title()}"
-    
+
     def save(self, *args, **kwargs):
         # Automatically set approved_at when status changes to approved or rejected
         if self.status in ["approved", "rejected"] and not self.approved_at:
             from django.utils import timezone
+
             self.approved_at = timezone.now()
-        
+
         super().save(*args, **kwargs)
-        
+
         # If approved, automatically create the branch
         if self.status == "approved":
             self.create_branch()
-    
+
     def create_branch(self):
         """Create the actual branch when the request is approved"""
         from .models import Branch
-        
+
         # Create the branch with the requested details
         branch = Branch.objects.create(
             business=self.business,
@@ -335,9 +336,9 @@ class BranchRequest(models.Model):
             phone=self.phone,
             email=self.email,
             is_main=self.is_main,
-            is_active=True
+            is_active=True,
         )
-        
+
         return branch
 
 

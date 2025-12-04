@@ -80,7 +80,7 @@ class Product(models.Model):
     business = models.ForeignKey(
         Business, on_delete=models.CASCADE, related_name="products", null=True
     )
-    
+
     # Add branch relationship for multi-branch support
     branch = models.ForeignKey(
         Branch, on_delete=models.CASCADE, related_name="products", null=True, blank=True
@@ -108,7 +108,9 @@ class Product(models.Model):
     reorder_level = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     expiry_date = models.DateField(blank=True, null=True)
     is_active = models.BooleanField(default=True)  # type: ignore
-    has_variants = models.BooleanField(default=False)  # New field to indicate if product has variants
+    has_variants = models.BooleanField(
+        default=False
+    )  # New field to indicate if product has variants
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -589,7 +591,7 @@ class StockMovement(models.Model):
 
 class VariantAttribute(models.Model):
     """Model for defining variant attributes like Size, Color, Version, etc."""
-    
+
     if TYPE_CHECKING:
         objects: "Manager"
 
@@ -600,7 +602,7 @@ class VariantAttribute(models.Model):
     business = models.ForeignKey(
         Business, on_delete=models.CASCADE, related_name="variant_attributes", null=True
     )
-    
+
     name = models.CharField(max_length=50)  # e.g., "Size", "Color", "Version"
     description = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
@@ -617,7 +619,7 @@ class VariantAttribute(models.Model):
 
 class VariantAttributeValue(models.Model):
     """Model for defining specific values for variant attributes"""
-    
+
     if TYPE_CHECKING:
         objects: "Manager"
 
@@ -626,10 +628,15 @@ class VariantAttributeValue(models.Model):
 
     # Add business relationship for multi-tenancy
     business = models.ForeignKey(
-        Business, on_delete=models.CASCADE, related_name="variant_attribute_values", null=True
+        Business,
+        on_delete=models.CASCADE,
+        related_name="variant_attribute_values",
+        null=True,
     )
-    
-    attribute = models.ForeignKey(VariantAttribute, on_delete=models.CASCADE, related_name="values")
+
+    attribute = models.ForeignKey(
+        VariantAttribute, on_delete=models.CASCADE, related_name="values"
+    )
     value = models.CharField(max_length=100)  # e.g., "Small", "Red", "Standard"
     description = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
@@ -646,7 +653,7 @@ class VariantAttributeValue(models.Model):
 
 class ProductVariant(models.Model):
     """Model for product variants with specific attributes"""
-    
+
     if TYPE_CHECKING:
         objects: "Manager"
 
@@ -657,15 +664,21 @@ class ProductVariant(models.Model):
     business = models.ForeignKey(
         Business, on_delete=models.CASCADE, related_name="product_variants", null=True
     )
-    
+
     # Add branch relationship for multi-branch support
     branch = models.ForeignKey(
-        Branch, on_delete=models.CASCADE, related_name="product_variants", null=True, blank=True
+        Branch,
+        on_delete=models.CASCADE,
+        related_name="product_variants",
+        null=True,
+        blank=True,
     )
-    
+
     # Link to the main product
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="variants")
-    
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="variants"
+    )
+
     # Variant-specific information
     name = models.CharField(max_length=200)  # e.g., "T-Shirt - Red - Large"
     sku = models.CharField(max_length=100)
@@ -673,16 +686,16 @@ class ProductVariant(models.Model):
     barcode_format = models.CharField(
         max_length=20, choices=Product.BARCODE_FORMAT_CHOICES, default="code128"
     )
-    
+
     # Variant-specific pricing and inventory
     cost_price = models.DecimalField(max_digits=10, decimal_places=2)
     selling_price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     reorder_level = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    
+
     # Variant-specific image (optional, can inherit from parent product)
     image = models.ImageField(upload_to="product_variants/", blank=True, null=True)
-    
+
     # Status
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -699,12 +712,12 @@ class ProductVariant(models.Model):
         # Auto-generate barcode if not provided
         if not self.barcode:
             self.barcode = self.generate_barcode()
-            
+
         super().save(*args, **kwargs)
-        
+
         # Generate barcode image after saving (so we have a pk)
         # Only generate on creation, not on updates
-        if self.pk and hasattr(self, '_state') and self._state.adding:
+        if self.pk and hasattr(self, "_state") and self._state.adding:
             self.generate_barcode_image()
 
     def generate_barcode(self):
@@ -867,7 +880,7 @@ class ProductVariant(models.Model):
 
 class ProductVariantAttribute(models.Model):
     """Model for linking product variants to their specific attribute values"""
-    
+
     if TYPE_CHECKING:
         objects: "Manager"
 
@@ -876,10 +889,15 @@ class ProductVariantAttribute(models.Model):
 
     # Add business relationship for multi-tenancy
     business = models.ForeignKey(
-        Business, on_delete=models.CASCADE, related_name="product_variant_attributes", null=True
+        Business,
+        on_delete=models.CASCADE,
+        related_name="product_variant_attributes",
+        null=True,
     )
-    
-    product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, related_name="attributes")
+
+    product_variant = models.ForeignKey(
+        ProductVariant, on_delete=models.CASCADE, related_name="attributes"
+    )
     attribute_value = models.ForeignKey(VariantAttributeValue, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -893,7 +911,7 @@ class ProductVariantAttribute(models.Model):
 
 class InventoryTransfer(models.Model):
     """Model for tracking inventory transfers between branches"""
-    
+
     if TYPE_CHECKING:
         objects: "Manager"
 
@@ -902,35 +920,48 @@ class InventoryTransfer(models.Model):
 
     # Add business relationship for multi-tenancy
     business = models.ForeignKey(
-        Business, on_delete=models.CASCADE, related_name="inventory_transfers", null=True
+        Business,
+        on_delete=models.CASCADE,
+        related_name="inventory_transfers",
+        null=True,
     )
-    
+
     # Source and destination branches
-    from_branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name="outgoing_transfers")
-    to_branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name="incoming_transfers")
-    
+    from_branch = models.ForeignKey(
+        Branch, on_delete=models.CASCADE, related_name="outgoing_transfers"
+    )
+    to_branch = models.ForeignKey(
+        Branch, on_delete=models.CASCADE, related_name="incoming_transfers"
+    )
+
     # Product or variant being transferred
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
-    product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, null=True, blank=True)
-    
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, null=True, blank=True
+    )
+    product_variant = models.ForeignKey(
+        ProductVariant, on_delete=models.CASCADE, null=True, blank=True
+    )
+
     # Transfer details
     quantity = models.DecimalField(max_digits=10, decimal_places=2)
     transfer_date = models.DateTimeField(auto_now_add=True)
     notes = models.TextField(blank=True, null=True)
-    
+
     # Status tracking
     TRANSFER_STATUS_CHOICES = [
         ("pending", "Pending"),
         ("completed", "Completed"),
         ("cancelled", "Cancelled"),
     ]
-    status = models.CharField(max_length=20, choices=TRANSFER_STATUS_CHOICES, default="pending")
-    
+    status = models.CharField(
+        max_length=20, choices=TRANSFER_STATUS_CHOICES, default="pending"
+    )
+
     # User who initiated the transfer
     created_by = models.ForeignKey(
         "authentication.User", on_delete=models.SET_NULL, null=True, blank=True
     )
-    
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -947,14 +978,18 @@ class InventoryTransfer(models.Model):
     def clean(self):
         # Ensure either product or product_variant is specified, but not both
         if not self.product and not self.product_variant:
-            raise ValidationError("Either product or product variant must be specified.")
+            raise ValidationError(
+                "Either product or product variant must be specified."
+            )
         if self.product and self.product_variant:
-            raise ValidationError("Only one of product or product variant can be specified.")
+            raise ValidationError(
+                "Only one of product or product variant can be specified."
+            )
 
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
-        
+
         # If transfer is completed, update inventory levels
         if self.status == "completed":
             self.process_transfer()
@@ -965,20 +1000,18 @@ class InventoryTransfer(models.Model):
             # Reduce stock from source branch
             if self.product.branch == self.from_branch:
                 self.product.quantity -= self.quantity
-                self.product.save(update_fields=['quantity'])
-            
+                self.product.save(update_fields=["quantity"])
+
             # Increase stock in destination branch
             # Note: This assumes the product already exists in the destination branch
             # In a real implementation, you might need to create the product in the destination branch
             dest_product = Product.objects.filter(
-                business=self.business,
-                branch=self.to_branch,
-                sku=self.product.sku
+                business=self.business, branch=self.to_branch, sku=self.product.sku
             ).first()
-            
+
             if dest_product:
                 dest_product.quantity += self.quantity
-                dest_product.save(update_fields=['quantity'])
+                dest_product.save(update_fields=["quantity"])
             else:
                 # Create the product in the destination branch if it doesn't exist
                 Product.objects.create(
@@ -999,24 +1032,24 @@ class InventoryTransfer(models.Model):
                     expiry_date=self.product.expiry_date,
                     is_active=self.product.is_active,
                 )
-        
+
         elif self.product_variant:
             # Reduce stock from source branch
             if self.product_variant.branch == self.from_branch:
                 self.product_variant.quantity -= self.quantity
-                self.product_variant.save(update_fields=['quantity'])
-            
+                self.product_variant.save(update_fields=["quantity"])
+
             # Increase stock in destination branch
             # Note: This assumes the variant already exists in the destination branch
             dest_variant = ProductVariant.objects.filter(
                 business=self.business,
                 branch=self.to_branch,
-                sku=self.product_variant.sku
+                sku=self.product_variant.sku,
             ).first()
-            
+
             if dest_variant:
                 dest_variant.quantity += self.quantity
-                dest_variant.save(update_fields=['quantity'])
+                dest_variant.save(update_fields=["quantity"])
             else:
                 # Create the variant in the destination branch if it doesn't exist
                 ProductVariant.objects.create(
@@ -1042,7 +1075,8 @@ def update_product_has_variants_on_variant_save(sender, instance, created, **kwa
     product = instance.product
     if not product.has_variants and product.variants.filter(is_active=True).exists():
         product.has_variants = True
-        product.save(update_fields=['has_variants'])
+        product.save(update_fields=["has_variants"])
+
 
 @receiver(post_delete, sender=ProductVariant)
 def update_product_has_variants_on_variant_delete(sender, instance, **kwargs):
@@ -1050,4 +1084,4 @@ def update_product_has_variants_on_variant_delete(sender, instance, **kwargs):
     product = instance.product
     if product.has_variants and not product.variants.filter(is_active=True).exists():
         product.has_variants = False
-        product.save(update_fields=['has_variants'])
+        product.save(update_fields=["has_variants"])

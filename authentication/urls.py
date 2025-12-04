@@ -8,7 +8,11 @@ urlpatterns = [
     path("users/", views.user_list, name="user_list"),
     path("users/create/", views.create_user, name="create_user"),  # Add this line
     path("users/edit/<int:user_id>/", views.edit_user, name="edit_user"),
-    path("users/edit-styled/<int:user_id>/", views.edit_user_styled, name="edit_user_styled"),
+    path(
+        "users/edit-styled/<int:user_id>/",
+        views.edit_user_styled,
+        name="edit_user_styled",
+    ),
     path("profile/change-password/", views.change_password, name="change_password"),
     path("profile/", views.profile, name="profile"),
     path("set-user-language/", views.set_user_language, name="set_user_language"),

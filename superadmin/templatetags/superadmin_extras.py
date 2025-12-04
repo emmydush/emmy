@@ -3,6 +3,7 @@ from ..models import Branch
 
 register = template.Library()
 
+
 @register.simple_tag
 def get_business_branches(business_id):
     """Get all active branches for a business"""
@@ -11,6 +12,7 @@ def get_business_branches(business_id):
         return branches
     except:
         return []
+
 
 @register.simple_tag
 def get_branch_name(branch_id):

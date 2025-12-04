@@ -17,6 +17,7 @@ def check_user_permission(user, permission_type):
     # Check if user's business is pending approval
     # If so, deny all create/edit/delete permissions
     from superadmin.middleware import get_current_business
+
     current_business = get_current_business()
     if current_business and current_business.status == "pending":
         # Deny all create/edit/delete permissions for pending businesses
@@ -30,7 +31,7 @@ def check_user_permission(user, permission_type):
             "can_delete_users",
         ]:
             return False
-    
+
     # Account owners have access to everything
     if user.role.lower() == "admin":
         return True
@@ -107,6 +108,7 @@ def require_permission(permission_type, redirect_url="dashboard:index"):
             # Check if user's business is pending approval
             # If so, deny all create/edit/delete permissions
             from superadmin.middleware import get_current_business
+
             current_business = get_current_business()
             if current_business and current_business.status == "pending":
                 # Deny all create/edit/delete permissions for pending businesses
@@ -120,10 +122,11 @@ def require_permission(permission_type, redirect_url="dashboard:index"):
                     "can_delete_users",
                 ]:
                     messages.error(
-                        request, "Your business is pending approval. You cannot perform this action until it is approved."
+                        request,
+                        "Your business is pending approval. You cannot perform this action until it is approved.",
                     )
                     return redirect(redirect_url)
-            
+
             # Account owners have access to everything
             if request.user.role.lower() == "admin":
                 return view_func(request, *args, **kwargs)

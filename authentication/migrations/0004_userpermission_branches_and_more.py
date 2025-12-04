@@ -6,19 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('authentication', '0003_user_language'),
-        ('superadmin', '0001_initial'),
+        ("authentication", "0003_user_language"),
+        ("superadmin", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userpermission',
-            name='branches',
-            field=models.ManyToManyField(blank=True, related_name='user_permissions', to='superadmin.branch'),
+            model_name="userpermission",
+            name="branches",
+            field=models.ManyToManyField(
+                blank=True, related_name="user_permissions", to="superadmin.branch"
+            ),
         ),
         migrations.AddField(
-            model_name='userpermission',
-            name='restrict_to_assigned_branches',
+            model_name="userpermission",
+            name="restrict_to_assigned_branches",
             field=models.BooleanField(default=False),
         ),
     ]

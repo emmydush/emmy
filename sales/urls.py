@@ -33,7 +33,11 @@ urlpatterns = [
     ),
     path("pos/scanner-debug/", views.scanner_debug_view, name="scanner_debug"),
     path("pos/quagga-test/", views.quagga_test_view, name="quagga_test"),
-    path("pos/quagga-test-simple/", views.quagga_test_simple_view, name="quagga_test_simple"),
+    path(
+        "pos/quagga-test-simple/",
+        views.quagga_test_simple_view,
+        name="quagga_test_simple",
+    ),
     path(
         "product/<int:product_id>/",
         views.get_product_details,
@@ -45,11 +49,25 @@ urlpatterns = [
         name="get_product_variant_details",
     ),
     # Barcode scanning endpoint
-    path("product/barcode/<str:barcode>/", views.get_product_by_barcode, name="get_product_by_barcode"),
+    path(
+        "product/barcode/<str:barcode>/",
+        views.get_product_by_barcode,
+        name="get_product_by_barcode",
+    ),
     path("credit-sales/", views.credit_sales_list, name="credit_sales_list"),
     path("credit-sales/create/", views.credit_sale_create, name="credit_sale_create"),
     path("credit-sales/<int:pk>/", views.credit_sale_detail, name="credit_sale_detail"),
-    path("credit-sales/<int:pk>/payments/", views.credit_payment_create, name="credit_sale_payments"),
-    path("credit-sales/add-payment/<int:sale_id>/", views.credit_payment_create, name="add_credit_payment"),
-    path("credit-sales/overdue/", views.overdue_credit_sales, name="overdue_credit_sales"),
+    path(
+        "credit-sales/<int:pk>/payments/",
+        views.credit_payment_create,
+        name="credit_sale_payments",
+    ),
+    path(
+        "credit-sales/add-payment/<int:sale_id>/",
+        views.credit_payment_create,
+        name="add_credit_payment",
+    ),
+    path(
+        "credit-sales/overdue/", views.overdue_credit_sales, name="overdue_credit_sales"
+    ),
 ]

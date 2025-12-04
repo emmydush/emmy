@@ -77,4 +77,3 @@ class UserPermission(models.Model):
 
     def __str__(self):
         return f"Permissions for {self.user.username}"
-

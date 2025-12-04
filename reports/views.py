@@ -28,11 +28,16 @@ def report_list(request):
 
     # Get current business and branch from middleware
     from superadmin.middleware import get_current_business, get_current_branch
+
     current_business = get_current_business()
     current_branch = get_current_branch()
 
     # Get all branches for this business
-    branches = Branch.objects.filter(business=current_business, is_active=True) if current_business else Branch.objects.none()
+    branches = (
+        Branch.objects.filter(business=current_business, is_active=True)
+        if current_business
+        else Branch.objects.none()
+    )
 
     context = {
         "current_branch": current_branch,
@@ -95,9 +100,10 @@ def quick_report(request, period):
 
     # Get current branch from middleware if specified
     from superadmin.middleware import get_current_branch
+
     current_branch = get_current_branch()
-    branch_id = request.GET.get('branch_id')
-    
+    branch_id = request.GET.get("branch_id")
+
     # If branch_id is provided in GET parameters, use that branch
     if branch_id:
         try:
@@ -125,9 +131,7 @@ def quick_report(request, period):
     expenses_queryset = Expense.objects.business_specific()
     if selected_branch:
         expenses_queryset = expenses_queryset.filter(branch=selected_branch)
-    expenses = expenses_queryset.filter(
-        date__gte=start_date, date__lte=end_date
-    )
+    expenses = expenses_queryset.filter(date__gte=start_date, date__lte=end_date)
     total_expenses = expenses.aggregate(total=Sum("amount"))["total"] or Decimal("0")
 
     # Calculate profit
@@ -141,8 +145,7 @@ def quick_report(request, period):
     if selected_branch:
         sale_items_queryset = sale_items_queryset.filter(sale__branch=selected_branch)
     top_products = (
-        sale_items_queryset
-        .filter(
+        sale_items_queryset.filter(
             sale__sale_date__date__gte=start_date, sale__sale_date__date__lte=end_date
         )
         .values("product__name")
@@ -182,8 +185,13 @@ def quick_report(request, period):
 
     # Get current business and all branches for navigation
     from superadmin.middleware import get_current_business
+
     current_business = get_current_business()
-    branches = Branch.objects.filter(business=current_business, is_active=True) if current_business else Branch.objects.none()
+    branches = (
+        Branch.objects.filter(business=current_business, is_active=True)
+        if current_business
+        else Branch.objects.none()
+    )
 
     context = {
         "period": period,
@@ -394,9 +402,10 @@ def sales_report(request):
 
     # Get current branch from middleware if specified
     from superadmin.middleware import get_current_branch
+
     current_branch = get_current_branch()
-    branch_id = request.GET.get('branch_id')
-    
+    branch_id = request.GET.get("branch_id")
+
     # If branch_id is provided in GET parameters, use that branch
     if branch_id:
         try:
@@ -411,13 +420,14 @@ def sales_report(request):
 
     # Get current business from middleware
     from superadmin.middleware import get_current_business
+
     current_business = get_current_business()
 
     # Filter sales by branch if specified
     sales_queryset = Sale.objects.business_specific()
     if selected_branch:
         sales_queryset = sales_queryset.filter(branch=selected_branch)
-    
+
     sales = sales_queryset.filter(
         sale_date__date__gte=start_date, sale_date__date__lte=end_date
     )
@@ -438,10 +448,9 @@ def sales_report(request):
     sale_items_queryset = SaleItem.objects.business_specific()
     if selected_branch:
         sale_items_queryset = sale_items_queryset.filter(sale__branch=selected_branch)
-        
+
     top_products = (
-        sale_items_queryset
-        .filter(
+        sale_items_queryset.filter(
             sale__sale_date__date__gte=start_date, sale__sale_date__date__lte=end_date
         )
         .values("product__name")
@@ -459,10 +468,15 @@ def sales_report(request):
 
     # Get business settings
     from settings.models import BusinessSettings
+
     business_settings, created = BusinessSettings.objects.get_or_create(id=1)
 
     # Get all branches for branch selection dropdown
-    branches = Branch.objects.filter(business=current_business, is_active=True) if current_business else Branch.objects.none()
+    branches = (
+        Branch.objects.filter(business=current_business, is_active=True)
+        if current_business
+        else Branch.objects.none()
+    )
 
     context = {
         "sales": sales,
@@ -496,7 +510,9 @@ def export_sales_report_csv(request, context):
     writer = csv.writer(response)
 
     # Write header
-    writer.writerow(["Sales Report", f"From {context['start_date']} to {context['end_date']}"])
+    writer.writerow(
+        ["Sales Report", f"From {context['start_date']} to {context['end_date']}"]
+    )
     writer.writerow([])
 
     # Write sales data
@@ -556,9 +572,10 @@ def inventory_report(request):
 
     # Get current branch from middleware if specified
     from superadmin.middleware import get_current_branch
+
     current_branch = get_current_branch()
-    branch_id = request.GET.get('branch_id')
-    
+    branch_id = request.GET.get("branch_id")
+
     # If branch_id is provided in GET parameters, use that branch
     if branch_id:
         try:
@@ -573,13 +590,14 @@ def inventory_report(request):
 
     # Get current business from middleware
     from superadmin.middleware import get_current_business
+
     current_business = get_current_business()
 
     # Get products with low stock
     products_queryset = Product.objects.business_specific()
     if selected_branch:
         products_queryset = products_queryset.filter(branch=selected_branch)
-        
+
     low_stock_products = products_queryset.filter(
         quantity__lte=F("reorder_level")
     ).order_by("quantity")
@@ -587,20 +605,32 @@ def inventory_report(request):
     # Get stock movements
     stock_movements_queryset = StockMovement.objects.business_specific()
     if selected_branch:
-        stock_movements_queryset = stock_movements_queryset.filter(product__branch=selected_branch)
-        
-    recent_movements = stock_movements_queryset.filter(
-        created_at__date__gte=start_date, created_at__date__lte=end_date
-    ).select_related("product", "created_by").order_by("-created_at")[:50]
+        stock_movements_queryset = stock_movements_queryset.filter(
+            product__branch=selected_branch
+        )
+
+    recent_movements = (
+        stock_movements_queryset.filter(
+            created_at__date__gte=start_date, created_at__date__lte=end_date
+        )
+        .select_related("product", "created_by")
+        .order_by("-created_at")[:50]
+    )
 
     # Get stock alerts
     stock_alerts_queryset = StockAlert.objects.business_specific()
     if selected_branch:
-        stock_alerts_queryset = stock_alerts_queryset.filter(product__branch=selected_branch)
-        
-    recent_alerts = stock_alerts_queryset.filter(
-        created_at__date__gte=start_date, created_at__date__lte=end_date
-    ).select_related("product").order_by("-created_at")[:20]
+        stock_alerts_queryset = stock_alerts_queryset.filter(
+            product__branch=selected_branch
+        )
+
+    recent_alerts = (
+        stock_alerts_queryset.filter(
+            created_at__date__gte=start_date, created_at__date__lte=end_date
+        )
+        .select_related("product")
+        .order_by("-created_at")[:20]
+    )
 
     # Get inventory transfers
     transfers_queryset = InventoryTransfer.objects.business_specific()
@@ -609,15 +639,21 @@ def inventory_report(request):
         transfers_queryset = transfers_queryset.filter(
             Q(from_branch=selected_branch) | Q(to_branch=selected_branch)
         )
-        
-    recent_transfers = transfers_queryset.filter(
-        created_at__date__gte=start_date, created_at__date__lte=end_date
-    ).select_related("from_branch", "to_branch", "product", "product_variant", "created_by").order_by("-created_at")[:20]
+
+    recent_transfers = (
+        transfers_queryset.filter(
+            created_at__date__gte=start_date, created_at__date__lte=end_date
+        )
+        .select_related(
+            "from_branch", "to_branch", "product", "product_variant", "created_by"
+        )
+        .order_by("-created_at")[:20]
+    )
 
     # Calculate inventory statistics
     total_products = products_queryset.count()
     low_stock_count = low_stock_products.count()
-    
+
     # Calculate total inventory value
     inventory_value = products_queryset.aggregate(
         total_value=Sum(F("quantity") * F("cost_price"))
@@ -625,10 +661,15 @@ def inventory_report(request):
 
     # Get business settings
     from settings.models import BusinessSettings
+
     business_settings, created = BusinessSettings.objects.get_or_create(id=1)
 
     # Get all branches for branch selection dropdown
-    branches = Branch.objects.filter(business=current_business, is_active=True) if current_business else Branch.objects.none()
+    branches = (
+        Branch.objects.filter(business=current_business, is_active=True)
+        if current_business
+        else Branch.objects.none()
+    )
 
     context = {
         "low_stock_products": low_stock_products,
@@ -746,9 +787,10 @@ def profit_loss_report(request):
 
     # Get current branch from middleware if specified
     from superadmin.middleware import get_current_branch
+
     current_branch = get_current_branch()
-    branch_id = request.GET.get('branch_id')
-    
+    branch_id = request.GET.get("branch_id")
+
     # If branch_id is provided in GET parameters, use that branch
     if branch_id:
         try:
@@ -763,13 +805,14 @@ def profit_loss_report(request):
 
     # Get current business from middleware
     from superadmin.middleware import get_current_business
+
     current_business = get_current_business()
 
     # Get sales data
     sales_queryset = Sale.objects.business_specific()
     if selected_branch:
         sales_queryset = sales_queryset.filter(branch=selected_branch)
-        
+
     sales = sales_queryset.filter(
         sale_date__date__gte=start_date, sale_date__date__lte=end_date
     )
@@ -778,10 +821,8 @@ def profit_loss_report(request):
     expenses_queryset = Expense.objects.business_specific()
     if selected_branch:
         expenses_queryset = expenses_queryset.filter(branch=selected_branch)
-        
-    expenses = expenses_queryset.filter(
-        date__gte=start_date, date__lte=end_date
-    )
+
+    expenses = expenses_queryset.filter(date__gte=start_date, date__lte=end_date)
 
     # Calculate sales totals
     total_sales = sales.aggregate(total=Sum("total_amount"))["total"] or Decimal("0")
@@ -802,7 +843,9 @@ def profit_loss_report(request):
         (float(net_profit) / float(total_sales) * 100) if float(total_sales) > 0 else 0
     )
     gross_profit_margin = (
-        (float(gross_profit) / float(total_sales) * 100) if float(total_sales) > 0 else 0
+        (float(gross_profit) / float(total_sales) * 100)
+        if float(total_sales) > 0
+        else 0
     )
 
     # Group sales by date for chart data
@@ -824,10 +867,9 @@ def profit_loss_report(request):
     sale_items_queryset = SaleItem.objects.business_specific()
     if selected_branch:
         sale_items_queryset = sale_items_queryset.filter(sale__branch=selected_branch)
-        
+
     top_products = (
-        sale_items_queryset
-        .filter(
+        sale_items_queryset.filter(
             sale__sale_date__date__gte=start_date, sale__sale_date__date__lte=end_date
         )
         .values("product__name")
@@ -837,10 +879,15 @@ def profit_loss_report(request):
 
     # Get business settings
     from settings.models import BusinessSettings
+
     business_settings, created = BusinessSettings.objects.get_or_create(id=1)
 
     # Get all branches for branch selection dropdown
-    branches = Branch.objects.filter(business=current_business, is_active=True) if current_business else Branch.objects.none()
+    branches = (
+        Branch.objects.filter(business=current_business, is_active=True)
+        if current_business
+        else Branch.objects.none()
+    )
 
     context = {
         "total_sales": float(total_sales),
@@ -880,16 +927,21 @@ def export_profit_loss_report_csv(request, context):
     writer = csv.writer(response)
 
     # Write header
-    writer.writerow(["Profit & Loss Report", f"From {context['start_date']} to {context['end_date']}"])
+    writer.writerow(
+        [
+            "Profit & Loss Report",
+            f"From {context['start_date']} to {context['end_date']}",
+        ]
+    )
     writer.writerow([])
 
     # Write summary data
     writer.writerow(["Financial Summary"])
     writer.writerow(["Metric", "Value"])
     writer.writerow(["Sales Revenue", f"${context['total_sales']:.2f}"])
-    writer.writerow(["Number of Orders", context['total_orders']])
+    writer.writerow(["Number of Orders", context["total_orders"]])
     writer.writerow(["Operating Expenses", f"${context['total_expenses']:.2f}"])
-    writer.writerow(["Expense Entries", context['expense_count']])
+    writer.writerow(["Expense Entries", context["expense_count"]])
     writer.writerow(["Estimated COGS", f"${context['estimated_cogs']:.2f}"])
     writer.writerow(["Gross Profit", f"${context['gross_profit']:.2f}"])
     writer.writerow(["Net Profit", f"${context['net_profit']:.2f}"])
@@ -901,32 +953,33 @@ def export_profit_loss_report_csv(request, context):
     writer.writerow(["Daily Sales"])
     writer.writerow(["Date", "Total Sales"])
     for item in context["daily_sales"]:
-        writer.writerow([
-            item["date"],
-            f"${float(item['total']):.2f}"
-        ])
+        writer.writerow([item["date"], f"${float(item['total']):.2f}"])
     writer.writerow([])
 
     # Write expenses by category
     writer.writerow(["Expenses by Category"])
     writer.writerow(["Category", "Total Amount", "Number of Entries"])
     for category in context["expense_categories"]:
-        writer.writerow([
-            category["category"] or "Uncategorized",
-            f"${float(category['total']):.2f}",
-            category["count"]
-        ])
+        writer.writerow(
+            [
+                category["category"] or "Uncategorized",
+                f"${float(category['total']):.2f}",
+                category["count"],
+            ]
+        )
     writer.writerow([])
 
     # Write top selling products
     writer.writerow(["Top Selling Products"])
     writer.writerow(["Product", "Quantity Sold", "Total Revenue"])
     for product in context["top_products"]:
-        writer.writerow([
-            product["product__name"],
-            product["total_sold"],
-            f"${float(product['total_revenue']):.2f}"
-        ])
+        writer.writerow(
+            [
+                product["product__name"],
+                product["total_sold"],
+                f"${float(product['total_revenue']):.2f}",
+            ]
+        )
 
     return response
 
@@ -942,48 +995,51 @@ def export_expenses_report_csv(request, context):
     writer = csv.writer(response)
 
     # Write header
-    writer.writerow(["Expenses Report", f"From {context['start_date']} to {context['end_date']}"])
+    writer.writerow(
+        ["Expenses Report", f"From {context['start_date']} to {context['end_date']}"]
+    )
     writer.writerow([])
 
     # Write summary data
     writer.writerow(["Summary"])
     writer.writerow(["Metric", "Value"])
     writer.writerow(["Total Expenses", f"${context['total_expenses']:.2f}"])
-    writer.writerow(["Number of Expenses", context['expense_count']])
+    writer.writerow(["Number of Expenses", context["expense_count"]])
     writer.writerow([])
 
     # Write expenses by category
     writer.writerow(["Expenses by Category"])
     writer.writerow(["Category", "Total Amount", "Number of Expenses"])
     for category in context["expense_categories"]:
-        writer.writerow([
-            category["category"] or "Uncategorized",
-            f"${float(category['total']):.2f}",
-            category["count"]
-        ])
+        writer.writerow(
+            [
+                category["category"] or "Uncategorized",
+                f"${float(category['total']):.2f}",
+                category["count"],
+            ]
+        )
     writer.writerow([])
 
     # Write daily expenses
     writer.writerow(["Daily Expenses"])
     writer.writerow(["Date", "Total Amount"])
     for item in context["daily_expenses"]:
-        writer.writerow([
-            item["date"],
-            f"${float(item['total']):.2f}"
-        ])
+        writer.writerow([item["date"], f"${float(item['total']):.2f}"])
     writer.writerow([])
 
     # Write recent expenses
     writer.writerow(["Recent Expenses"])
     writer.writerow(["Date", "Category", "Description", "Amount", "Branch"])
     for expense in context["recent_expenses"]:
-        writer.writerow([
-            expense.date.strftime("%Y-%m-%d") if expense.date else "",
-            expense.category.name if expense.category else "Uncategorized",
-            expense.description,
-            f"${float(expense.amount):.2f}",
-            expense.branch.name if expense.branch else ""
-        ])
+        writer.writerow(
+            [
+                expense.date.strftime("%Y-%m-%d") if expense.date else "",
+                expense.category.name if expense.category else "Uncategorized",
+                expense.description,
+                f"${float(expense.amount):.2f}",
+                expense.branch.name if expense.branch else "",
+            ]
+        )
 
     return response
 
@@ -1250,9 +1306,10 @@ def expenses_report(request):
 
     # Get current branch from middleware if specified
     from superadmin.middleware import get_current_branch
+
     current_branch = get_current_branch()
-    branch_id = request.GET.get('branch_id')
-    
+    branch_id = request.GET.get("branch_id")
+
     # If branch_id is provided in GET parameters, use that branch
     if branch_id:
         try:
@@ -1267,6 +1324,7 @@ def expenses_report(request):
 
     # Get current business from middleware
     from superadmin.middleware import get_current_business
+
     current_business = get_current_business()
 
     # Filter expenses by date range and branch
@@ -1323,7 +1381,11 @@ def expenses_report(request):
     business_settings, created = BusinessSettings.objects.get_or_create(id=1)
 
     # Get all branches for branch selection dropdown
-    branches = Branch.objects.filter(business=current_business, is_active=True) if current_business else Branch.objects.none()
+    branches = (
+        Branch.objects.filter(business=current_business, is_active=True)
+        if current_business
+        else Branch.objects.none()
+    )
 
     context = {
         "start_date": start_date,
@@ -1345,11 +1407,6 @@ def expenses_report(request):
         return export_expenses_report_csv(request, context)
 
     return render(request, "reports/expenses.html", context)
-
-
-
-
-
 
 
 def generate_expense_recommendations(
@@ -1422,80 +1479,87 @@ def multi_branch_dashboard(request):
 
     # Get current business from middleware
     from superadmin.middleware import get_current_business
+
     current_business = get_current_business()
-    
+
     if not current_business:
         messages.error(request, "No business context found.")
         return redirect("dashboard:index")
 
     # Get all active branches for this business
     branches = Branch.objects.filter(business=current_business, is_active=True)
-    
+
     # Get date range (last 30 days)
     end_date = timezone.now().date()
     start_date = end_date - timedelta(days=30)
 
     # Collect branch performance data
     branch_performance = []
-    total_sales_all_branches = Decimal('0')
-    total_expenses_all_branches = Decimal('0')
-    total_net_profit_all_branches = Decimal('0')
-    
+    total_sales_all_branches = Decimal("0")
+    total_expenses_all_branches = Decimal("0")
+    total_net_profit_all_branches = Decimal("0")
+
     for branch in branches:
         # Get sales data for this branch
         branch_sales = Sale.objects.filter(
             business=current_business,
             branch=branch,
             sale_date__date__gte=start_date,
-            sale_date__date__lte=end_date
+            sale_date__date__lte=end_date,
         )
-        
-        branch_total_sales = branch_sales.aggregate(total=Sum("total_amount"))["total"] or Decimal("0")
+
+        branch_total_sales = branch_sales.aggregate(total=Sum("total_amount"))[
+            "total"
+        ] or Decimal("0")
         branch_total_orders = branch_sales.count()
-        
+
         # Get expenses data for this branch
         branch_expenses = Expense.objects.filter(
             business=current_business,
             branch=branch,
             date__gte=start_date,
-            date__lte=end_date
+            date__lte=end_date,
         )
-        branch_total_expenses = branch_expenses.aggregate(total=Sum("amount"))["total"] or Decimal("0")
-        
+        branch_total_expenses = branch_expenses.aggregate(total=Sum("amount"))[
+            "total"
+        ] or Decimal("0")
+
         # Calculate profit
         estimated_cogs = branch_total_sales * Decimal("0.6")
         branch_gross_profit = branch_total_sales - estimated_cogs
         branch_net_profit = branch_gross_profit - branch_total_expenses
-        
+
         # Calculate profit margin
         profit_margin = (
             (float(branch_net_profit) / float(branch_total_sales) * 100)
             if float(branch_total_sales) > 0
             else 0
         )
-        
-        branch_performance.append({
-            "branch": branch,
-            "total_sales": float(branch_total_sales),
-            "total_orders": branch_total_orders,
-            "total_expenses": float(branch_total_expenses),
-            "net_profit": float(branch_net_profit),
-            "profit_margin": profit_margin,
-        })
-        
+
+        branch_performance.append(
+            {
+                "branch": branch,
+                "total_sales": float(branch_total_sales),
+                "total_orders": branch_total_orders,
+                "total_expenses": float(branch_total_expenses),
+                "net_profit": float(branch_net_profit),
+                "profit_margin": profit_margin,
+            }
+        )
+
         total_sales_all_branches += branch_total_sales
         total_expenses_all_branches += branch_total_expenses
         total_net_profit_all_branches += branch_net_profit
 
     # Sort branches by sales performance
-    branch_performance.sort(key=lambda x: x['total_sales'], reverse=True)
-    
+    branch_performance.sort(key=lambda x: x["total_sales"], reverse=True)
+
     # Get top selling products across all branches
     top_products = (
         SaleItem.objects.filter(
             sale__business=current_business,
             sale__sale_date__date__gte=start_date,
-            sale__sale_date__date__lte=end_date
+            sale__sale_date__date__lte=end_date,
         )
         .values("product__name")
         .annotate(total_sold=Sum("quantity"), total_revenue=Sum("total_price"))
@@ -1506,23 +1570,24 @@ def multi_branch_dashboard(request):
     branch_names = [item["branch"].name for item in branch_performance]
     branch_sales_data = [item["total_sales"] for item in branch_performance]
     branch_profit_data = [item["net_profit"] for item in branch_performance]
-    
+
     # Convert to JSON for JavaScript
     branch_names_json = json.dumps(branch_names)
     branch_sales_json = json.dumps(branch_sales_data)
     branch_profit_json = json.dumps(branch_profit_data)
-    
+
     # Top products data
     product_names = [item["product__name"] for item in top_products]
     product_quantities = [float(item["total_sold"]) for item in top_products]
     product_revenues = [float(item["total_revenue"]) for item in top_products]
-    
+
     product_names_json = json.dumps(product_names)
     product_quantities_json = json.dumps(product_quantities)
     product_revenues_json = json.dumps(product_revenues)
 
     # Get business settings
     from settings.models import BusinessSettings
+
     business_settings, created = BusinessSettings.objects.get_or_create(id=1)
 
     context = {
@@ -1544,6 +1609,7 @@ def multi_branch_dashboard(request):
     }
 
     return render(request, "reports/multi_branch_dashboard.html", context)
+
 
 # Test charts view
 def test_charts(request):

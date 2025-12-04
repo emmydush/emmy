@@ -10,7 +10,11 @@ urlpatterns = [
     path("inventory/", views.inventory_report, name="inventory"),
     path("profit-loss/", views.profit_loss_report, name="profit_loss"),
     path("expenses/", views.expenses_report, name="expenses"),
-    path("multi-branch-dashboard/", views.multi_branch_dashboard, name="multi_branch_dashboard"),
+    path(
+        "multi-branch-dashboard/",
+        views.multi_branch_dashboard,
+        name="multi_branch_dashboard",
+    ),
     path(
         "test-charts/", views.test_charts, name="test_charts"
     ),  # Added test charts URL

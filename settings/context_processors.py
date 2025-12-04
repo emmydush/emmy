@@ -12,18 +12,19 @@ def business_settings(request):
     """
     # Try to get business-specific settings first
     business_settings_obj = None
-    
+
     # Try to get current business from session
     business_id = request.session.get("current_business_id")
     if business_id:
         try:
             from superadmin.models import Business
+
             business = Business.objects.get(id=business_id)
-            if hasattr(business, 'settings'):
+            if hasattr(business, "settings"):
                 business_settings_obj = business.settings
         except:
             pass
-    
+
     # If no business-specific settings, try to get global settings
     if not business_settings_obj:
         try:

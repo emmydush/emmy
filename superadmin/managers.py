@@ -15,7 +15,7 @@ class BusinessSpecificManager(models.Manager):
         queryset = super().get_queryset()
         current_business = get_current_business()
         current_branch = get_current_branch()
-        
+
         if current_business:
             # Check if the model has a direct business field
             if hasattr(self.model, "business"):

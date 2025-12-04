@@ -10,8 +10,14 @@ User = get_user_model()
 
 class BusinessSettings(models.Model):
     # Add foreign key to Business model for data isolation
-    business = models.OneToOneField('superadmin.Business', on_delete=models.CASCADE, related_name='settings', null=True, blank=True)
-    
+    business = models.OneToOneField(
+        "superadmin.Business",
+        on_delete=models.CASCADE,
+        related_name="settings",
+        null=True,
+        blank=True,
+    )
+
     business_name = models.CharField(max_length=200, default="Smart Solution")
     business_address = models.TextField(default="123 Business Street, City, Country")
     business_email = models.EmailField(default="info@smartsolution.com")
@@ -156,7 +162,9 @@ class AuditLog(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    business = models.ForeignKey('superadmin.Business', on_delete=models.SET_NULL, null=True, blank=True)
+    business = models.ForeignKey(
+        "superadmin.Business", on_delete=models.SET_NULL, null=True, blank=True
+    )
     action = models.CharField(max_length=10, choices=ACTION_CHOICES)
     model_name = models.CharField(max_length=100)
     object_id = models.CharField(max_length=100, null=True, blank=True)
@@ -172,5 +180,5 @@ class AuditLog(models.Model):
         ordering = ["-timestamp"]
 
     def __str__(self):
-        business_name = self.business.company_name if self.business else 'No Business'
+        business_name = self.business.company_name if self.business else "No Business"
         return f"{self.action} {self.model_name} by {self.user or 'Anonymous'} at {self.timestamp} for {business_name}"

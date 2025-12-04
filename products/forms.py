@@ -1,6 +1,16 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Product, Category, Unit, StockAdjustment, ProductVariant, VariantAttribute, VariantAttributeValue, ProductVariantAttribute, InventoryTransfer
+from .models import (
+    Product,
+    Category,
+    Unit,
+    StockAdjustment,
+    ProductVariant,
+    VariantAttribute,
+    VariantAttributeValue,
+    ProductVariantAttribute,
+    InventoryTransfer,
+)
 from superadmin.models import Branch
 
 
@@ -145,7 +155,9 @@ class UnitForm(forms.ModelForm):
 
             # Check for duplicate symbol
             if symbol:
-                symbol_queryset = Unit.objects.filter(business=self.business, symbol=symbol)
+                symbol_queryset = Unit.objects.filter(
+                    business=self.business, symbol=symbol
+                )
                 if self.instance and self.instance.pk:
                     symbol_queryset = symbol_queryset.exclude(pk=self.instance.pk)
 
@@ -182,13 +194,15 @@ class StockAdjustmentForm(forms.ModelForm):
 
 class StockAdjustmentApprovalForm(forms.ModelForm):
     """Form for approving or rejecting stock adjustments"""
-    
+
     class Meta:
         model = StockAdjustment
         fields = ["status", "approval_notes"]
         widgets = {
             "status": forms.Select(attrs={"class": "form-control"}),
-            "approval_notes": forms.Textarea(attrs={"rows": 3, "class": "form-control"}),
+            "approval_notes": forms.Textarea(
+                attrs={"rows": 3, "class": "form-control"}
+            ),
         }
 
 
@@ -270,7 +284,9 @@ class VariantAttributeForm(forms.ModelForm):
         # If we have a business context, check for duplicate attribute names
         if self.business:
             # Exclude the current instance if we're updating
-            queryset = VariantAttribute.objects.filter(business=self.business, name=name)
+            queryset = VariantAttribute.objects.filter(
+                business=self.business, name=name
+            )
             if self.instance and self.instance.pk:
                 queryset = queryset.exclude(pk=self.instance.pk)
 
@@ -283,7 +299,7 @@ class VariantAttributeForm(forms.ModelForm):
 
 class VariantAttributeValueForm(forms.ModelForm):
     """Form for creating and updating variant attribute values"""
-    
+
     class Meta:
         model = VariantAttributeValue
         fields = ["attribute", "value", "description", "is_active"]
@@ -294,7 +310,7 @@ class VariantAttributeValueForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.business = kwargs.pop("business", None)
         super().__init__(*args, **kwargs)
-        
+
         # If we have a business context, filter attributes by business
         if self.business:
             self.fields["attribute"].queryset = VariantAttribute.objects.filter(
@@ -308,7 +324,7 @@ class VariantAttributeValueForm(forms.ModelForm):
         cleaned_data = super().clean()
         attribute = cleaned_data.get("attribute")
         value = cleaned_data.get("value")
-        
+
         # If we have a business context, check for duplicate attribute-value combinations
         if self.business and attribute and value:
             queryset = VariantAttributeValue.objects.filter(
@@ -316,47 +332,56 @@ class VariantAttributeValueForm(forms.ModelForm):
             )
             if self.instance and self.instance.pk:
                 queryset = queryset.exclude(pk=self.instance.pk)
-                
+
             if queryset.exists():
                 raise ValidationError(
                     f'The value "{value}" already exists for attribute "{attribute.name}". Please use a different value.'
                 )
-        
+
         return cleaned_data
 
 
 class ProductVariantAttributeForm(forms.ModelForm):
     """Form for linking product variants to their attribute values"""
-    
+
     class Meta:
         model = ProductVariantAttribute
         fields = ["product_variant", "attribute_value"]
-        
+
     def __init__(self, *args, **kwargs):
         self.business = kwargs.pop("business", None)
         self.product_variant = kwargs.pop("product_variant", None)
         super().__init__(*args, **kwargs)
-        
+
         # If we have a business context, filter variants and attribute values by business
         if self.business:
             self.fields["product_variant"].queryset = ProductVariant.objects.filter(
                 business=self.business
             )
-            self.fields["attribute_value"].queryset = VariantAttributeValue.objects.filter(
-                business=self.business
+            self.fields["attribute_value"].queryset = (
+                VariantAttributeValue.objects.filter(business=self.business)
             )
         else:
             # If no business context, show empty querysets
             self.fields["product_variant"].queryset = ProductVariant.objects.none()
-            self.fields["attribute_value"].queryset = VariantAttributeValue.objects.none()
+            self.fields["attribute_value"].queryset = (
+                VariantAttributeValue.objects.none()
+            )
 
 
 class InventoryTransferForm(forms.ModelForm):
     """Form for creating inventory transfers between branches"""
-    
+
     class Meta:
         model = InventoryTransfer
-        fields = ["from_branch", "to_branch", "product", "product_variant", "quantity", "notes"]
+        fields = [
+            "from_branch",
+            "to_branch",
+            "product",
+            "product_variant",
+            "quantity",
+            "notes",
+        ]
         widgets = {
             "notes": forms.Textarea(attrs={"rows": 3}),
             "quantity": forms.NumberInput(attrs={"step": "0.01"}),
@@ -395,15 +420,15 @@ class InventoryTransferForm(forms.ModelForm):
         if "from_branch" in self.data:
             try:
                 from_branch_id = int(self.data.get("from_branch"))
-                self.fields["to_branch"].queryset = self.fields["to_branch"].queryset.exclude(
-                    id=from_branch_id
-                )
+                self.fields["to_branch"].queryset = self.fields[
+                    "to_branch"
+                ].queryset.exclude(id=from_branch_id)
             except (ValueError, TypeError):
                 pass  # Invalid input from the client; ignore and fallback to default queryset
         elif self.instance.pk:
-            self.fields["to_branch"].queryset = self.fields["to_branch"].queryset.exclude(
-                pk=self.instance.from_branch.pk
-            )
+            self.fields["to_branch"].queryset = self.fields[
+                "to_branch"
+            ].queryset.exclude(pk=self.instance.from_branch.pk)
 
     def clean(self):
         cleaned_data = super().clean()
@@ -419,9 +444,13 @@ class InventoryTransferForm(forms.ModelForm):
 
         # Validate that either product or product_variant is selected, but not both
         if not product and not product_variant:
-            raise ValidationError("Either a product or product variant must be selected.")
+            raise ValidationError(
+                "Either a product or product variant must be selected."
+            )
         if product and product_variant:
-            raise ValidationError("Only one of product or product variant can be selected.")
+            raise ValidationError(
+                "Only one of product or product variant can be selected."
+            )
 
         # Validate quantity
         if quantity and quantity <= 0:
@@ -434,7 +463,10 @@ class InventoryTransferForm(forms.ModelForm):
                     f"Insufficient stock in {from_branch.name}. Available: {product.quantity}, Requested: {quantity}"
                 )
         elif product_variant and from_branch:
-            if product_variant.branch == from_branch and product_variant.quantity < quantity:
+            if (
+                product_variant.branch == from_branch
+                and product_variant.quantity < quantity
+            ):
                 raise ValidationError(
                     f"Insufficient stock in {from_branch.name}. Available: {product_variant.quantity}, Requested: {quantity}"
                 )

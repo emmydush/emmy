@@ -40,27 +40,28 @@ def can_access_settings(user):
     # Check if user is authenticated
     if not user.is_authenticated:
         return False
-    
+
     # Admin users can always access settings
     if user.role == "admin":
         return True
-    
+
     # Check if user has explicit permission to access settings
     try:
         from authentication.models import UserPermission
+
         user_permission = UserPermission.objects.get(user=user)
         if user_permission.can_access_settings:
             return True
     except:
         pass
-    
+
     # Check if user is a business owner
     try:
         if user.owned_businesses.exists():
             return True
     except:
         pass
-    
+
     return False
 
 
@@ -96,18 +97,23 @@ def settings_list(request):
 def business_settings(request):
     # Try to get business-specific settings first
     business_settings_obj = None
-    
+
     # Try to get current business from session
     business_id = request.session.get("current_business_id")
     if business_id:
         try:
             from superadmin.models import Business
+
             business = Business.objects.get(id=business_id)
             # Get or create business-specific settings
-            business_settings_obj, created = BusinessSettings.objects.get_or_create(business=business)
+            business_settings_obj, created = BusinessSettings.objects.get_or_create(
+                business=business
+            )
         except Business.DoesNotExist:
             # If business doesn't exist, fall back to global settings
-            business_settings_obj, created = BusinessSettings.objects.get_or_create(id=1)
+            business_settings_obj, created = BusinessSettings.objects.get_or_create(
+                id=1
+            )
     else:
         # Fall back to global settings
         business_settings_obj, created = BusinessSettings.objects.get_or_create(id=1)
@@ -118,7 +124,10 @@ def business_settings(request):
         )
         if form.is_valid():
             # Handle logo deletion
-            if form.cleaned_data.get("delete_logo") and business_settings_obj.business_logo:
+            if (
+                form.cleaned_data.get("delete_logo")
+                and business_settings_obj.business_logo
+            ):
                 # Delete the logo file
                 if business_settings_obj.business_logo and hasattr(
                     business_settings_obj.business_logo, "delete"
@@ -134,7 +143,9 @@ def business_settings(request):
         form = BusinessSettingsForm(instance=business_settings_obj)
 
     return render(
-        request, "settings/business.html", {"form": form, "settings": business_settings_obj}
+        request,
+        "settings/business.html",
+        {"form": form, "settings": business_settings_obj},
     )
 
 
@@ -426,10 +437,10 @@ def audit_logs(request):
     Only accessible by admin users.
     """
     from superadmin.middleware import get_current_business
-    
+
     # Get current business context
     current_business = get_current_business()
-    
+
     # Get filter parameters
     action_filter = request.GET.get("action", "")
     user_filter = request.GET.get("user", "")
@@ -461,7 +472,7 @@ def audit_logs(request):
         users = User.objects.filter(businesses=current_business)
     else:
         users = User.objects.none()
-        
+
     models = logs.values_list("model_name", flat=True).distinct()
     actions = [choice[0] for choice in AuditLog.ACTION_CHOICES]
 

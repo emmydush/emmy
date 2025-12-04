@@ -111,30 +111,28 @@ except ImportError:
     # This is commonly used in platforms like Render
     import os
     import dj_database_url
-    
+
     # Try to get DATABASE_URL from environment variables
-    DATABASE_URL = os.environ.get('DATABASE_URL')
-    
+    DATABASE_URL = os.environ.get("DATABASE_URL")
+
     if DATABASE_URL:
         # Parse the DATABASE_URL and configure the database
-        DATABASES = {
-            'default': dj_database_url.parse(DATABASE_URL)
-        }
+        DATABASES = {"default": dj_database_url.parse(DATABASE_URL)}
     else:
         # Fallback to SQLite for development if no DATABASE_URL is provided
         # NOTE: This is NOT recommended for production use
         DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+            "default": {
+                "ENGINE": "django.db.backends.sqlite3",
+                "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
             }
         }
-    
+
     # Also set default settings for development
-    SECRET_KEY = 'django-insecure-default-key-for-development-only-change-in-production'
+    SECRET_KEY = "django-insecure-default-key-for-development-only-change-in-production"
     DEBUG = True
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "*"]
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

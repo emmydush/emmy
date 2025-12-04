@@ -8,34 +8,77 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('superadmin', '0001_initial'),
+        ("superadmin", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='BranchRequest',
+            name="BranchRequest",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200)),
-                ('address', models.TextField()),
-                ('phone', models.CharField(blank=True, max_length=20, null=True)),
-                ('email', models.EmailField(blank=True, max_length=254, null=True)),
-                ('is_main', models.BooleanField(default=False)),
-                ('requested_at', models.DateTimeField(auto_now_add=True)),
-                ('status', models.CharField(choices=[('pending', 'Pending Approval'), ('approved', 'Approved'), ('rejected', 'Rejected')], default='pending', max_length=20)),
-                ('approved_at', models.DateTimeField(blank=True, null=True)),
-                ('approval_notes', models.TextField(blank=True, null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('approved_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='branch_approvals', to=settings.AUTH_USER_MODEL)),
-                ('business', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='branch_requests', to='superadmin.business')),
-                ('requested_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='branch_requests', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=200)),
+                ("address", models.TextField()),
+                ("phone", models.CharField(blank=True, max_length=20, null=True)),
+                ("email", models.EmailField(blank=True, max_length=254, null=True)),
+                ("is_main", models.BooleanField(default=False)),
+                ("requested_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("pending", "Pending Approval"),
+                            ("approved", "Approved"),
+                            ("rejected", "Rejected"),
+                        ],
+                        default="pending",
+                        max_length=20,
+                    ),
+                ),
+                ("approved_at", models.DateTimeField(blank=True, null=True)),
+                ("approval_notes", models.TextField(blank=True, null=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "approved_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="branch_approvals",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "business",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="branch_requests",
+                        to="superadmin.business",
+                    ),
+                ),
+                (
+                    "requested_by",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="branch_requests",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Branch Request',
-                'verbose_name_plural': 'Branch Requests',
-                'ordering': ['-requested_at'],
+                "verbose_name": "Branch Request",
+                "verbose_name_plural": "Branch Requests",
+                "ordering": ["-requested_at"],
             },
         ),
     ]

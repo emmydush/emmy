@@ -33,7 +33,6 @@ urlpatterns = [
     ),
     path("api-monitoring/", views.APIMonitoringView.as_view(), name="api_monitoring"),
     path("email-settings/", views.EmailSettingsView.as_view(), name="email_settings"),
-    
     # User management URLs
     path(
         "users/",
@@ -50,7 +49,6 @@ urlpatterns = [
         views.delete_user_view,
         name="delete_user",
     ),
-    
     # Business management URLs
     path(
         "businesses/<int:business_pk>/suspend/",
@@ -72,7 +70,6 @@ urlpatterns = [
         views.delete_business_view,
         name="delete_business",
     ),
-    
     # Branch management URLs
     path(
         "businesses/<int:business_pk>/branches/",
@@ -94,7 +91,6 @@ urlpatterns = [
         views.branch_delete_view,
         name="branch_delete",
     ),
-    
     # Branch request URLs
     path(
         "branch-requests/",

@@ -46,9 +46,7 @@ class Command(BaseCommand):
         """Verify all backup files in the backups directory"""
         backups_dir = os.path.join(settings.BASE_DIR, "backups")
         if not os.path.exists(backups_dir):
-            self.stdout.write(
-                self.style.ERROR("Backups directory does not exist")
-            )
+            self.stdout.write(self.style.ERROR("Backups directory does not exist"))
             return
 
         backup_files = [f for f in os.listdir(backups_dir) if f.endswith(".zip")]
@@ -78,18 +76,18 @@ class Command(BaseCommand):
                 )
                 failed_count += 1
 
-        self.stdout.write("\n" + "="*50)
+        self.stdout.write("\n" + "=" * 50)
         self.stdout.write(
-            self.style.SUCCESS(f"Verification complete: {verified_count} passed, {failed_count} failed")
+            self.style.SUCCESS(
+                f"Verification complete: {verified_count} passed, {failed_count} failed"
+            )
         )
-        self.stdout.write("="*50)
+        self.stdout.write("=" * 50)
 
     def verify_single_backup(self, backup_path, options):
         """Verify a single backup file"""
         if not os.path.exists(backup_path):
-            self.stdout.write(
-                self.style.ERROR(f"Backup file not found: {backup_path}")
-            )
+            self.stdout.write(self.style.ERROR(f"Backup file not found: {backup_path}"))
             return False
 
         backup_name = os.path.basename(backup_path)
@@ -110,9 +108,7 @@ class Command(BaseCommand):
             if not self.verify_basic(backup_path):
                 return False
 
-        self.stdout.write(
-            self.style.SUCCESS(f"✓ {backup_name} verification passed")
-        )
+        self.stdout.write(self.style.SUCCESS(f"✓ {backup_name} verification passed"))
         return True
 
     def verify_checksum(self, backup_path):
@@ -120,7 +116,9 @@ class Command(BaseCommand):
         checksum_file = f"{backup_path}.md5"
         if not os.path.exists(checksum_file):
             self.stdout.write(
-                self.style.WARNING(f"  No checksum file found for {os.path.basename(backup_path)}")
+                self.style.WARNING(
+                    f"  No checksum file found for {os.path.basename(backup_path)}"
+                )
             )
             return True  # Not failing because checksum is optional
 
@@ -163,34 +161,30 @@ class Command(BaseCommand):
         try:
             with zipfile.ZipFile(backup_path, "r") as backup_zip:
                 file_list = backup_zip.namelist()
-                
+
                 # Check for required files
                 has_db = "database_dump.json" in file_list
                 has_metadata = "metadata.json" in file_list
-                
+
                 self.stdout.write(f"  Files in backup: {len(file_list)}")
-                
+
                 if has_db:
-                    self.stdout.write(
-                        self.style.SUCCESS("  ✓ Database dump found")
-                    )
+                    self.stdout.write(self.style.SUCCESS("  ✓ Database dump found"))
                 else:
-                    self.stdout.write(
-                        self.style.WARNING("  ! No database dump found")
-                    )
-                
+                    self.stdout.write(self.style.WARNING("  ! No database dump found"))
+
                 if has_metadata:
                     # Verify metadata content
                     with backup_zip.open("metadata.json") as meta_file:
                         metadata = json.load(meta_file)
                         self.stdout.write(
-                            self.style.SUCCESS(f"  ✓ Metadata found (created: {metadata.get('created_at', 'Unknown')})")
+                            self.style.SUCCESS(
+                                f"  ✓ Metadata found (created: {metadata.get('created_at', 'Unknown')})"
+                            )
                         )
                 else:
-                    self.stdout.write(
-                        self.style.WARNING("  ! No metadata found")
-                    )
-                
+                    self.stdout.write(self.style.WARNING("  ! No metadata found"))
+
                 # Check for media files
                 media_files = [f for f in file_list if f.startswith("media/")]
                 if media_files:
@@ -198,10 +192,8 @@ class Command(BaseCommand):
                         self.style.SUCCESS(f"  ✓ {len(media_files)} media files found")
                     )
                 else:
-                    self.stdout.write(
-                        self.style.WARNING("  ! No media files found")
-                    )
-                
+                    self.stdout.write(self.style.WARNING("  ! No media files found"))
+
                 return True
 
         except Exception as e:
@@ -222,7 +214,5 @@ class Command(BaseCommand):
                 )
                 return True
         except Exception as e:
-            self.stdout.write(
-                self.style.ERROR(f"  ✗ Invalid ZIP file: {str(e)}")
-            )
+            self.stdout.write(self.style.ERROR(f"  ✗ Invalid ZIP file: {str(e)}"))
             return False

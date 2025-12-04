@@ -7,19 +7,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('products', '0003_product_has_variants'),
-        ('sales', '0002_credit_sales'),
+        ("products", "0003_product_has_variants"),
+        ("sales", "0002_credit_sales"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='saleitem',
-            name='is_product_variant',
+            model_name="saleitem",
+            name="is_product_variant",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='saleitem',
-            name='product_variant',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='sale_items', to='products.productvariant'),
+            model_name="saleitem",
+            name="product_variant",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="sale_items",
+                to="products.productvariant",
+            ),
         ),
     ]

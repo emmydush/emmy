@@ -13,34 +13,85 @@ urlpatterns = [
     path("bulk-upload/", views.bulk_upload, name="bulk_upload"),
     path("download-template/", views.download_template, name="download_template"),
     path("search/", views.product_search_ajax, name="search_ajax"),
-    
     # Variant management URLs
     path("<int:product_pk>/variants/", views.product_variant_list, name="variant_list"),
-    path("<int:product_pk>/variants/create/", views.product_variant_create, name="variant_create"),
+    path(
+        "<int:product_pk>/variants/create/",
+        views.product_variant_create,
+        name="variant_create",
+    ),
     path("variants/<int:pk>/", views.product_variant_detail, name="variant_detail"),
-    path("variants/<int:pk>/update/", views.product_variant_update, name="variant_update"),
-    path("variants/<int:pk>/delete/", views.product_variant_delete, name="variant_delete"),
-    
+    path(
+        "variants/<int:pk>/update/", views.product_variant_update, name="variant_update"
+    ),
+    path(
+        "variants/<int:pk>/delete/", views.product_variant_delete, name="variant_delete"
+    ),
     # Variant attribute management URLs
     path("attributes/", views.variant_attribute_list, name="variant_attribute_list"),
-    path("attributes/create/", views.variant_attribute_create, name="variant_attribute_create"),
-    path("attributes/<int:pk>/update/", views.variant_attribute_update, name="variant_attribute_update"),
-    path("attributes/<int:pk>/delete/", views.variant_attribute_delete, name="variant_attribute_delete"),
-    
+    path(
+        "attributes/create/",
+        views.variant_attribute_create,
+        name="variant_attribute_create",
+    ),
+    path(
+        "attributes/<int:pk>/update/",
+        views.variant_attribute_update,
+        name="variant_attribute_update",
+    ),
+    path(
+        "attributes/<int:pk>/delete/",
+        views.variant_attribute_delete,
+        name="variant_attribute_delete",
+    ),
     # Variant attribute value management URLs
-    path("attribute-values/", views.variant_attribute_value_list, name="variant_attribute_value_list"),
-    path("attribute-values/create/", views.variant_attribute_value_create, name="variant_attribute_value_create"),
-    path("attribute-values/<int:pk>/update/", views.variant_attribute_value_update, name="variant_attribute_value_update"),
-    path("attribute-values/<int:pk>/delete/", views.variant_attribute_value_delete, name="variant_attribute_value_delete"),
-    
+    path(
+        "attribute-values/",
+        views.variant_attribute_value_list,
+        name="variant_attribute_value_list",
+    ),
+    path(
+        "attribute-values/create/",
+        views.variant_attribute_value_create,
+        name="variant_attribute_value_create",
+    ),
+    path(
+        "attribute-values/<int:pk>/update/",
+        views.variant_attribute_value_update,
+        name="variant_attribute_value_update",
+    ),
+    path(
+        "attribute-values/<int:pk>/delete/",
+        views.variant_attribute_value_delete,
+        name="variant_attribute_value_delete",
+    ),
     # Inventory transfer URLs
     path("transfers/", views.inventory_transfer_list, name="inventory_transfer_list"),
-    path("transfers/create/", views.inventory_transfer_create, name="inventory_transfer_create"),
-    path("transfers/<int:pk>/", views.inventory_transfer_detail, name="inventory_transfer_detail"),
-    path("transfers/<int:pk>/update/", views.inventory_transfer_update, name="inventory_transfer_update"),
-    path("transfers/<int:pk>/complete/", views.inventory_transfer_complete, name="inventory_transfer_complete"),
-    path("transfers/<int:pk>/cancel/", views.inventory_transfer_cancel, name="inventory_transfer_cancel"),
-    
+    path(
+        "transfers/create/",
+        views.inventory_transfer_create,
+        name="inventory_transfer_create",
+    ),
+    path(
+        "transfers/<int:pk>/",
+        views.inventory_transfer_detail,
+        name="inventory_transfer_detail",
+    ),
+    path(
+        "transfers/<int:pk>/update/",
+        views.inventory_transfer_update,
+        name="inventory_transfer_update",
+    ),
+    path(
+        "transfers/<int:pk>/complete/",
+        views.inventory_transfer_complete,
+        name="inventory_transfer_complete",
+    ),
+    path(
+        "transfers/<int:pk>/cancel/",
+        views.inventory_transfer_cancel,
+        name="inventory_transfer_cancel",
+    ),
     path("categories/", views.category_list, name="category_list"),
     path("categories/create/", views.category_create, name="category_create"),
     path("categories/<int:pk>/update/", views.category_update, name="category_update"),

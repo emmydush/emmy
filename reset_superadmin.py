@@ -12,19 +12,20 @@ import django
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Set up Django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'inventory_management.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "inventory_management.settings")
 django.setup()
 
 from authentication.models import User
 
-def reset_superadmin_password(username='admin', new_password='admin123'):
+
+def reset_superadmin_password(username="admin", new_password="admin123"):
     """
     Reset the password for a superadmin user
-    
+
     Args:
         username (str): Username of the superadmin user
         new_password (str): New password to set
-    
+
     Returns:
         bool: True if successful, False otherwise
     """
@@ -41,14 +42,15 @@ def reset_superadmin_password(username='admin', new_password='admin123'):
         print(f"Error resetting password: {e}")
         return False
 
+
 if __name__ == "__main__":
     # You can modify these values as needed
     USERNAME = "admin"
     NEW_PASSWORD = "admin123"
-    
+
     print("Resetting superadmin password...")
     success = reset_superadmin_password(USERNAME, NEW_PASSWORD)
-    
+
     if success:
         print("Password reset completed successfully!")
         print(f"Username: {USERNAME}")

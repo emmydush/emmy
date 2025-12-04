@@ -7,14 +7,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('settings', '0002_auditlog_business'),
-        ('superadmin', '0002_branchrequest'),
+        ("settings", "0002_auditlog_business"),
+        ("superadmin", "0002_branchrequest"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='businesssettings',
-            name='business',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='settings', to='superadmin.business'),
+            model_name="businesssettings",
+            name="business",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="settings",
+                to="superadmin.business",
+            ),
         ),
     ]

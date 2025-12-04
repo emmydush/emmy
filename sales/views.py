@@ -170,7 +170,7 @@ def pos_view(request):
 
     # Try to get business-specific settings first
     business_settings = None
-    
+
     # Try to get current business from session
     business_id = request.session.get("current_business_id")
     if business_id:
@@ -184,7 +184,7 @@ def pos_view(request):
                 business_settings = BusinessSettings.objects.create(business=business)
         except Business.DoesNotExist:
             pass
-    
+
     # If no business-specific settings, fall back to global settings
     if not business_settings:
         try:
@@ -459,18 +459,14 @@ def process_pos_sale(request):
             if not customer_id:
                 logger.error("Credit sale requires a customer")
                 return JsonResponse(
-                    {
-                        "error": "Credit sales require selecting a customer."
-                    },
+                    {"error": "Credit sales require selecting a customer."},
                     status=400,
                 )
-            
+
             if not due_date:
                 logger.error("Credit sale requires a due date")
                 return JsonResponse(
-                    {
-                        "error": "Credit sales require specifying a due date."
-                    },
+                    {"error": "Credit sales require specifying a due date."},
                     status=400,
                 )
 
@@ -527,7 +523,9 @@ def process_pos_sale(request):
                 try:
                     if is_variant:
                         # Handle product variant
-                        product = ProductVariant.objects.business_specific().get(pk=product_id)
+                        product = ProductVariant.objects.business_specific().get(
+                            pk=product_id
+                        )
                         product_name = product.name
                         product_quantity = float(product.quantity)
                         product_unit_symbol = product.product.unit.symbol
@@ -539,7 +537,9 @@ def process_pos_sale(request):
                         product_unit_symbol = product.unit.symbol
                     logger.info(f"Product/Variant found: {product}")
                 except (Product.DoesNotExist, ProductVariant.DoesNotExist):
-                    logger.error(f"Product/Variant {product_id} not found in current business")
+                    logger.error(
+                        f"Product/Variant {product_id} not found in current business"
+                    )
                     return JsonResponse(
                         {
                             "error": f'Product not found: {item.get("name", "Unknown product")}. Please refresh and try again.'
@@ -561,13 +561,15 @@ def process_pos_sale(request):
                 try:
                     sale_item = SaleItem.objects.create(  # type: ignore
                         sale=sale,
-                        product=product if not is_variant else product.product,  # Use the parent product for regular products, or the parent product of the variant
+                        product=(
+                            product if not is_variant else product.product
+                        ),  # Use the parent product for regular products, or the parent product of the variant
                         quantity=quantity,
                         unit_price=price,
                         total_price=total_price,
                         business=current_business,  # Set business context for multi-tenancy
                         is_product_variant=is_variant,
-                        product_variant=product if is_variant else None
+                        product_variant=product if is_variant else None,
                     )
                     logger.info(f"Sale item created: {sale_item}")
                 except Exception as e:
@@ -584,21 +586,23 @@ def process_pos_sale(request):
                 try:
                     # Convert due_date string to date object
                     from datetime import datetime
+
                     due_date_obj = datetime.strptime(due_date, "%Y-%m-%d").date()
-                    
+
                     # Create credit sale record
                     credit_sale = CreditSale.objects.create(
                         business=current_business,
                         customer=customer,
                         sale=sale,
                         total_amount=total_amount,
-                        due_date=due_date_obj
+                        due_date=due_date_obj,
                     )
                     logger.info(f"Credit sale created with ID: {credit_sale.pk}")
                 except Exception as e:
                     logger.error(f"Error creating credit sale: {str(e)}")
                     return JsonResponse(
-                        {"error": f"Error creating credit sale record: {str(e)}"}, status=500
+                        {"error": f"Error creating credit sale record: {str(e)}"},
+                        status=500,
                     )
 
         logger.info(f"=== SALE PROCESSED SUCCESSFULLY! Sale ID: {sale.pk} ===")
@@ -639,7 +643,7 @@ def get_product_details(request, product_id):
             "unit": product.unit.symbol,
             "has_variants": product.has_variants,
         }
-        
+
         # If product has variants, include variant information
         if product.has_variants:
             variants = product.variants.filter(is_active=True)
@@ -653,7 +657,7 @@ def get_product_details(request, product_id):
                 }
                 for variant in variants
             ]
-        
+
         return JsonResponse(data)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
@@ -662,7 +666,9 @@ def get_product_details(request, product_id):
 def get_product_variant_details(request, variant_id):
     """AJAX view to get product variant details for POS"""
     try:
-        variant = get_object_or_404(ProductVariant.objects.business_specific(), pk=variant_id)
+        variant = get_object_or_404(
+            ProductVariant.objects.business_specific(), pk=variant_id
+        )
         data = {
             "id": variant.pk,
             "name": variant.name,
@@ -724,15 +730,17 @@ def credit_sales_list(request):
     ):
         messages.error(request, "You do not have permission to view credit sales.")
         return redirect("dashboard:index")
-    
+
     # Get credit sales with related data
-    credit_sales = CreditSale.objects.business_specific().select_related(
-        "customer", "sale"
-    ).prefetch_related("payments")
-    
-    return render(request, "sales/credit_sales_list.html", {
-        "credit_sales": credit_sales
-    })
+    credit_sales = (
+        CreditSale.objects.business_specific()
+        .select_related("customer", "sale")
+        .prefetch_related("payments")
+    )
+
+    return render(
+        request, "sales/credit_sales_list.html", {"credit_sales": credit_sales}
+    )
 
 
 @login_required
@@ -744,7 +752,7 @@ def credit_sale_create(request):
     ):
         messages.error(request, "You do not have permission to create credit sales.")
         return redirect("sales:credit_sales_list")
-    
+
     if request.method == "POST":
         form = CreditSaleForm(request.POST)
         if form.is_valid():
@@ -757,11 +765,11 @@ def credit_sale_create(request):
                     )
                 except Business.DoesNotExist:
                     pass
-            
+
             if not current_business:
                 messages.error(request, "No business context found.")
                 return redirect("sales:credit_sales_list")
-            
+
             # Save the credit sale with business context
             credit_sale = form.save(commit=False)
             credit_sale.business = current_business
@@ -769,46 +777,45 @@ def credit_sale_create(request):
             # For now, we'll set it to 0 and update it when the sale is processed
             credit_sale.total_amount = 0
             credit_sale.save()
-            
+
             messages.success(request, "Credit sale created successfully!")
             return redirect("sales:credit_sale_detail", pk=credit_sale.pk)
     else:
         form = CreditSaleForm()
-    
-    return render(request, "sales/credit_sale_form.html", {
-        "form": form, 
-        "title": "Create Credit Sale"
-    })
+
+    return render(
+        request,
+        "sales/credit_sale_form.html",
+        {"form": form, "title": "Create Credit Sale"},
+    )
 
 
 @login_required
 def credit_sale_detail(request, pk):
     """View details of a specific credit sale"""
     credit_sale = get_object_or_404(
-        CreditSale.objects.business_specific().select_related("customer", "sale"),
-        pk=pk
+        CreditSale.objects.business_specific().select_related("customer", "sale"), pk=pk
     )
-    
-    return render(request, "sales/credit_sale_detail.html", {
-        "credit_sale": credit_sale
-    })
+
+    return render(
+        request, "sales/credit_sale_detail.html", {"credit_sale": credit_sale}
+    )
 
 
 @login_required
 def credit_payment_create(request, credit_sale_pk):
     """Add a payment to a credit sale"""
     credit_sale = get_object_or_404(
-        CreditSale.objects.business_specific(),
-        pk=credit_sale_pk
+        CreditSale.objects.business_specific(), pk=credit_sale_pk
     )
-    
+
     # Account owners have access to everything
     if request.user.role != "admin" and not check_user_permission(
         request.user, "can_create"
     ):
         messages.error(request, "You do not have permission to add payments.")
         return redirect("sales:credit_sale_detail", pk=credit_sale.pk)
-    
+
     if request.method == "POST":
         form = CreditPaymentForm(request.POST)
         if form.is_valid():
@@ -821,29 +828,29 @@ def credit_payment_create(request, credit_sale_pk):
                     )
                 except Business.DoesNotExist:
                     pass
-            
+
             if not current_business:
                 messages.error(request, "No business context found.")
                 return redirect("sales:credit_sale_detail", pk=credit_sale.pk)
-            
+
             # Save the payment with business context
             payment = form.save(commit=False)
             payment.credit_sale = credit_sale
             payment.business = current_business
             payment.save()
-            
+
             messages.success(request, "Payment recorded successfully!")
             return redirect("sales:credit_sale_detail", pk=credit_sale.pk)
     else:
         # Pre-populate the form with the maximum allowable payment amount
         max_amount = credit_sale.outstanding_balance
         form = CreditPaymentForm(initial={"amount": max_amount})
-    
-    return render(request, "sales/credit_payment_form.html", {
-        "form": form,
-        "credit_sale": credit_sale,
-        "title": "Record Payment"
-    })
+
+    return render(
+        request,
+        "sales/credit_payment_form.html",
+        {"form": form, "credit_sale": credit_sale, "title": "Record Payment"},
+    )
 
 
 @login_required
@@ -855,16 +862,16 @@ def overdue_credit_sales(request):
     ):
         messages.error(request, "You do not have permission to view credit sales.")
         return redirect("dashboard:index")
-    
+
     # Get overdue credit sales (due date has passed and not fully paid)
     today = date.today()
-    overdue_sales = CreditSale.objects.business_specific().select_related(
-        "customer", "sale"
-    ).prefetch_related("payments").filter(
-        due_date__lt=today,
-        is_fully_paid=False
+    overdue_sales = (
+        CreditSale.objects.business_specific()
+        .select_related("customer", "sale")
+        .prefetch_related("payments")
+        .filter(due_date__lt=today, is_fully_paid=False)
     )
-    
-    return render(request, "sales/overdue_credit_sales.html", {
-        "overdue_sales": overdue_sales
-    })
+
+    return render(
+        request, "sales/overdue_credit_sales.html", {"overdue_sales": overdue_sales}
+    )

@@ -6,78 +6,106 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('superadmin', '0003_announcement_target_businesses'),
+        ("superadmin", "0003_announcement_target_businesses"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='subscriptionplan',
-            name='can_access_customers',
-            field=models.BooleanField(default=True, help_text='Allow access to customer management'),
+            model_name="subscriptionplan",
+            name="can_access_customers",
+            field=models.BooleanField(
+                default=True, help_text="Allow access to customer management"
+            ),
         ),
         migrations.AddField(
-            model_name='subscriptionplan',
-            name='can_access_expenses',
-            field=models.BooleanField(default=True, help_text='Allow access to expense tracking'),
+            model_name="subscriptionplan",
+            name="can_access_expenses",
+            field=models.BooleanField(
+                default=True, help_text="Allow access to expense tracking"
+            ),
         ),
         migrations.AddField(
-            model_name='subscriptionplan',
-            name='can_access_products',
-            field=models.BooleanField(default=True, help_text='Allow access to product management'),
+            model_name="subscriptionplan",
+            name="can_access_products",
+            field=models.BooleanField(
+                default=True, help_text="Allow access to product management"
+            ),
         ),
         migrations.AddField(
-            model_name='subscriptionplan',
-            name='can_access_purchases',
-            field=models.BooleanField(default=True, help_text='Allow access to purchase management'),
+            model_name="subscriptionplan",
+            name="can_access_purchases",
+            field=models.BooleanField(
+                default=True, help_text="Allow access to purchase management"
+            ),
         ),
         migrations.AddField(
-            model_name='subscriptionplan',
-            name='can_access_reports',
-            field=models.BooleanField(default=True, help_text='Allow access to reporting features'),
+            model_name="subscriptionplan",
+            name="can_access_reports",
+            field=models.BooleanField(
+                default=True, help_text="Allow access to reporting features"
+            ),
         ),
         migrations.AddField(
-            model_name='subscriptionplan',
-            name='can_access_sales',
-            field=models.BooleanField(default=True, help_text='Allow access to sales management'),
+            model_name="subscriptionplan",
+            name="can_access_sales",
+            field=models.BooleanField(
+                default=True, help_text="Allow access to sales management"
+            ),
         ),
         migrations.AddField(
-            model_name='subscriptionplan',
-            name='can_access_settings',
-            field=models.BooleanField(default=False, help_text='Allow access to system settings'),
+            model_name="subscriptionplan",
+            name="can_access_settings",
+            field=models.BooleanField(
+                default=False, help_text="Allow access to system settings"
+            ),
         ),
         migrations.AddField(
-            model_name='subscriptionplan',
-            name='can_access_suppliers',
-            field=models.BooleanField(default=True, help_text='Allow access to supplier management'),
+            model_name="subscriptionplan",
+            name="can_access_suppliers",
+            field=models.BooleanField(
+                default=True, help_text="Allow access to supplier management"
+            ),
         ),
         migrations.AddField(
-            model_name='subscriptionplan',
-            name='can_use_advanced_reports',
-            field=models.BooleanField(default=False, help_text='Allow access to advanced reporting'),
+            model_name="subscriptionplan",
+            name="can_use_advanced_reports",
+            field=models.BooleanField(
+                default=False, help_text="Allow access to advanced reporting"
+            ),
         ),
         migrations.AddField(
-            model_name='subscriptionplan',
-            name='can_use_api',
-            field=models.BooleanField(default=False, help_text='Allow access to API endpoints'),
+            model_name="subscriptionplan",
+            name="can_use_api",
+            field=models.BooleanField(
+                default=False, help_text="Allow access to API endpoints"
+            ),
         ),
         migrations.AddField(
-            model_name='subscriptionplan',
-            name='can_use_barcode_scanning',
-            field=models.BooleanField(default=True, help_text='Allow barcode scanning features'),
+            model_name="subscriptionplan",
+            name="can_use_barcode_scanning",
+            field=models.BooleanField(
+                default=True, help_text="Allow barcode scanning features"
+            ),
         ),
         migrations.AddField(
-            model_name='subscriptionplan',
-            name='can_use_bulk_import',
-            field=models.BooleanField(default=False, help_text='Allow bulk import of data'),
+            model_name="subscriptionplan",
+            name="can_use_bulk_import",
+            field=models.BooleanField(
+                default=False, help_text="Allow bulk import of data"
+            ),
         ),
         migrations.AddField(
-            model_name='subscriptionplan',
-            name='can_use_expiry_tracking',
-            field=models.BooleanField(default=True, help_text='Allow expiry date tracking'),
+            model_name="subscriptionplan",
+            name="can_use_expiry_tracking",
+            field=models.BooleanField(
+                default=True, help_text="Allow expiry date tracking"
+            ),
         ),
         migrations.AddField(
-            model_name='subscriptionplan',
-            name='can_use_inventory_tracking',
-            field=models.BooleanField(default=True, help_text='Allow inventory tracking features'),
+            model_name="subscriptionplan",
+            name="can_use_inventory_tracking",
+            field=models.BooleanField(
+                default=True, help_text="Allow inventory tracking features"
+            ),
         ),
     ]

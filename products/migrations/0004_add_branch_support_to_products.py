@@ -7,19 +7,31 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('products', '0003_product_has_variants'),
-        ('superadmin', '0001_initial'),
+        ("products", "0003_product_has_variants"),
+        ("superadmin", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='branch',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='products', to='superadmin.branch'),
+            model_name="product",
+            name="branch",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="products",
+                to="superadmin.branch",
+            ),
         ),
         migrations.AddField(
-            model_name='productvariant',
-            name='branch',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='product_variants', to='superadmin.branch'),
+            model_name="productvariant",
+            name="branch",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="product_variants",
+                to="superadmin.branch",
+            ),
         ),
     ]
