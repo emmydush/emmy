@@ -173,8 +173,8 @@
                 </div>
             </div>
             
-            <!-- Welcome Message Section -->
-            <div class="col-md-6 d-flex align-items-center justify-content-center p-4" 
+            <!-- Welcome Message Section - Hidden on mobile -->
+            <div class="col-md-6 d-none d-md-flex align-items-center justify-content-center p-4" 
                  style="background: linear-gradient(135deg, rgba(10, 25, 47, 0.9) 0%, rgba(2, 12, 27, 0.95) 100%); border-left: 1px solid rgba(45, 74, 124, 0.5);">
                 <div class="text-center text-white">
                     <div class="mb-4">
@@ -259,6 +259,57 @@
     
     .password-toggle:hover {
         background: rgba(0, 212, 255, 0.2) !important;
+    }
+    
+    /* Mobile responsiveness improvements */
+    @media (max-width: 767.98px) {
+        .card-body {
+            padding: 1.5rem !important;
+        }
+        
+        .form-control, .form-select {
+            font-size: 1rem;
+            padding: 0.75rem 1rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+        }
+        
+        h2.h4 {
+            font-size: 1.25rem;
+        }
+        
+        .small, small {
+            font-size: 0.875rem;
+        }
+        
+        /* Adjust social media icons for mobile */
+        .rounded-circle {
+            width: 36px !important;
+            height: 36px !important;
+        }
+        
+        .gap-3 {
+            gap: 1rem !important;
+        }
+    }
+    
+    @media (max-width: 575.98px) {
+        .card {
+            margin: 0.5rem !important;
+        }
+        
+        .form-label {
+            font-size: 0.9rem;
+        }
+        
+        /* Further adjust social media icons for small screens */
+        .rounded-circle {
+            width: 32px !important;
+            height: 32px !important;
+        }
     }
 </style>
 

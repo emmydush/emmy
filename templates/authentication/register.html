@@ -31,6 +31,63 @@
         font-weight: 500;
         letter-spacing: 0.3px;
     }
+    
+    /* Mobile responsiveness improvements */
+    @media (max-width: 767.98px) {
+        .card-body {
+            padding: 1.5rem !important;
+        }
+        
+        .form-control, .form-select {
+            font-size: 1rem;
+            padding: 0.75rem 1rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+        }
+        
+        h2.h4 {
+            font-size: 1.25rem;
+        }
+        
+        .small, small {
+            font-size: 0.875rem;
+        }
+        
+        /* Adjust social media icons for mobile */
+        .rounded-circle {
+            width: 36px !important;
+            height: 36px !important;
+        }
+        
+        .gap-3 {
+            gap: 1rem !important;
+        }
+        
+        /* Adjust form columns for mobile */
+        .row .col-md-6 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+    }
+    
+    @media (max-width: 575.98px) {
+        .card {
+            margin: 0.5rem !important;
+        }
+        
+        .form-label {
+            font-size: 0.9rem;
+        }
+        
+        /* Further adjust social media icons for small screens */
+        .rounded-circle {
+            width: 32px !important;
+            height: 32px !important;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -97,14 +154,14 @@
 
 <!-- Registration Form Container -->
 <div class="container d-flex align-items-center justify-content-center" style="min-height: calc(100vh - 120px); background: linear-gradient(135deg, #0a192f 0%, #020c1b 100%);">
-    <div class="card shadow-lg rounded-4 border-0" style="width: 100%; max-width: 500px; background: rgba(16, 42, 67, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(45, 74, 124, 0.5);">
+    <div class="card shadow-lg rounded-4 border-0 w-100 mx-3 mx-md-auto" style="max-width: 500px; background: rgba(16, 42, 67, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(45, 74, 124, 0.5);">
         <div class="card-body p-4">
             <h2 class="fw-bold mb-4 h4 text-center" style="color: #ffffff; letter-spacing: 0.5px;"><i class="fas fa-user-plus me-2"></i>{% trans "Create Account" %}</h2>
             
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3 mb-md-0">
                         <div class="mb-3">
                             <label for="{{ form.first_name.id_for_label }}" class="form-label small fw-medium" style="color: #cbd5e1; letter-spacing: 0.3px;">
                                 <i class="fas fa-user me-1"></i>{% trans "First Name" %}
@@ -157,7 +214,7 @@
                 </div>
                 
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3 mb-md-0">
                         <div class="mb-3">
                             <label for="{{ form.password1.id_for_label }}" class="form-label small fw-medium" style="color: #cbd5e1; letter-spacing: 0.3px;">
                                 <i class="fas fa-lock me-1"></i>{% trans "Password" %}
