@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash, authenticate, login
 from django.contrib.auth.forms import PasswordChangeForm, AuthenticationForm
 from django.db import transaction
-from django.views.decorators.http import require_POST, require_http_methods
+from django.views.decorators.http import require_POST
 from django.utils import translation
 from django.http import HttpResponseRedirect
 from django.conf import settings
@@ -70,7 +70,7 @@ def profile(request):
 
 
 @login_required
-@require_http_methods(["POST"])
+@require_POST
 def set_user_language(request):
     """
     Set the user's preferred language.
