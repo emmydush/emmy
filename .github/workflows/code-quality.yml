@@ -35,7 +35,7 @@ jobs:
 
     - name: Check code formatting with Black
       run: |
-        black --check --exclude 'venv_new|new_venv' .
+        black --check --exclude 'venv_new|new_venv|inventory_management/local_settings.py' .
 
   security:
     runs-on: ubuntu-latest
